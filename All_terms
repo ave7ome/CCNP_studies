@@ -1,0 +1,14 @@
+All terms and points are covered here in a way I understood it.
+
+CEF
+CAM
+TCAM
+FIB
+RIB
+AIB
+RP (route processor)
+SSO (stateful switchover)
+
+------------
+STP (802.1D) - an L2 protocol that allows switches to see each other and build a topology
+
