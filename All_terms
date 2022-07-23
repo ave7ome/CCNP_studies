@@ -10,5 +10,13 @@ RP (route processor)
 SSO (stateful switchover)
 
 ------------
-STP (802.1D) - an L2 protocol that allows switches to see each other and build a topology
+STP (802.1D) - protocol that allows switches to become aware of other switches through advertising and receiving of BPDUs. Also build loop-free topology
+BPDU - Bridge Protocol Data Unit
 
+STP port states:
+Disabled - Port is admin down
+Blocking - Port cannot forward network traffic. Can receive BPDUs
+Listening - Can't forward network traffic. Can receive and forward BPDUs
+Learning - Can't forward network traffic. Can receive and send BPDUs and alter MAC address table based on received network traffic 
+Forwarding - Port operates as usual
+Broken - Port discards packets while issue exists
