@@ -4,13 +4,13 @@ https://linkmeup.gitbook.io/sdsm/0.-planirovanie
 
 CEF
 Process Switching
-https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching
+https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
 
 CAM
 TCAM
 FIB
 RIB
-AIB
+Adjacency table
 RP (route processor)
 SSO (stateful switchover)
 
