@@ -2,6 +2,12 @@ All terms and points are covered here in a way I understood it.
 
 https://linkmeup.gitbook.io/sdsm/0.-planirovanie
 
+Tier 2 network - Access and Distribution layer
+Tier 3 network - Access, Distribution and Core layer
+Access layer - devices, L2 switches
+Distribution layer - SVIs, East-West traffic, sometimes L3 interfaces
+Core layer - high-speed, high-convergence, high-throughput, access to Internet
+
 CEF
 Process Switching
 https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
