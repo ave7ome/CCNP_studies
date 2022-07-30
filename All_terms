@@ -14,6 +14,23 @@ HSRP - Cisco proprietary VRRP implementation. 2+ gateways
 GLBP - Load balancing mechanism (Cisco proprietary). Similar to HSRP, but supports no less than 4 gateways
 SSO - mechanism that allows second CPU to take over the traffic and processing from other CPU in case of it's failure
 
+SD-WAN
+SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
+SD-WAN  is an SDN applier to devices related to WAN (edge router for example)
+
+SD-WAN  is separated into 4 planes (Orchestration, Management, Control and Data)
+Usually Control and Data plane are both living on same device.
+In case of SD-WAN (and SDN), controller is responsible for Control Plane (brain of network). Edge devices are responsible for Data plane (legs of network).
+
+Differences:
+WAN                                                             |   SD-WAN
+________________________________________________________________|__________________________________________________________________________
+Each device has own control plane                               |   Centralized control plane
+All configuration, upgrades and monitoring done on each box     |   Configuration, upgrades and monitoring done centralized
+Automation only through scripts                                 |   Automation can be done using API or scripts
+New installation done from scratch                              |   New installation can be done with help of ZTP (Zero-Touch Provisioning)
+
+
 CEF
 Process Switching
 https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
