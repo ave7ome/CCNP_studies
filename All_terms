@@ -2,20 +2,21 @@ All terms and points are covered here in a way I understood it.
 
 https://linkmeup.gitbook.io/sdsm/0.-planirovanie
 
+#                    Network Design
 Tier 2 network - Access and Distribution layer
 Tier 3 network - Access, Distribution and Core layer
 Access layer - devices, L2 switches
 Distribution layer - SVIs, East-West traffic, sometimes L3 interfaces
 Core layer - high-speed, high-convergence, high-throughput, access to Internet
 
-High availability (HA)
+#                    High availability (HA)
 VRRP - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all devices.
 HSRP - Cisco proprietary VRRP implementation. 2+ gateways
 GLBP - Load balancing mechanism (Cisco proprietary). Similar to HSRP, but supports no less than 4 gateways
 SSO - mechanism that allows second CPU to take over the traffic and processing from other CPU in case of it's failure
 VSS - stacking mechanism that allows two physical switches to be represented as a single virtual switch. Devices can be located in remote locations
 
-SD-WAN
+#                    SD-WAN
 SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
 SD-WAN  is an SDN applier to devices related to WAN (edge router for example)
 
@@ -31,7 +32,7 @@ All configuration, upgrades and monitoring done on each box     |   Configuratio
 Automation only through scripts                                 |   Automation can be done using API or scripts
 New installation done from scratch                              |   New installation can be done with help of ZTP (Zero-Touch Provisioning)
 
-SD-Access
+#                    SD-Access
 SDN applied to Access layer of network.
 
 SDN implementation and effect upon planes:
@@ -42,6 +43,15 @@ Fabric border device - Core
 Fabric intermediate device - Distribution
 Fabric edge device - Access
 
+#                    QoS (Quality of service)
+QoS - allows the manipulation of traffic (packets) in a way to prioritize some important data to be transfered with better confidions (sometimes be transferred at all - in case bandwidth of an interface is lower that the amount of traffic)
+
+QoS tools:
+Classification & Marking - used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. NBAR (Network-Based Application Recognition) exists which lets the classification to happen with more details (based on word, phrase or URL for example)
+Policing
+Shaping
+
+#                    Network device architecture
 CEF
 Process Switching
 https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
@@ -53,7 +63,8 @@ RIB
 Adjacency table
 RP (route processor)
 SSO (stateful switchover)
-------------
+
+#                    STP (Spanning-tree protocol)
 STP (802.1D) - protocol that allows switches to become aware of other switches through advertising and receiving of BPDUs. Also build loop-free topology
 BPDU - Bridge Protocol Data Unit
 
