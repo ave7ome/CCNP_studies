@@ -13,6 +13,7 @@ VRRP - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all 
 HSRP - Cisco proprietary VRRP implementation. 2+ gateways
 GLBP - Load balancing mechanism (Cisco proprietary). Similar to HSRP, but supports no less than 4 gateways
 SSO - mechanism that allows second CPU to take over the traffic and processing from other CPU in case of it's failure
+VSS - stacking mechanism that allows two physical switches to be represented as a single virtual switch. Devices can be located in remote locations
 
 SD-WAN
 SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
