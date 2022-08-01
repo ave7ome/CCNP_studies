@@ -30,6 +30,16 @@ All configuration, upgrades and monitoring done on each box     |   Configuratio
 Automation only through scripts                                 |   Automation can be done using API or scripts
 New installation done from scratch                              |   New installation can be done with help of ZTP (Zero-Touch Provisioning)
 
+SD-Access
+SDN applied to Access layer of network.
+
+SDN implementation and effect upon planes:
+Imperative approach - Only controller has control plane. In case devices loose connectivity to controller - they're dead since no decision can be made
+Declarative approach - Devices has their own control plane which replicate the state from controller. In case connectivity to controller is lost, devices can handle traffic on their own
+
+Fabric border device - Core
+Fabric intermediate device - Distribution
+Fabric edge device - Access
 
 CEF
 Process Switching
