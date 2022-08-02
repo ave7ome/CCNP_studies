@@ -47,9 +47,15 @@ Fabric edge device - Access
 QoS - allows the manipulation of traffic (packets) in a way to prioritize some important data to be transfered with better confidions (sometimes be transferred at all - in case bandwidth of an interface is lower that the amount of traffic)
 
 QoS tools:
-Classification & Marking - used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. NBAR (Network-Based Application Recognition) exists which lets the classification to happen with more details (based on word, phrase or URL for example)
-Policing
-Shaping
+1. Classification & Marking - used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. NBAR (Network-Based Application Recognition) exists which lets the classification to happen with more details (based on word, phrase or URL for example)
+2. Policing - used on ingress interface (provide edge interface facing customer edge device) to drop all the traffic that exceeds the configured policing bandwidth. Can be configured for different types of traffic (TCP, UDP, DNS, other apps.)
+3. Shaping - used on egress interface to create queues (queueing) which allows traffic that exceeds the configured bandwidth to be sent later, whenever the circuit is less busy. 
+4. Queueing - used on egress interface to divide egress queue on sub-queues
+5. Scheduling - used to empty the sub-queues in a certain way.
+
+Congestion management - a set of tools (egress interface) that manages happened congestion. WFQ, CBWFQ, PQ, LLQ, WRR, SRR, Shaping.
+Congestion avoidance - a set of tools (ingress interface) that prevents congestions from happening. RED, WRED, WTD, Policing.
+
 
 #                    Network device architecture
 CEF
