@@ -47,7 +47,8 @@ Fabric edge device - Access
 QoS - allows the manipulation of traffic (packets) in a way to prioritize some important data to be transfered with better confidions (sometimes be transferred at all - in case bandwidth of an interface is lower that the amount of traffic)
 
 QoS tools:
-1. Classification & Marking - used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. NBAR (Network-Based Application Recognition) exists which lets the classification to happen with more details (based on word, phrase or URL for example)
+1. Classification & Marking - used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. 
+    NBAR (Network-Based Application Recognition) exists which lets the classification to happen with more details (based on word, phrase or URL for example)
 2. Policing - used on ingress interface (provide edge interface facing customer edge device) to drop all the traffic that exceeds the configured policing bandwidth. Can be configured for different types of traffic (TCP, UDP, DNS, other apps.)
 3. Shaping - used on egress interface to create queues (queueing) which allows traffic that exceeds the configured bandwidth to be sent later, whenever the circuit is less busy. 
 4. Queueing - used on egress interface to divide egress queue on sub-queues
@@ -56,6 +57,25 @@ QoS tools:
 Congestion management - a set of tools (egress interface) that manages happened congestion. WFQ, CBWFQ, PQ, LLQ, WRR, SRR, Shaping.
 Congestion avoidance - a set of tools (ingress interface) that prevents congestions from happening. RED, WRED, WTD, Policing.
 
+QoS application in Network:
+Integrated services - unified settings on all the routers on the way. Uses RSVP (Resource Reservation Protocol).
+Differentiated services - each router has it's own settings. Uses PHB (Per-Hop Behaviour).
+
+QoS Policies
+Before all QoS settings had to be applied to interfaces.
+Now QoS settings are applied globally. Interfaces are used to display the direction of traffic for QoS to be applied.
+
+MQS (Modular QoS Command-Line):
+QoS applied globally.
+Allows for different QoS tools to be applied to different interfaces.
+3 components:
+  Class-map - used to match certain type of traffic and classify it
+  Policy-map - used to match certain traffic classified by class-maps. To initiate the use of class-maps
+  Service-policy - used to apply a policy-map to interface. Inbound/Outbound.
+  
+1. Traffic from 10.0.0.1 to 10.255.1.1 is matched and classified by class-map.
+2. Policy-map initiates the class-map and makes the classified traffic to follow the specified rules. Apply policing for all the traffic from 10.0.0.1 to 10.255.1.1 (from gi0/1 to gi0/3) to prevent it from congesting the interface gi0/1.
+3. Apply service-policy to interface gi0/1 (inbound) and interface gi0/3 (outbout) to use the above rules for this traffic.
 
 #                    Network device architecture
 CEF
