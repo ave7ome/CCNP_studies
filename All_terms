@@ -97,6 +97,7 @@ TCAM
 RP (route processor)
 
 #                    STP (Spanning-tree protocol)
+https://linkmeup.ru/podcasts/977/
 STP (802.1D) - protocol that allows switches to become aware of other switches through advertising and receiving of BPDUs. Also build loop-free topology
 BPDU - Bridge Protocol Data Unit
 
