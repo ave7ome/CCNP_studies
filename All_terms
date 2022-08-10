@@ -92,8 +92,8 @@ Adjacency table - an L2 information with MAC-addresses for packet to be reincaps
 
 https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
 
-CAM
-TCAM
+CAM - located in a RAM. Contains the information about MAC addresses of devices in subnets. MACs are represented as MAC-addrrss table. Can only be used by switches
+TCAM - located in RAM. Contains IP-addresses and subnet masks. Provides as assistance with decision of best path based on longest match (/30 mask is longer match than /24). Subnets and masks are represented as Routing table. Can be used by routers and multilayer switches.
 RP (route processor)
 
 #                    STP (Spanning-tree protocol)
