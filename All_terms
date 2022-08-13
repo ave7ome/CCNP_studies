@@ -96,6 +96,12 @@ CAM - located in a RAM. Contains the information about MAC addresses of devices 
 TCAM - located in RAM. Contains IP-addresses and subnet masks. Provides as assistance with decision of best path based on longest match (/30 mask is longer match than /24). Subnets and masks are represented as Routing table. Can be used by routers and multilayer switches.
 RP (route processor)
 
+#                    Virtualization
+Hypervisor - a utility that allows management and provides visibility of Guest OSes (VMs)
+Type 1 hypervisor - a hypervisor that is installed directly on Hardware (HW --- Hypervisor --- VMs)
+Type 2 hypervisor - a hypervisor that is installed on some OS like Microsoft Windows (HW --- OS --- Hypervisor --- VMS)
+
+
 #                    STP (Spanning-tree protocol)
 https://linkmeup.ru/podcasts/977/
 STP (802.1D) - protocol that allows switches to become aware of other switches through advertising and receiving of BPDUs. Also build loop-free topology
