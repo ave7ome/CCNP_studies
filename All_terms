@@ -101,6 +101,10 @@ Hypervisor - a utility that allows management and provides visibility of Guest O
 Type 1 hypervisor - a hypervisor that is installed directly on Hardware (HW --- Hypervisor --- VMs)
 Type 2 hypervisor - a hypervisor that is installed on some OS like Microsoft Windows (HW --- OS --- Hypervisor --- VMS)
 
+Virtual Switch (vSwitch) - literally a virtual switch  that connects it's virtual interfaces (ports) to VNICs distributed to running VMs. 
+vSwitch can distiribute certain connected devices to their own broadcast domains ("VLANs"), this function is represented by port-groups.
+Virtual Switches exist on type1 Hypervisors by default (ESXi vSwitch, Microsoft Hyper-V)
+
 
 #                    STP (Spanning-tree protocol)
 https://linkmeup.ru/podcasts/977/
