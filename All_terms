@@ -97,6 +97,7 @@ TCAM - located in RAM. Contains IP-addresses and subnet masks. Provides as assis
 RP (route processor)
 
 #                    Virtualization
+#        ENDPOINT VIRTUALIZATION 
 Hypervisor - a utility that allows management and provides visibility of Guest OSes (VMs)
 Type 1 hypervisor - a hypervisor that is installed directly on Hardware (HW --- Hypervisor --- VMs)
 Type 2 hypervisor - a hypervisor that is installed on some OS like Microsoft Windows (HW --- OS --- Hypervisor --- VMS)
@@ -104,6 +105,13 @@ Type 2 hypervisor - a hypervisor that is installed on some OS like Microsoft Win
 Virtual Switch (vSwitch) - literally a virtual switch  that connects it's virtual interfaces (ports) to VNICs distributed to running VMs. 
 vSwitch can distiribute certain connected devices to their own broadcast domains ("VLANs"), this function is represented by port-groups.
 Virtual Switches exist on type1 Hypervisors by default (ESXi vSwitch, Microsoft Hyper-V)
+
+#        DATA PATH VIRTUALIZATION
+VRF - A technology that allows router (or Multilayer device) to logically be divided into few other routers.
+Each VRF will have their own routing table (for example that allows few similar subnets to be defined and reachable.
+Usually used in ISP networks therefore requires ISP networks (MPLS, VPN, L3VPN, BGP).
+
+VRF-Lite - an Enterprise solution that allows routing to be done through common routing protocols (OSPF, EIGRP). No extra VPN protocols required.
 
 
 #                    STP (Spanning-tree protocol)
