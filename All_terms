@@ -6,8 +6,17 @@ https://linkmeup.gitbook.io/sdsm/0.-planirovanie
 Tier 2 network - Access and Distribution layer
 Tier 3 network - Access, Distribution and Core layer
 Access layer - devices, L2 switches
+    Port security - MACs, 802.1x;
+    QoS;
+    VLAN tagging.
 Distribution layer - SVIs, East-West traffic, sometimes L3 interfaces
+    SVIs;
+    FHRPs;
+    ACLs;
+    Routing protocols.
 Core layer - high-speed, high-convergence, high-throughput, access to Internet
+    RPs;
+    fast l3 switching
 
 #                    High availability (HA)
 VRRP - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all devices.
