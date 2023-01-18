@@ -5,6 +5,12 @@ https://linkmeup.gitbook.io/sdsm/0.-planirovanie
 #                    Network Design
 Tier 2 network - Access and Distribution layer
 Tier 3 network - Access, Distribution and Core layer
+Collapsed topology - can be collapsed in following ways:
+    Core-Distribution (2 modules), Distribution-Access (2 modules), Core-Distribution-Access (1 module)
+
+L2 Access layer:
+    STP have to be considered - links will be blocked (solution - PVST+ or assigning certain VLANs to certain links with no loops)
+
 Access layer - devices, L2 switches
     Port security - MACs, 802.1x;
     QoS;
