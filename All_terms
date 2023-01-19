@@ -10,6 +10,12 @@ Collapsed topology - can be collapsed in following ways:
 
 L2 Access layer:
     STP have to be considered - links will be blocked (solution - PVST+ or assigning certain VLANs to certain links with no loops)
+L3 Access layer:
+    Costs more money but STP and Loops are not an issue anymore. Also can't easily stretch the VLAN
+
+Modern techs to get rid of STP:
+    Chassis switches (prevents loops, and no single point of failure)
+    Stacking (prevents loops, and no single point of failure)
 
 Access layer - devices, L2 switches
     Port security - MACs, 802.1x;
@@ -23,6 +29,9 @@ Distribution layer - SVIs, East-West traffic, sometimes L3 interfaces
 Core layer - high-speed, high-convergence, high-throughput, access to Internet
     RPs;
     fast l3 switching
+
+DC new cool topology:
+    Spine-Leaf
 
 #                    High availability (HA)
 VRRP - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all devices.
