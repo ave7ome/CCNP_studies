@@ -35,10 +35,30 @@ DC new cool topology:
 
 #                    High availability (HA)
 FHRP:
-    VRRP - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all devices.
-    HSRP - Cisco proprietary VRRP implementation. 2+ gateways
-    After switches get assigned a virtual IP, also they receive a virtual MAC-address. After first ARP from client, primary switch responces to packet. Whenever it's down and there appears a new primary switch which takes over the virtual IP (virtual MAC as well), it sends a Gratuitous ARP to say "now i have that MAC"
-    GARP - An ARP response when there were to ARP request.
+VRRP - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all devices.
+HSRP - Cisco proprietary VRRP implementation. 2+ gateways
+    HSRP exchanges hello messages over the timers (3sec for HELLO, 10sec for HOLD)
+    HSRP authentication is recommended
+    HSRP priority (0-255). 100 is default. The bigger the better.
+    Each HSRP process requires an HSRP group
+    HSRPv1: 
+        256 HSRP groups; 
+        VMAC = 0000.0c07.ac** (256 different ones);
+        MulticastIP = 224.0.0.2
+    HSRPv2:
+        4096 HSRP groups;
+        VMAC = 0000.0c9f.f*** (4096 different ones);
+        MulticastIP = 224.0.0.102;
+        Millisecond timers are configurable.
+    HSRP on Nexus with VPC acts differently. Usually all the traffic goes to Active switch and in VPC scenario it'll have to go through standby sometimes. That's why in given scenario, Standby switch handles the packets just like active. But it's still standby if checked hsrp status on switches. But some requests (like ARP) will still go to Active and be responded from it.
+    
+After switches get assigned a virtual IP, also they receive a virtual MAC-address. After first ARP from client, primary switch responces to packet. Whenever it's down and there appears a new primary switch which takes over the virtual IP (virtual MAC as well), it sends a Gratuitous ARP to say "now i have that MAC"
+GARP - An ARP response when there were to ARP request.
+FHRP object tracking helps to change the VIP holder to another device in case of some event. Following can be tracked:
+    Route availability;
+    Line protocol of an interface;
+    Prefix reachability;
+    IP SLA.
 
 GLBP - Load balancing mechanism (Cisco proprietary). Similar to HSRP, but supports no less than 4 gateways
 SSO - mechanism that allows second CPU to take over the traffic and processing from other CPU in case of it's failure
