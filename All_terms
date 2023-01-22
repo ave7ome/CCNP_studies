@@ -87,6 +87,10 @@ GLBP - Load balancing mechanism (Cisco proprietary). Similar to HSRP, but suppor
     MulticastIP = 224.0.0.102 (like HSRPv2)
     
 SSO - mechanism that allows second CPU to take over the traffic and processing from other CPU in case of it's failure
+    Can be used if device has two Route processes (control planes) and one is going down
+NSF - Nonstop Forwarding. Allows data plane to send out packets to a neighbor even if it goes down control plane - wise.
+    NSF feature must be configured on both devices to be operable
+    Routes are being marked as Stale and will be exchanged once again when CP (control plane) goes up
 VSS - stacking mechanism that allows two physical switches to be represented as a single virtual switch. Devices can be located in remote locations
 
 #                    SD-WAN
