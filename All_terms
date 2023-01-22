@@ -64,6 +64,7 @@ HSRP - Cisco proprietary VRRP implementation. 2+ gateways
         MulticastIP = 224.0.0.102;
         Millisecond timers are configurable.
     HSRP on Nexus with VPC acts differently. Usually all the traffic goes to Active switch and in VPC scenario it'll have to go through standby sometimes. That's why in given scenario, Standby switch handles the packets just like active. But it's still standby if checked hsrp status on switches. But some requests (like ARP) will still go to Active and be responded from it.
+    It's a good idea to LB using HSRP by making one router primary for one VLAN and other router primary for other VLAN.
     
 After switches get assigned a virtual IP, also they receive a virtual MAC-address. After first ARP from client, primary switch responces to packet. Whenever it's down and there appears a new primary switch which takes over the virtual IP (virtual MAC as well), it sends a Gratuitous ARP to say "now i have that MAC"
 GARP - An ARP response when there were to ARP request.
