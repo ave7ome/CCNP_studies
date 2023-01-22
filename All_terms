@@ -34,7 +34,7 @@ DC new cool topology:
     Spine-Leaf
 
 #                    High availability (HA)
-FHRP:
+FHRP (VRRP, HSRP, GLBP):
 VRRP - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all devices.
     "Master" and "Backup" routers
     VRRP exchanges hello messages over the timers (defaults are 3sec for HELLO, 10sec for HOLD)
@@ -46,8 +46,9 @@ VRRP - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all 
     VMAC = 0000.5e00.01** (256 different ones)
     MulticastIP = 224.0.0.18
     VRRP on Nexus with VPC (in DC) acts same as HSRP
+
 HSRP - Cisco proprietary VRRP implementation. 2+ gateways
-    "Active" and "Standby" routers
+    "Active" and "Standby" routers. "Listen" as well
     HSRP exchanges hello messages over the timers (defaults are 3sec for HELLO, 10sec for HOLD)
     HSRP authentication is recommended (MD5)
     HSRP priority (0-255). 100 is default. The bigger the better.
@@ -73,6 +74,17 @@ FHRP object tracking helps to change the VIP holder to another device in case of
     IP SLA.
 
 GLBP - Load balancing mechanism (Cisco proprietary). Similar to HSRP, but supports no less than 4 gateways
+    "Active Virtual Gateway" (AVG) and "Active Virtual Forwarder" (AVF) states of router
+    Traffic from connected endpoints is being sent to one of AVFs (AVG is also an AVF) and by that, gets load-balanced
+    AVG is choosed based on priority
+    Can be load-balanced based on:
+        Round-robin
+        Weighted
+        Host-dependent (based on which host is sending the traffic)
+    Timers and authentication are present as well
+    VMAC = 0007.B40x.xxyy (x.xx is a Group ID, limited by 1024 different ones, since first "x" is 4 bits; yy is an AVF identifier which is "01-04", can be checkes by show glbp commands)
+    MulticastIP = 224.0.0.102 (like HSRPv2)
+    
 SSO - mechanism that allows second CPU to take over the traffic and processing from other CPU in case of it's failure
 VSS - stacking mechanism that allows two physical switches to be represented as a single virtual switch. Devices can be located in remote locations
 
