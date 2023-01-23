@@ -99,11 +99,17 @@ Comparison of basic Access devices (switches) to Autonomous access points:
     SVI (switched virtual interface)   ---    BVI (bridged virtual interface)
     VLAN                               ---    SSID
 
-Main issue for Autonomous deployment is low scalability. For Core deployments connected through L3, VLAN cannot be stretched reliably for clients to be able to move from one physical place to another and still be connected to same VLAN.
-Also it's difficult to configure a lot of device manually.
-Previously used to help configure a lot of devices. But there still were issues with pushing the config.
-WLSM (Wireless LAN Services Module) - EOS 
-WLSE (Wireless LAN Solution Engine) - EOS
+Autonomous design (old)
+    Main issue for Autonomous deployment is low scalability. For Core deployments connected through L3, VLAN cannot be stretched reliably for clients to be able to move from one physical place to another and still be connected to same VLAN.
+    Also it's difficult to configure a lot of device manually.
+    Previously used to help configure a lot of devices. But there still were issues with pushing the config.
+    WLSM (Wireless LAN Services Module) - EOS 
+    WLSE (Wireless LAN Solution Engine) - EOS
+
+Lightweight design (modern)
+    WLC (Wireless LAN Controller)
+    Access points are brainless and are used in conjunction with the controller (WLC). Once they're connected to network, they receive an IP through DHCP, retrieve Sotware image and configuration.
+    Clients are connected to APs. APs establish a data tunnel so clients are connected directly to WLC from L2 perspective.
 
 #                    SD-WAN
 SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
