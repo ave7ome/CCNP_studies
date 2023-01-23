@@ -93,6 +93,18 @@ NSF - Nonstop Forwarding. Allows data plane to send out packets to a neighbor ev
     Routes are being marked as Stale and will be exchanged once again when CP (control plane) goes up
 VSS - stacking mechanism that allows two physical switches to be represented as a single virtual switch. Devices can be located in remote locations
 
+
+#                    WLAN (wireless LAN) design
+Comparison of basic Access devices (switches) to Autonomous access points:
+    SVI (switched virtual interface)   ---    BVI (bridged virtual interface)
+    VLAN                               ---    SSID
+
+Main issue for Autonomous deployment is low scalability. For Core deployments connected through L3, VLAN cannot be stretched reliably for clients to be able to move from one physical place to another and still be connected to same VLAN.
+Also it's difficult to configure a lot of device manually.
+Previously used to help configure a lot of devices. But there still were issues with pushing the config.
+WLSM (Wireless LAN Services Module) - EOS 
+WLSE (Wireless LAN Solution Engine) - EOS
+
 #                    SD-WAN
 SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
 SD-WAN  is an SDN applier to devices related to WAN (edge router for example)
