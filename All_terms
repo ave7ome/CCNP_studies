@@ -144,8 +144,17 @@ Real Time Location Services (RTLS) - service that helps to understand where does
     Can be used with RFID tags to check the location of anything (wheelchair in hospital for example)
     Also if it leaves certain area, there can be an alert
     
-    Data is collected by WLC and APs by itself but an 
+    Data is collected by WLC and APs but a separate Software is required to gather and analyze the data
+        CPI
+        CMX
+        DNA Center (SDA)
+        DNA Spaces (SDA)
 
+    Accuracy. 
+        Basic: We can always tell which AP is device connected to.
+        Advanced: Triangulation. Assume there are 3 APs. A wireless device is in a reach of every AP (ex. -42 dBm, -59 dBm, -63 dBm). Every dBm level can be drawn as a circle around each AP. When 3 circles are drawn, there's just a single point where all of them interconnect. Like that location can be determined. But only in a free space without any walls.
+                  ***(have to clarify, too tired to write it down correctly) RF Fingerprinting. Technic of profiling the wireless coverage. Just walk around with wireless device around the block for APs to understand how it all look like logically.
+    
 #                    SD-WAN
 SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
 SD-WAN  is an SDN applier to devices related to WAN (edge router for example)
