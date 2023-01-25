@@ -124,7 +124,7 @@ WLC deployment design models
         Cons: No more L2 roam, but since it's a branch design it might not be needed.
     Cloud (Meraki) - Wireless controllers are located in the cloud. APs are installed on site and they transfer control plane traffic to the cloud. DP is going to upstream swtiches.
         Requirements: Cisco Meraki APs
-        Pros: No licensing issues (increased with the number of used APs), no need to manage controller Hardware
+        Pros: No licensing issues (increased with the number of used APs), no need to manage controller Hardware. Data traffic of wireless clients is passed to local switch instead of being tunneled to controller
         Cons: No L2 roam in case the Distribution switches (or access switches) are L3 interconnected 
 
 Wireless AP deployment and placement
