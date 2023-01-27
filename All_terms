@@ -199,6 +199,24 @@ Cloud Deployment Models
     Hybrid - a combination of both Public and Private cloud. Some apps might be published to public, some to hybrid, it can depend on the sensitivity of stored data.
     Community - a cloud environment created by two or more organizations for access for all of parties to a single common cloud of services
 
+Pros of certain models:
+    Private: 
+        Security (you can restrict access to the resources);
+        Data sovereignity (you own the data therefore it's yours only);
+        Lower cost when a lot of users.
+    Public:
+        Elasticity (you can grow the amount of resources whenever needed or shrink them);
+        Services (you can get some services that can't be obtained in Private model, like serverless computing);
+        Simplicity (just run servers and use).
+    Hybrid:
+        All pros of above models are included
+
+In Hybrid model, Cloud brokering is involved.
+Users (when spinning up an application) are going to cloud broker, Like Cisco Cloud Center. And then they can choose where to deploy their APP:
+    Private cloud;
+    Public cloud (AWS);
+    Public cloud (Azure);
+    Public cloud (GCP).
 
 #                    SD-WAN
 SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
