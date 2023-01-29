@@ -220,10 +220,11 @@ Users (when spinning up an application) are going to cloud broker, Like Cisco Cl
 
 #                    SD-WAN
 SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
-SD-WAN  is an SDN applier to devices related to WAN (edge router for example)
+Additionally SDN have an underlay and an overlay. And usually tunnels is used to make sure overlay works as intended
+SD-WAN  is an SDN applied to devices related to WAN (edge router for example)
 
 SD-WAN  is separated into 4 planes (Orchestration, Management, Control and Data)
-Usually Control and Data plane are both living on same device.
+In usual network, Control and Data plane are both living on same device.
 In case of SD-WAN (and SDN), controller is responsible for Control Plane (brain of network). Edge devices are responsible for Data plane (legs of network).
 
 Differences:
@@ -233,6 +234,15 @@ Each device has own control plane                               |   Centralized 
 All configuration, upgrades and monitoring done on each box     |   Configuration, upgrades and monitoring done centralized
 Automation only through scripts                                 |   Automation can be done using API or scripts
 New installation done from scratch                              |   New installation can be done with help of ZTP (Zero-Touch Provisioning)
+
+Cisco solution was initially iWAN (intelligent WAN) but that failed and they made a purchase of Viptela company.
+Currect solution is "Cisco SD-WAN". Also they have a Meraki SD-WAN solution
+
+Cisco SD-WAN components:
+    vManage - User logs in to it and configures all the settings required to be run on devices. Centralized management and monitoring happens here
+    vSmart - A controller. It sends out the configuration (that has been configured on vManage) to routers 
+    vEdge - Basically a Router. It is interconnected with other routers via IPsec tunnel. Also there's a cEdge - Cisco ISRs with Viptela code running on them. Used to be able to support T1, E1 (Voice, serial) lines
+    vBond - An orchestrator. ***(Not sure what it does). Used to glue all the components together. Authenticates vEdge devices when they join SD-WAN. Orchestrates the connectivity between vEdges and vSmart controller.
 
 #                    SD-Access
 SDN applied to Access layer of network.
