@@ -240,9 +240,31 @@ Currect solution is "Cisco SD-WAN". Also they have a Meraki SD-WAN solution
 
 Cisco SD-WAN components:
     vManage - User logs in to it and configures all the settings required to be run on devices. Centralized management and monitoring happens here
+        DEMO: https://sandbox-sdwan-2.cisco.com/ (devnetuser/RG!_Yw919_83)
+        Templates are used to push the predefined configuration to devices.
     vSmart - A controller. It sends out the configuration (that has been configured on vManage) to routers 
     vEdge - Basically a Router. It is interconnected with other routers via IPsec tunnel. Also there's a cEdge - Cisco ISRs with Viptela code running on them. Used to be able to support T1, E1 (Voice, serial) lines
     vBond - An orchestrator. ***(Not sure what it does). Used to glue all the components together. Authenticates vEdge devices when they join SD-WAN. Orchestrates the connectivity between vEdges and vSmart controller.
+
+Cisco SD-WAN topologies:
+    Full mesh (requires license)
+    Partial mesh (requires license)
+    Point-to-Point (kind of requires license)
+    Hub-and-Spoke (no license required)
+    
+    There are 4 different options in which SD-WAN solution can work whenever there are more than 1 WAN circuit (WAN or INTERNET):
+        Active-Active (traffic is fairly splitted between two circuits)
+        Active-Active weighted (traffic is splitted between two links but amount sent through each depends on the bandwidth) 
+        Active-Standby (traffic is sent through Active only and is being failovered in case of issues on Active)
+        Application-aware SLA - used to be able to see circuit degradation even if it's still up. Used to track the availability of some metrics for the circuit. DPI (required additional license) can help to identify the application.
+
+SD-WAN Programmability
+    NETCONF - a protocol that allows to send a configuration (XML) to devices using SSH
+    REST APIs - a protocol that allows HTTP/HTTPS requests (GET, POST, DELETE, PUT) to be sent to some device. That allows to receive status and configuration of system
+
+vManage GUI is actually a set of REST API replies received by sending the requests through the web page.
+vSmart receives configuration changes from vManage by NETCONF
+vEdges receive configuration from vSmart through OMP
 
 #                    SD-Access
 SDN applied to Access layer of network.
