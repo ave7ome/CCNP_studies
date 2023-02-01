@@ -239,13 +239,20 @@ Cisco solution was initially iWAN (intelligent WAN) but that failed and they mad
 Currect solution is "Cisco SD-WAN". Also they have a Meraki SD-WAN solution
 
 Cisco SD-WAN components:
-    vManage - User logs in to it and configures all the settings required to be run on devices. Centralized management and monitoring happens here
+    vManage - User logs in to it and configures all the settings required to be run on devices. Centralized management and monitoring happens here. Can be configured using REST API.
         DEMO: https://sandbox-sdwan-2.cisco.com/ (devnetuser/RG!_Yw919_83)
         Templates are used to push the predefined configuration to devices.
-    vSmart - A controller. It sends out the configuration (that has been configured on vManage) to routers 
-    vEdge - Basically a Router. It is interconnected with other routers via IPsec tunnel. Also there's a cEdge - Cisco ISRs with Viptela code running on them. Used to be able to support T1, E1 (Voice, serial) lines
-    vBond - An orchestrator. ***(Not sure what it does). Used to glue all the components together. Authenticates vEdge devices when they join SD-WAN. Orchestrates the connectivity between vEdges and vSmart controller.
-
+    vSmart - A controller, CAN ONLY BE VIRTUAL (public/private cloud or on-prem). It sends out the configuration (that has been configured on vManage) to routers. Config like Security/QoS/VPNs
+    vEdge - Basically a Router. It is interconnected with other routers via IPsec tunnel. So underlay is a Provider network. Overlay is tunnels
+        vEdge can be deployed in a Cloud therefore be virtual.
+        Also there's a cEdge - Cisco ISRs with Viptela code running on them. Used to be able to support T1, E1 (Voice, serial) lines, or some security features
+        Represented by Cisco devices (ASR 1k, ISR 1k, ISR 4k, ENCS 5400), device runs IOS-XE 18.3.0+
+        It is not recommended to run both vEdges and cEdges in the same location
+    vBond - An orchestrator (virtual deployment only, it must have a public IP) with OOB view on the SD-WAN. Used to glue all the components together. Orchestrates the connectivity between vEdges and vSmart controller.
+        Whenever new vEdge device join SD-WAN, it goes to vBond which sends out the info to vManage. Then Administrator can approve or reject adding the vEdge to SD-WAN
+        Can help for two vEdges to build an IPsec tunnel if both of them are behind NAT.
+        Example: it sends out a packet to two vEdges which open the certain ports. Devices then use that ports to build a tunnel. Or it can orchestrate so those devices exchange packets themselves.
+                
 Cisco SD-WAN topologies:
     Full mesh (requires license)
     Partial mesh (requires license)
@@ -264,7 +271,7 @@ SD-WAN Programmability
 
 vManage GUI is actually a set of REST API replies received by sending the requests through the web page.
 vSmart receives configuration changes from vManage by NETCONF
-vEdges receive configuration from vSmart through OMP
+vEdges receive configuration from vSmart through OMP (Overlay Management Protocol)
 
 #                    SD-Access
 SDN applied to Access layer of network.
