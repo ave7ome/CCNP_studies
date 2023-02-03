@@ -250,7 +250,7 @@ Cisco SD-WAN components:
         It is not recommended to run both vEdges and cEdges in the same location
     vBond - An orchestrator (virtual deployment only, it must have a public IP) with OOB view on the SD-WAN. Used to glue all the components together. Orchestrates the connectivity between vEdges and vSmart controller.
         Whenever new vEdge device join SD-WAN, it goes to vBond which sends out the info to vManage. Then Administrator can approve or reject adding the vEdge to SD-WAN
-        Can help for two vEdges to build an IPsec tunnel if both of them are behind NAT.
+        Can help for two vEdges to build an IPsec tunnel if both of them are behind NAT - that is called NAT traversal
         Example: it sends out a packet to two vEdges which open the certain ports. Devices then use that ports to build a tunnel. Or it can orchestrate so those devices exchange packets themselves.
                 
 Cisco SD-WAN topologies:
