@@ -273,6 +273,20 @@ vManage GUI is actually a set of REST API replies received by sending the reques
 vSmart receives configuration changes from vManage by NETCONF
 vEdges receive configuration from vSmart through OMP (Overlay Management Protocol)
 
+Controller deployment models
+    Public model: all components are deployed (and MANAGED!) by Cisco in their AWS space (2x vSmarts active/active; 2x vBonds Active/Active; 2x vManage Active/Standby). All of them have to be reachable through public internet space
+    Hybrid model: controllers are now deployed in company's public cloud, or in the DC. VMs are Managed by the companies engineers. Their public IPs have to be reachable through all WAN circuits.
+    Hybrid model w/private IPs: same as hybrid models but private IPs are used. In that case NATting is required since vBond have to have a PUBLIC IP-address.
+
+Cisco SD-WAN hardware
+    vEdge-100b (100Mbit connectivity max, both download&upload, ethernet only)
+    vEdge-100m (100 but supports 2G/3G/4G modem)
+    vEdge-100wm (100 but mobile + wireless)
+    vEdge-1000 (1Gig connectivity throughput)
+    vEdge-2000 (10Gig connectivity throughput)
+    vEdge-5000 (20Gig connectivity throughput)
+
+
 #                    SD-Access
 SDN applied to Access layer of network.
 
