@@ -290,6 +290,12 @@ Cisco SD-WAN hardware
 #                    SD-Access
 SDN applied to Access layer of network.
 
+Traditional challenges:
+    STP
+    Manual config
+    Poor scalability
+    Difficult security policy
+
 SDN implementation and effect upon planes:
 Imperative approach - Only controller has control plane. In case devices loose connectivity to controller - they're dead since no decision can be made
 Declarative approach - Devices has their own control plane which replicate the state from controller. In case connectivity to controller is lost, devices can handle traffic on their own
