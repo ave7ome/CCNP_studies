@@ -311,6 +311,7 @@ Cisco SD-Access layers:
         Fabric WLC
     Network (logic and physics of the network)
         VXLAN - Data plane. Builds direct tunnels but don't have information of where to direct traffic to.
+            additional 50 Bytes are used for the encapsulation. MTU of underlay should be increased by that number
         LISP - Control plane. Directs the traffic to required switch or node of network.
         CTS (cisco trustsec) - Policy plane. Used to enforce existing policies to ongoing traffic.
     Controller (a controller of whole solution + ISE)
