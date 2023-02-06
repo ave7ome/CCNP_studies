@@ -296,13 +296,44 @@ Traditional challenges:
     Poor scalability
     Difficult security policy
 
+SD-Access is Campus Fabric with DNA center as a controller for the network.
+Campus Fabric is:
+    VXLAN used to build tunnels as overlay mechanism
+    **(LISP) - Location Identifier Separation Protocol
+    CTS (ISE basically) - Cisco TrustSec
+    
+Cisco SD-Access layers:
+    Physical (equipment)
+        Control plane node (LISP) - a device responsible for storing the data of mappings (mappings DB) of each device in the network to other device
+        Fabric border device - Core
+        Fabric intermediate device - Distribution
+        Fabric edge device - Access
+        Fabric WLC
+    Network (logic and physics of the network)
+        VXLAN - Data plane. Builds direct tunnels but don't have information of where to direct traffic to.
+        LISP - Control plane. Directs the traffic to required switch or node of network.
+        CTS (cisco trustsec) - Policy plane. Used to enforce existing policies to ongoing traffic.
+    Controller (a controller of whole solution + ISE)
+        Cisco DNA center
+            Network control platform
+                APIC-EM
+                used for Automation (underlay & overlay), CLI/SNMP, NETCONF/YANG
+            Network data platform
+                Assurance -> Collect data
+                SNMP, Netflow, Telemetry        
+    Management (GUI, REST APIs, CLI)
+        4-step workflow
+            1. Design (conf settings, profiles, definitions)
+            2. Policy (set policy (ISE, AAA and stuff))
+            3. Provision (assign role to a device)
+            4. Assurance (monitoring of health of network)
+
 SDN implementation and effect upon planes:
 Imperative approach - Only controller has control plane. In case devices loose connectivity to controller - they're dead since no decision can be made
 Declarative approach - Devices has their own control plane which replicate the state from controller. In case connectivity to controller is lost, devices can handle traffic on their own
 
-Fabric border device - Core
-Fabric intermediate device - Distribution
-Fabric edge device - Access
+
+
 
 #                    QoS (Quality of service)
 QoS - allows the manipulation of traffic (packets) in a way to prioritize some important data to be transfered with better confidions (sometimes be transferred at all - in case bandwidth of an interface is lower that the amount of traffic)
