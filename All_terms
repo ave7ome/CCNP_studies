@@ -299,20 +299,23 @@ Traditional challenges:
 SD-Access is Campus Fabric with DNA center as a controller for the network.
 Campus Fabric is:
     VXLAN used to build tunnels as overlay mechanism
-    **(LISP) - Location Identifier Separation Protocol
+    Location Identifier Separation Protocol
     CTS (ISE basically) - Cisco TrustSec
     
 Cisco SD-Access layers:
     Physical (equipment)
-        Control plane node (LISP) - a device responsible for storing the data of mappings (mappings DB) of each device in the network to other device
+        Control plane node (LISP) - a device responsible for storing the data of mappings (mappings DB) of each device (hosts, switches) in the network to other devices
         Fabric border device - Core
         Fabric intermediate device - Distribution
         Fabric edge device - Access
         Fabric WLC
     Network (logic and physics of the network)
         VXLAN - Data plane. Builds direct tunnels but don't have information of where to direct traffic to.
-            additional 50 Bytes are used for the encapsulation. MTU of underlay should be increased by that number
+            (!)Additional 50 Bytes are used for the encapsulation. MTU of underlay should be increased by that number
         LISP - Control plane. Directs the traffic to required switch or node of network.
+            Each network device (switch or router) has an RLOC (Router LOCation) which identifies it in a network
+            Each endpoint has a EID (Endpoint ID) and is bound to current RLOC
+            Whenever traffic has to be sent from an endpoint to another enpoint, switch requests the direction from Mapping server (control plane node) and then just directs traffic as necessary
         CTS (cisco trustsec) - Policy plane. Used to enforce existing policies to ongoing traffic.
     Controller (a controller of whole solution + ISE)
         Cisco DNA center
@@ -328,6 +331,7 @@ Cisco SD-Access layers:
             2. Policy (set policy (ISE, AAA and stuff))
             3. Provision (assign role to a device)
             4. Assurance (monitoring of health of network)
+
 
 SDN implementation and effect upon planes:
 Imperative approach - Only controller has control plane. In case devices loose connectivity to controller - they're dead since no decision can be made
