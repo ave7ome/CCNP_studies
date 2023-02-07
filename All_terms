@@ -312,11 +312,18 @@ Cisco SD-Access layers:
     Network (logic and physics of the network)
         VXLAN - Data plane. Builds direct tunnels but don't have information of where to direct traffic to.
             (!)Additional 50 Bytes are used for the encapsulation. MTU of underlay should be increased by that number
+            Usual Packet: [eth|IP|data]
+            VXLAN Packet: [eth|IP|VNID|above_packet_as_data]
+            VXLAN-GPO is introduced by Cisco to serve it's purpose on the Policy plane. It includes SGTs (Scalable group tag) to manage the policies received by hosts
         LISP - Control plane. Directs the traffic to required switch or node of network.
             Each network device (switch or router) has an RLOC (Router LOCation) which identifies it in a network
             Each endpoint has a EID (Endpoint ID) and is bound to current RLOC
             Whenever traffic has to be sent from an endpoint to another enpoint, switch requests the direction from Mapping server (control plane node) and then just directs traffic as necessary
         CTS (cisco trustsec) - Policy plane. Used to enforce existing policies to ongoing traffic.
+            Microsegmentation (two hosts on same network shouln't talk to each other). SGs (scalable groups) used for that.
+            Macrosegmentation (two hosts on same switch, diffrent network shoulnd not have any possibility to access each other. VNs (virtual networks) are used for that. Each host is in it's own VN.
+            Whenever traffic is received by network device, it receives a VN (virtual network) and SG (scalable group) tags. These are transformed into VNID and SGT afterwards to be trasfered further into network. By receiving device, policy is being applied according to tags.
+            Tagging happes on ingress traffic and policy enforcement happens on egress traffic.
     Controller (a controller of whole solution + ISE)
         Cisco DNA center
             Network control platform
