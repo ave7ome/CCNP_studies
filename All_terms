@@ -102,7 +102,7 @@ Comparison of basic Access devices (switches) to Autonomous access points:
 Autonomous design (old)
     Main issue for Autonomous deployment is low scalability. For Core deployments connected through L3, VLAN cannot be stretched reliably for clients to be able to move from one physical place to another and still be connected to same VLAN.
     Also it's difficult to configure a lot of device manually.
-    Previously used to help configure a lot of devices. But there still were issues with pushing the config.
+    Two devices below used to help configure a lot of devices. But there still were issues with pushing the config.
     WLSM (Wireless LAN Services Module) - EOS 
     WLSE (Wireless LAN Solution Engine) - EOS
 
@@ -289,6 +289,7 @@ Cisco SD-WAN hardware
 
 #                    SD-Access
 SDN applied to Access layer of network.
+All border devices in SDA have a VXLAN tunnel to every other device.
 
 Traditional challenges:
     STP
@@ -301,7 +302,9 @@ Campus Fabric is:
     VXLAN used to build tunnels as overlay mechanism
     Location Identifier Separation Protocol
     CTS (ISE basically) - Cisco TrustSec
-    
+
+SDA doesn't operate in subnets. If a new EP comes online, nobody knows a destination to it at first.
+
 Cisco SD-Access layers:
     Physical (equipment)
         Control plane node (LISP) - a device responsible for storing the data of mappings (mappings DB) of each device (hosts, switches) in the network to other devices
@@ -316,8 +319,8 @@ Cisco SD-Access layers:
             VXLAN Packet: [eth|IP|VNID|above_packet_as_data]
             VXLAN-GPO is introduced by Cisco to serve it's purpose on the Policy plane. It includes SGTs (Scalable group tag) to manage the policies received by hosts
         LISP - Control plane. Directs the traffic to required switch or node of network.
-            Each network device (switch or router) has an RLOC (Router LOCation) which identifies it in a network
-            Each endpoint has a EID (Endpoint ID) and is bound to current RLOC
+            Each network device (switch or router) has an RLOC (Router LOCation) which identifies it in a network (usually it is a LOOPBACK address). 
+            Each endpoint has a EID (Endpoint ID) and is bound to current RLOC (EID-RLOC mapping on CPN)
             Whenever traffic has to be sent from an endpoint to another enpoint, switch requests the direction from Mapping server (control plane node) and then just directs traffic as necessary
         CTS (cisco trustsec) - Policy plane. Used to enforce existing policies to ongoing traffic.
             Microsegmentation (two hosts on same network shouln't talk to each other). SGs (scalable groups) used for that.
@@ -339,12 +342,37 @@ Cisco SD-Access layers:
             3. Provision (assign role to a device)
             4. Assurance (monitoring of health of network)
 
+User Authentication process in SDA
+    For 802.1x to happen, there have to be a supplicant - some piece of software for 802.1x exchange to happen from the endpoint.
+    -- Supplicant (PC) sends a login request (802.1x exchange) to Network Authentication Device (NAD), usually an upstream switch.
+    NAD forwards the request using RADIUS to ISE 
+    -- Endpoint (Phone) is being authenticated using MAB (MAC Authentication Bypass). Whenever phone is connected to network, NAD expects 802.1x exchange.
+    Since it's a phone, it doesn't happen therefore MAB exchange with ISE happens. For that MAC-DB is required and manual adding of every MAC to ISE is required.
+    -- WebAuth also exist. An endpoint doesn't have any 802.1x supplicant installed.
+    Endpoint connected to network gets a DHCP address with DNS servers. After that when enpoint tries to access a website, request gets intercepted and EP is directed to ISE to login.
+
+SDA EP onboarding
+    EID in SDA is the IP-address of Endpoint connected to fabric.
+    Whenever device is connected to network, it get's tagged with EID and switch A send out a registration message to control plane node (CPN).
+    After that CPN know about that node and whenever some other switch (B,C) wants to send traffic to that EID, it forwards it to required switch A.
+    If switch B or C already sent traffic to that EID, info about direction is stored in their DB so they know the RLOC to which they should send that traffic further on (expired if no data is sent in 24H)
+    In wireless, another VXLAN tunnel is formed with AP and it's data traffic is sent through that tunnel instead of CAPwAP tunnel (as usual)
+Client ROAM
+    If client roams (moves frow Switch A to Switch B):
+        1. Switch B send info to CPN about client being on it
+        2. CPN informs Switch A about client not being on A anymore
+        3. If some other switch send a packet to Switch A thinking client is there (saved in cache for example), Switch A responds with "no it's not here" and ALSO send packet to Switch B
+           Other switch then updates it's DB from CPN and now stores new cache
+
+External subnets in SDA
+    Internal border node - connects with internal subnets (DC, legacy, other) 
+    External border node - connects with external subnets (Internet)
+    When fabric devices send traffic to other subnets, process is similar, they ask CPN and it forwards traffic to certain border node.
+    After that, border node sends out traffic according to basic Routing protocols.
 
 SDN implementation and effect upon planes:
 Imperative approach - Only controller has control plane. In case devices loose connectivity to controller - they're dead since no decision can be made
 Declarative approach - Devices has their own control plane which replicate the state from controller. In case connectivity to controller is lost, devices can handle traffic on their own
-
-
 
 
 #                    QoS (Quality of service)
