@@ -375,8 +375,6 @@ Imperative approach - Only controller has control plane. In case devices loose c
 Declarative approach - Devices has their own control plane which replicate the state from controller. In case connectivity to controller is lost, devices can handle traffic on their own
 
 
-
-
 #                    Hardware
 
 9k Switches
@@ -384,13 +382,21 @@ Declarative approach - Devices has their own control plane which replicate the s
     9200 (stack, UADP-Mini) - used to replace Catalyst 2k
     9300 (stack, Modular) - used to replace Catalyst 3k
     9400 (chassis, SwV(VSS)) - used to replace Catalyst 4k 
-    9500 (fixed) - used to replace 4500X, 6880-X (CORE)
+    9500 (fixed) - used to replace 4500X, 6880-X (CORE) 
     9600 (chassis, SwV) - used to replace Catalyst 6k (CORE)
 
 Routers
     ISR (4300, 4400 supported by SDA) - focuses on features, not on performance. UCS and other stuff can be deployed on it
     ASR (1000 supported by SDA) - focuses on performance, bandwidth, table sizes (BGP internet table for example)
     
+Wireless
+    WLC (Catalyst 9800s) - a 9k Cisco that serves as a WLC
+        HW (9880, 9840, 9800-L similar to 9200-L, 9300-L)
+        SW (Embedded WLC, 9800-CL (CL for cloud)). Cloud version can be deployed in private DC or in Cloud
+    APs (9100) - supports mGig technology which allows transfer of big Gbit/s (up to 10) through WIFI.
+
+
+
 
 #                    QoS (Quality of service)
 QoS - allows the manipulation of traffic (packets) in a way to prioritize some important data to be transfered with better confidions (sometimes be transferred at all - in case bandwidth of an interface is lower that the amount of traffic)
