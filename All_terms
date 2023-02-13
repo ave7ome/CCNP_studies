@@ -218,6 +218,7 @@ Users (when spinning up an application) are going to cloud broker, Like Cisco Cl
     Public cloud (Azure);
     Public cloud (GCP).
 
+
 #                    SD-WAN
 SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
 Additionally SDN have an underlay and an overlay. And usually tunnels is used to make sure overlay works as intended
@@ -298,10 +299,14 @@ Traditional challenges:
     Difficult security policy
 
 SD-Access is Campus Fabric with DNA center as a controller for the network.
+
 Campus Fabric is:
     VXLAN used to build tunnels as overlay mechanism
     Location Identifier Separation Protocol
     CTS (ISE basically) - Cisco TrustSec
+
+DNA Center is a physical appliance only(!)
+
 
 SDA doesn't operate in subnets. If a new EP comes online, nobody knows a destination to it at first.
 
