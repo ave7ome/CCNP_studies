@@ -335,6 +335,7 @@ Cisco SD-Access layers:
     Controller (a controller of whole solution + ISE)
         Cisco DNA center
             Network control platform
+                Configures network devices automatically for us
                 APIC-EM
                 used for Automation (underlay & overlay), CLI/SNMP, NETCONF/YANG
             Network data platform
@@ -378,6 +379,8 @@ External subnets in SDA
 SDN implementation and effect upon planes:
 Imperative approach - Only controller has control plane. In case devices loose connectivity to controller - they're dead since no decision can be made
 Declarative approach - Devices has their own control plane which replicate the state from controller. In case connectivity to controller is lost, devices can handle traffic on their own
+
+
 
 
 #                    Hardware
