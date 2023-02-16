@@ -337,16 +337,23 @@ Cisco SD-Access layers:
             Network control platform
                 Configures network devices automatically for us
                 APIC-EM
-                used for Automation (underlay & overlay), CLI/SNMP, NETCONF/YANG
+                Automation engine (underlay & overlay), CLI/SNMP, NETCONF/YANG
             Network data platform
-                Assurance -> Collect data
-                SNMP, Netflow, Telemetry        
+                Analytics engine -> Data itself. DNA collects all possible data (SNMP, Netflow, Syslog, Streaming Telemetry(retrieve preset bunches of data)) and writed to DB
+                Assurance engine -> Value from data. Proactive monitoring (problem is boiling up), visibility (healthscore), configuration suggestions (can be run using autimation engine), path trace
     Management (GUI, REST APIs, CLI)
         4-step workflow
             1. Design (conf settings, profiles, definitions)
             2. Policy (set policy (ISE, AAA and stuff))
             3. Provision (assign role to a device)
             4. Assurance (monitoring of health of network)
+
+ISE is a security solution used in SDA. It provides:
+    Visibility (who, when, how, where connects)
+    Segmentation (microsegmentation using SGTs - security group tags)
+    Stop Threats
+    
+    Can be integrated with 3rd party solutions (Cisco ACI or other vendors) using pxGrid.
 
 User Authentication process in SDA
     For 802.1x to happen, there have to be a supplicant - some piece of software for 802.1x exchange to happen from the endpoint.
@@ -380,7 +387,17 @@ SDN implementation and effect upon planes:
 Imperative approach - Only controller has control plane. In case devices loose connectivity to controller - they're dead since no decision can be made
 Declarative approach - Devices has their own control plane which replicate the state from controller. In case connectivity to controller is lost, devices can handle traffic on their own
 
-
+ETA (encrypted traffic analytics) - technical suite allowing to check encrypted traffic for malware without decrypting it
+Includes:
+    Stealthwatch
+    ISE
+    Cat 9K
+    
+    Data is collected by Stealthwatch and forwarded to Cognitive Intelligence - Cisco Cloud system that scans the traffic in 3 steps:
+        1. Anomaly detection. Is traffic Malicious or Weird?
+        2. Malicious events. What is it, what it has done?
+        3. Threat Analysis.
+        Then the score (1-10, 10 being the most malicious) is set for traffic.
 
 
 #                    Hardware
