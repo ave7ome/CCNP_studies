@@ -426,6 +426,14 @@ Wireless
 #                    QoS (Quality of service)
 QoS - allows the manipulation of traffic (packets) in a way to prioritize some important data to be transfered with better confidions (sometimes be transferred at all - in case bandwidth of an interface is lower that the amount of traffic)
 
+Mechanics:
+1. Traffic is classified
+    3 bit number in a frame (0-7) that immediately tells Network Device (like a mark on an Amazon package) what is that traffic
+2. Traffic is marked
+    8 bit in a packet. Before IPP (IP Precedense) was used with 3 bit. Now it's DSCP (Differentiated services code point) with 6 bit
+(*)1 and 2 doesn't do anything by itself, these are just numbers in traffic. If device doesn't have any rules about how to handle such traffic - they're useless
+3. Traffic is threated based on 1 and 2
+
 QoS tools:
 1. Classification & Marking - used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. 
     NBAR (Network-Based Application Recognition) exists which lets the classification to happen with more details (based on word, phrase or URL for example)
@@ -434,12 +442,24 @@ QoS tools:
 4. Queueing - used on egress interface to divide egress queue on sub-queues
 5. Scheduling - used to empty the sub-queues in a certain way.
 
+Marking:
+On layer 1: based on physical port or interface (subinterface/SVI)
+On layer 2: based on MAC-address and on COS (class of service) bits (802.1P)
+On layer 3: based on IP-address (source/dest) and on DSCP mark (TOS bits)
+On layer 4: based on TCP or UDP port
+On layer 7: using NBAR2 - determine the application based on signatures that are stored on cisco devices
+
 Congestion management - a set of tools (egress interface) that manages happened congestion. WFQ, CBWFQ, PQ, LLQ, WRR, SRR, Shaping.
+    Weighted Fair - low-bandwidth traffic is done first. Problem: important traffic can be stopped from transmitting
+    Class-based - guarantees a service to get a definite amount of bandwidth (40Mbit/s out of 150Mbit/s link). Can't guarantee the priority
+    Priority - Guarantees the priority queue over other traffic
+    LLQ (low latency queuing)
 Congestion avoidance - a set of tools (ingress interface) that prevents congestions from happening. RED, WRED, WTD, Policing.
 
-QoS application in Network:
-Integrated services - unified settings on all the routers on the way. Uses RSVP (Resource Reservation Protocol).
-Differentiated services - each router has it's own settings. Uses PHB (Per-Hop Behaviour).
+QoS models:
+Best Effort - usual device behaviour. Packets being sent if possible. If there's congestion, packets are queued and are sent on FIFO basis. They are taildropped if buffer is overflown.
+Integrated services - unified settings on all the routers on the way. Uses RSVP (Resource Reservation Protocol). A certain bandwidth is reserved by RSVP packet that is being sent before the call establishment. If there's no bandwidth available - call is dropped.
+Differentiated services - each router has it's own settings. Uses PHB (Per-Hop Behaviour). DSCP marking happens here that can assure traffic to be passed further.
 
 QoS Policies
 Before all QoS settings had to be applied to interfaces.
