@@ -434,9 +434,9 @@ QoS - allows the manipulation of traffic (packets) in a way to prioritize some i
 
 Mechanics:
 1. Traffic is classified
-    3 bit number in a frame (0-7) that immediately tells Network Device (like a mark on an Amazon package) what is that traffic
+    3 bit number in a frame (in 802.1Q field) that immediately tells Network Device (like a mark on an Amazon package) what is that traffic
 2. Traffic is marked
-    8 bit in a packet. Before IPP (IP Precedense) was used with 3 bit. Now it's DSCP (Differentiated services code point) with 6 bit
+    8 bit ToS field in a packet. Before IPP (IP Precedense) was used with 3 bit. Now it's DSCP (Differentiated services code point) with 6 bit
 (*)1 and 2 doesn't do anything by itself, these are just numbers in traffic. If device doesn't have any rules about how to handle such traffic - they're useless
 3. Traffic is threated based on 1 and 2
 
