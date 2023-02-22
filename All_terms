@@ -441,7 +441,7 @@ Mechanics:
 3. Traffic is threated based on 1 and 2
 
 QoS tools:
-1. Classification & Marking - used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. 
+1. Classification & Marking  sa- used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. 
     NBAR (Network-Based Application Recognition) exists which lets the classification to happen with more details (based on word, phrase or URL for example)
 2. Policing - used on ingress interface (provide edge interface facing customer edge device) to drop all the traffic that exceeds the configured policing bandwidth. Can be configured for different types of traffic (TCP, UDP, DNS, other apps.)
 3. Shaping - used on egress interface to create queues (queueing) which allows traffic that exceeds the configured bandwidth to be sent later, whenever the circuit is less busy. 
