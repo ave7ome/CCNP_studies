@@ -478,7 +478,28 @@ Allows for different QoS tools to be applied to different interfaces.
   Class-map - used to match certain type of traffic and classify it
   Policy-map - used to match certain traffic classified by class-maps. To initiate the use of class-maps
   Service-policy - used to apply a policy-map to interface. Inbound/Outbound.
-  
+
+QoS Marking rules:
+Layer 2
+    CoS (Class of Service) - 3 bit number in a frame (in 802.1Q field). Can take numeric values from 0 to 7
+Layer 3
+    ToS (Type of Service) - 8 bit field (names ToS) in a packet (L3). It is categorized as per below:
+        IPP (IP precedence) - takes 3 bit in ToS field -> as CoS, values can be from 0 to 7.
+            Best practices (not mandatory) are:
+                value 0 for FIFO traffic
+                value 1-4 for priority traffic (1 being scavenger traffic which is some junk from users like bittorrent and others)
+                value 5 for VoIP
+                value 6-7 for network traffic (STP, routing etc.)
+        DSCP - takes 6 bit in ToS field -> divided in "major" and "minor" bit groups of 3. That is for intercompatibility of two methods of marking.
+            Major bits are same as used by IPP - "Class Selector"
+            Minor bit group is called "Drop preference"
+            DSCP is split as: AF (Assured forwarding) with a two numbers - first being it's class (higher is better) and second is a drop preference (lesser is better).
+                              CS (Class selecter) is just a usage of first 3 bits which is a class. Drop preference is 0 - not used.
+                              EF (Expedited Forwarding) - usually used for Voice. Class 5 and Drop preference value is higher (11)
+
+Very useful "QoS Values Calculator":
+https://i.pinimg.com/originals/34/a7/57/34a75767cda2db32f3aca013b65d91af.jpg
+
 1. Traffic from 10.0.0.1 to 10.255.1.1 is matched and classified by class-map.
 2. Policy-map initiates the class-map and makes the classified traffic to follow the specified rules. Apply policing for all the traffic from 10.0.0.1 to 10.255.1.1 (from gi0/1 to gi0/3) to prevent it from congesting the interface gi0/1.
 3. Apply service-policy to interface gi0/1 (inbound) and interface gi0/3 (outbout) to use the above rules for this traffic.
