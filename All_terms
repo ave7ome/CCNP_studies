@@ -504,6 +504,11 @@ https://i.pinimg.com/originals/34/a7/57/34a75767cda2db32f3aca013b65d91af.jpg
 2. Policy-map initiates the class-map and makes the classified traffic to follow the specified rules. Apply policing for all the traffic from 10.0.0.1 to 10.255.1.1 (from gi0/1 to gi0/3) to prevent it from congesting the interface gi0/1.
 3. Apply service-policy to interface gi0/1 (inbound) and interface gi0/3 (outbout) to use the above rules for this traffic.
 
+It is a best practice to move "Trust boundary" as close to Endpoints as possible (wherever this can be safely applied, like IP phones).
+Trust boundary is the point where marking can happen - it loads up resources.
+
+
+
 #                    Network device architecture
 Process Switching - old intra-device frame/packet switching mechanism. Every frame/packet received by device is forwarded to CPU for it to lookup the MAC / Routing table and decide where Data unit should be egressed.
 
