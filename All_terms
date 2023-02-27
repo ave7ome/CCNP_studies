@@ -1,4 +1,5 @@
 All terms and points are covered here in a way I understood it.
+***( - get to know the definition more
 
 https://linkmeup.gitbook.io/sdsm/0.-planirovanie
 
@@ -527,6 +528,7 @@ https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
 CAM - located in a RAM. Contains the information about MAC addresses of devices in subnets. MACs are represented as MAC-address table. Can only be used by switches
 TCAM - located in RAM. Contains IP-addresses and subnet masks. Also contain ACL/QoS rules. Provides as assistance with decision of best path based on longest match (/30 mask is longer match than /24). Subnets and masks are represented as Routing table. Can be used by routers and multilayer switches.
     A request to TCAM is made by providing IP address and Mask and getting a result (next hop IP, permit/deny responce) in answer.
+***(get to know more on CAM & TCAM)
 RP (route processor)
 
 #                    Virtualization
