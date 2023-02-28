@@ -514,6 +514,7 @@ Trust boundary is the point where marking can happen - it loads up resources.
 Process Switching - old intra-device frame/packet switching mechanism. Every frame/packet received by device is forwarded to CPU for it to lookup the MAC / Routing table and decide where Data unit should be egressed.
 
 RIB - a "Database" of all the information about learned routes on the device. Routing Table includes a formatted data taken from RIB.
+    RIB entry contain: "Letter of used routing protocol" - "AD" - "METRIC" - "IP-address" - "Subnet Mask" - "Next-hop IP" - "outbound interface"
 CEF (Cisco Express Forwarding) - Cisco proprietary mechanism for DataUnit switching. After packet was once forwarded through CPU, same source/destination combination will not be forwarded to CPU anymore and will just be egresses to the same interface as before. Data for that is stored in FIB (network - network mask - egress interface)
 In recent CEF implementations, all the FIB data is collected beforehand from RIB.
 CEF establishes an area (Cached area) that stores pre-defined decisions for packet switching.
@@ -525,9 +526,12 @@ Adjacency table - an L2 information with MAC-addresses for packet to be reincaps
 
 https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
 
-CAM - located in a RAM. Contains the information about MAC addresses of devices in subnets. MACs are represented as MAC-address table. Can only be used by switches
-TCAM - located in RAM. Contains IP-addresses and subnet masks. Also contain ACL/QoS rules. Provides as assistance with decision of best path based on longest match (/30 mask is longer match than /24). Subnets and masks are represented as Routing table. Can be used by routers and multilayer switches.
+Below are used for quick lookup by network device. Lookup on MAC-address / Routing, ACL, QoS.
+CAM - located in a RAM (high-speed memory for quick lookup). Contains the information about MAC addresses of devices in subnets. MACs are represented as MAC-address table. Can only be used by switches
+    Can only be looked up by the exact match for MAC-address
+TCAM - located in RAM (high-speed memory for quick lookup). Contains IP-addresses and subnet masks. Also contain ACL/QoS rules. Provides as assistance with decision of best path based on longest match (/30 mask is longer match than /24). Subnets and masks are represented as Routing table. Can be used by routers and multilayer switches.
     A request to TCAM is made by providing IP address and Mask and getting a result (next hop IP, permit/deny responce) in answer.
+    Lookup is made in following format: V,M,R (V-Value(IP),M-Mask,R-Result(allow/deny,nexthop))
 ***(get to know more on CAM & TCAM)
 RP (route processor)
 
