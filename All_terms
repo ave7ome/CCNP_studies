@@ -565,6 +565,7 @@ vSwitch can distiribute certain connected devices to their own broadcast domains
 Virtual Switches exist on type1 Hypervisors by default (ESXi vSwitch, Microsoft Hyper-V)
 Broadcasts received by vSwitch are forwarded only to VMs living on the vSwitch. 
 Supported features: VLANs, CDP, SPAN, Trunk
+Traffic flow mechanism PINNING is used to prevent vSwitches from learning upstream MACs
 Above is Standard deployment of vSwitch.
 
 Also Distributed deployment exists:
