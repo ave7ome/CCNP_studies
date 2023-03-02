@@ -518,10 +518,10 @@ Fast Switching - attempt to remove CPU from the process as much as possible. Cac
 RIB - a "Database" of all the information about learned routes on the device. Routing Table includes a formatted data taken from RIB.
     RIB entry contain: "Letter of used routing protocol" - "AD" - "METRIC" - "IP-address" - "Subnet Mask" - "Next-hop IP" - "outbound interface"
 CEF (Cisco Express Forwarding) - Cisco proprietary mechanism for DataUnit switching. It allows for switching decisions to be made PROACTIVELY.
-    Before packet with unknown destination arrived, a FIB table is populated from the RIB. FIB table contain Egress interface and Next-hop address (MAC)
+    Before packet with unknown destination arrived, a FIB table is populated from the RIB. FIB table contain Network, Egress interface and Next-hop address (MAC)
     In recent CEF implementations, all the FIB data is collected beforehand from RIB.
 
-FIB - a copy of RIB + ARP lookup for destination MAC-address. Used for switching decisions in CEF.
+FIB - a copy of RIB (network+egress interface+nexthop) + ARP lookup for destination(nexthop) MAC-address. Used for switching decisions in CEF.
 Adjacency table - an L2 information with MAC-addresses for packet to be reincapsulated into a new frame (with new source and destination MACs) while forwarding.
 
 https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
@@ -532,6 +532,7 @@ CAM - located in a RAM (high-speed memory for quick lookup). Contains the inform
 TCAM - located in RAM (high-speed memory for quick lookup). Contains IP-addresses and subnet masks. Also contain ACL/QoS rules. Provides as assistance with decision of best path based on longest match (/30 mask is longer match than /24). Subnets and masks are represented as Routing table. Can be used by routers and multilayer switches.
     A request to TCAM is made by providing IP address and Mask and getting a result (next hop IP, permit/deny responce) in answer.
     Lookup is made in following format: V,M,R (V-Value(IP),M-Mask,R-Result(allow/deny,nexthop))
+    TCAM is ternary - there is a possibility to specify that something is 0, 1 or X (whatever). That allows for Mask to be stored (for example 27 mask would be 11111111.11111111.11111111.111XXXXX)
 ***(get to know more on CAM & TCAM)
 RP (route processor)
 
