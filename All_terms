@@ -512,16 +512,16 @@ Trust boundary is the point where marking can happen - it loads up resources.
 
 #                    Network device architecture
 Process Switching - old intra-device frame/packet switching mechanism. Every frame/packet received by device is forwarded to CPU for it to lookup the MAC / Routing table and decide where Data unit should be egressed.
+Fast Switching - attempt to remove CPU from the process as much as possible. Cache is introduced. Destination is stored in Cache after single packet has been "process switched"
+    can be enabled by command on interface "ip route-cache". Fast Switching happens REACTIVELY
 
 RIB - a "Database" of all the information about learned routes on the device. Routing Table includes a formatted data taken from RIB.
     RIB entry contain: "Letter of used routing protocol" - "AD" - "METRIC" - "IP-address" - "Subnet Mask" - "Next-hop IP" - "outbound interface"
-CEF (Cisco Express Forwarding) - Cisco proprietary mechanism for DataUnit switching. After packet was once forwarded through CPU, same source/destination combination will not be forwarded to CPU anymore and will just be egresses to the same interface as before. Data for that is stored in FIB (network - network mask - egress interface)
-In recent CEF implementations, all the FIB data is collected beforehand from RIB.
-CEF establishes an area (Cached area) that stores pre-defined decisions for packet switching.
-CEF consists of FIB and Adjacency table.
+CEF (Cisco Express Forwarding) - Cisco proprietary mechanism for DataUnit switching. It allows for switching decisions to be made PROACTIVELY.
+    Before packet with unknown destination arrived, a FIB table is populated from the RIB. FIB table contain Egress interface and Next-hop address (MAC)
+    In recent CEF implementations, all the FIB data is collected beforehand from RIB.
 
-FIB - database of all the routes in a compact format (network - network mask - egress interface)
-
+FIB - a copy of RIB + ARP lookup for destination MAC-address. Used for switching decisions in CEF.
 Adjacency table - an L2 information with MAC-addresses for packet to be reincapsulated into a new frame (with new source and destination MACs) while forwarding.
 
 https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
@@ -534,6 +534,10 @@ TCAM - located in RAM (high-speed memory for quick lookup). Contains IP-addresse
     Lookup is made in following format: V,M,R (V-Value(IP),M-Mask,R-Result(allow/deny,nexthop))
 ***(get to know more on CAM & TCAM)
 RP (route processor)
+
+Centralized and Distributed switching architectures
+Centralized - Packets that has been received by interface on Line card are forwarded to Supervisor before switching decision (CAM & FIB lookup)
+Distributed - Packet received on Line Card is forwarded firectly out of line card through corresponding interface (CAM & FIB tables are stored on LC but populated by Supervisor). Control traffic (like OSPF) still happens on Supervisor
 
 #                    Virtualization
 #        ENDPOINT VIRTUALIZATION 
