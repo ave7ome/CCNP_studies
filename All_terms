@@ -543,12 +543,37 @@ Distributed - Packet received on Line Card is forwarded firectly out of line car
 #                    Virtualization
 #        ENDPOINT VIRTUALIZATION 
 Hypervisor - a utility that allows management and provides visibility of Guest OSes (VMs)
+
+Hardware server is called "HOST"
+Virtual server is called "GUEST"
+
 Type 1 hypervisor - a hypervisor that is installed directly on Hardware (HW --- Hypervisor --- VMs)
 Type 2 hypervisor - a hypervisor that is installed on some OS like Microsoft Windows (HW --- OS --- Hypervisor --- VMS)
 
-Virtual Switch (vSwitch) - literally a virtual switch  that connects it's virtual interfaces (ports) to VNICs distributed to running VMs. 
+Usually Type 1 HV is used in Production networks (in DC), Type 2 is used for LABs and not recommended for PROD deployments.
+VMs basically is a data, it's all files that are used and manipulated by Hypervisors. That allows to store them on external "Storage arrays". Which allows VMs to be access not just by a single HV but by many others.
+So if some HOST goes down, another HOST can overtake the VM and spin it up on itself
+Also VMs can be moved between HOSTS (VM migration)
+    Cold migration - VM is turned down and spin up on another HOST. Both HOSTs should be able to access storage with VM files
+    Live migration - VM is migrated withoup being turned off. It can be configured to happen automatically if some HOST gets clogged with VM resource utilization
+    
+Additionaly there's a feature called FT (Fault Tolerance) which is basically the HA.
+    If there's a VM on a HOST 1, a copy of it is run on HOST 2 which has FT configured with HOST 1. If HOST 1 is down, VM is getting up on HOST 2 with little to no downtime.
+
+Virtual Switch (vSwitch) - literally a virtual switch inside HOST that connects it's virtual interfaces (ports) to VNICs distributed to running VMs. 
 vSwitch can distiribute certain connected devices to their own broadcast domains ("VLANs"), this function is represented by port-groups.
 Virtual Switches exist on type1 Hypervisors by default (ESXi vSwitch, Microsoft Hyper-V)
+Broadcasts received by vSwitch are forwarded only to VMs living on the vSwitch. 
+Supported features: VLANs, CDP, SPAN, Trunk
+Above is Standard deployment of vSwitch.
+
+Also Distributed deployment exists:
+    Allows for centralized deployment of vSwitches to many HOSTs and further management (and configuration management)
+
+Cisco ENCS 5000.
+    Allows for virtualization of network devices (CSR - CloudServicesRouter, ISRv, vWLC, ASAv, vEdge/cEdge)
+Also can be virtualized on other server hardware.
+
 
 #        DATA PATH VIRTUALIZATION
 VRF - A technology that allows router (or Multilayer device) to logically be divided into few other routers.
