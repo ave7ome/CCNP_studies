@@ -577,11 +577,17 @@ Also can be virtualized on other server hardware.
 
 
 #        DATA PATH VIRTUALIZATION
-VRF - A technology that allows router (or Multilayer device) to logically be divided into few other routers.
-Each VRF will have their own routing table (for example that allows few similar subnets to be defined and reachable.
-Usually used in ISP networks therefore requires ISP networks (MPLS, VPN, L3VPN, BGP).
+VRF - A technology that allows router (or Multilayer device) to logically be divided into few other routers (which basically means into few independent Routing tables)
+    It is impossible to share routes between VRFs, one VRF can be reachable from another VRF only if there's a connection between them through external interface.
+Each VRF will have their own routing table (for example that allows few similar (10.0.0.0/24) subnets to be defined in each VRF and still be reachable).
+Usually used in ISP networks therefore requires ISP network technologies (MPLS, VPN, L3VPN, BGP).
 
-VRF-Lite - an Enterprise solution that allows routing to be done through common routing protocols (OSPF, EIGRP). No extra VPN protocols required.
+***(VRF-Lite - an Enterprise solution that allows routing to be done through common routing protocols (OSPF, EIGRP). No extra VPN protocols required.
+
+Tunnel - an overlay technology allowing for isolation of traffic from the underlay networks and providing direct L3 connectivity even between devices located far away from each other
+GRE (Generic Routing Encapsulation) - a tunnelling protocol that allows an incapsulation of IP or other packets
+    GRE encapsulation adds a GRE header (4Byte) and an IP header (20B).
+    IP protocol number for GRE encapsulated packet is always 47 (https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers)
 
 
 #                    STP (Spanning-tree protocol)
