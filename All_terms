@@ -588,6 +588,48 @@ Tunnel - an overlay technology allowing for isolation of traffic from the underl
 GRE (Generic Routing Encapsulation) - a tunnelling protocol that allows an incapsulation of IP or other packets
     GRE encapsulation adds a GRE header (4Byte) and an IP header (20B).
     IP protocol number for GRE encapsulated packet is always 47 (https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers)
+GRE recursive routing: there might be an issue that the tunnel destination addressed is being routed through the tunnel itself.
+To avoid that, tunnel and underlay networks should be in different Routing Domains (OSPF and EIGRP; EIGRP AS 1 and EIGRP AS 2; any other pairs except for the same ones)
+
+IPsec - a framework (set of tools) that allows a construction of secure tunnel from one destination to another
+    Key features that IPsec provide are data...:
+        AUTHENTICATION - packet exchange is happening between certain devices and they make sure it's actually them
+        INTERGRITY - allows to make sure that data that contains in packets are the same on source and destination devices
+        CONFIDENTIALITY - allows the encryption of the exchanged data
+
+IPsec can have two different packet headers:
+    AH (Authentication Header) - IP protocol 51. Allows to fullfill the data AUTHENTICATION and INTEGRITY. Can't encrypt
+    ESP (Encapsulation Security Payload) - IP protocol 50. Can do all data features of IPsec. Also can do NAT traversal. 
+        ESP can work in two modes:
+            TRANSPORT Mode - When original IP packet with payload arrives to router, ESP header is added between Payload an previous IP headers.
+            TUNNEL Mode - When original IP packet with payload arrives to router, ESP header is added in front of whole packet. another IP header is added in from of ESP header after that.
+
+Both Transform sets have to match between devices.
+Transform sets include Hashing algorithm of choice, encryption algorithm as well.
+Transform sets are initially exchanged through IKE (Internet Key Exchange) tunnel.
+
+Before establishing an IPsec tunnel between routers, they have to exchange the security settings that should be used (encryption keys as well etc.)
+For that, IKE is used to build a Control plane tunnel (also called SA - security association).
+IKE is an implementation os ISAKMP (Internet Security Association Key Management Protocol).
+IKE:
+    IKEv1. Consists of two phases of communication:
+        Phase 1. Control plane tunnel is build with no encryption (def lifetime is 24hours, reestablished after). Following information is negotiated:
+            Acronym to remember is HAGLE
+            HASH 
+            AUTHENTICATION METHOD
+            GROUP (Diffie-Helman) - used to securely encrypt keys for encryption and decryption of traffic
+            LIFETIME of a tunnel
+            ENCRYPTION algorithm
+       Phase 2. An IPsec tunnel (def lifetime is 12hours, reestablished after) itself can be established after phase 1 is completed 
+            PFS - used to force use of different session keys other than ones that were used during phase 1.
+    IKEv2. Phases are collapsed and less messages have to be exchanged before tunnels are established.
+    Both devices have to use same IKE version.
+    
+VPN types
+    Site-To-Site - Basic tunnel between two sites. Tunnel can be established between Cisco and other 3rd party device. Lacks Routing, Multicast, Scalability.
+    DMVPN - A hub-and-spoke VPN topology. Many sites establish VPN to the main site. With that it's not required to create a lot of tunnels. NHRP protocol is utilized. Routing is configurable. 
+    FlexVPN - A "DMVPN+". It utilizes IKEv2 (can only use version 2 while other VPNs MAY use v1 OR v2) to make DMVPN better but is a different VPN solution
+    GET VPN - a VPN for WAN over MPLS networks. Allows to keep the original IP header (with QoSes and other stuff).    
 
 
 #                    STP (Spanning-tree protocol)
