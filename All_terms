@@ -584,12 +584,25 @@ Usually used in ISP networks therefore requires ISP network technologies (MPLS, 
 
 ***(VRF-Lite - an Enterprise solution that allows routing to be done through common routing protocols (OSPF, EIGRP). No extra VPN protocols required.
 
+VRF Configuration:
+    vrf definition <vrf_name>
+    address-sapce
+    *add interface to vrf forwarding (IP address get's stripped from interface here)
+
 Tunnel - an overlay technology allowing for isolation of traffic from the underlay networks and providing direct L3 connectivity even between devices located far away from each other
 GRE (Generic Routing Encapsulation) - a tunnelling protocol that allows an incapsulation of IP or other packets
     GRE encapsulation adds a GRE header (4Byte) and an IP header (20B).
     IP protocol number for GRE encapsulated packet is always 47 (https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers)
 GRE recursive routing: there might be an issue that the tunnel destination addressed is being routed through the tunnel itself.
 To avoid that, tunnel and underlay networks should be in different Routing Domains (OSPF and EIGRP; EIGRP AS 1 and EIGRP AS 2; any other pairs except for the same ones)
+!   MTU IS IMPORTANT. Tunnel default MTU is 1476
+
+GRE configuration:
+    interface tunnel<#>
+    tunnel source
+    tunnel destination
+    ip address
+    keepalive <interval> <retries_until_down> (keepalive is unidirectional - the packet that is originated on the router is destined to ITSELF; GRE header is added to packet, routed to tunnel destination, GRE header is stripped on the other side and uncovered IP packet is destined to the original router)
 
 IPsec - a framework (set of tools) that allows a construction of secure tunnel from one destination to another
     Key features that IPsec provide are data...:
