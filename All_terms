@@ -614,7 +614,7 @@ IPsec can have two different packet headers:
     AH (Authentication Header) - IP protocol 51. Allows to fullfill the data AUTHENTICATION and INTEGRITY. Can't encrypt
     ESP (Encapsulation Security Payload) - IP protocol 50. Can do all data features of IPsec. Also can do NAT traversal. 
         ESP can work in two modes:
-            TRANSPORT Mode - When original IP packet with payload arrives to router, ESP header is added between Payload an previous IP headers.
+            TRANSPORT Mode - When original IP packet with payload arrives to router, ESP header is added between Payload an previous IP headers. After that GRE header will add up in front(?)
             TUNNEL Mode - When original IP packet with payload arrives to router, ESP header is added in front of whole packet. another IP header is added in from of ESP header after that.
 
 Both Transform sets have to match between devices.
@@ -637,7 +637,23 @@ IKE:
             PFS - used to force use of different session keys other than ones that were used during phase 1.
     IKEv2. Phases are collapsed and less messages have to be exchanged before tunnels are established.
     Both devices have to use same IKE version.
-    
+
+IPsec configuration steps:
+    1. Configure Transform-set
+        a. Choose AH or ESP
+        b. Specify HASH and ENCRYPTION
+        c. If ESP: Tunnel or Transport mode
+    2. Configure IPsec Profile (prev. Crypto-map). Create a link to transform-set in IPsec profile.
+    3. Apply IPsec Profile to Tunnel interface.    
+
+But before configuring IPsec, IKE (ISAKMP) have to be configured:
+    crypto isakmp policy (HAGLE)
+    (if PSK)crypto isakmp key <key_value> address <IP_address_destination>
+
+Tshoot:
+    show crypto isakmp sa
+    show crypte ipsec sa
+
 VPN types
     Site-To-Site - Basic tunnel between two sites. Tunnel can be established between Cisco and other 3rd party device. Lacks Routing, Multicast, Scalability.
     DMVPN - A hub-and-spoke VPN topology. Many sites establish VPN to the main site. With that it's not required to create a lot of tunnels. NHRP protocol is utilized. Routing is configurable. 
