@@ -639,12 +639,22 @@ IKE:
     Both devices have to use same IKE version.
 
 IPsec configuration steps:
-    1. Configure Transform-set
+    0. Configure IKE phase 1.
+        //crypto isakmp policy <security value> (lesser value - more prioritized)
+         //hash <value>
+         //authentication <value>
+         //group <value>
+         //lifetime <value>
+         //encryption <value>
+        *if auth - psk* //crypto isakmp key <KEYVALUE> address <IP_OF_TUNNEL_DESTINATION>
+    1. Configure Transform-set (//crypto ipsec transform-set <TS_NAME> <PACKET_HEADER_VALUE>-<HASH_VALUE> *if ESP*<PACKET_HEADER_VALUE>-<ENCRYPTION_VALUE>)
         a. Choose AH or ESP
         b. Specify HASH and ENCRYPTION
-        c. If ESP: Tunnel or Transport mode
-    2. Configure IPsec Profile (prev. Crypto-map). Create a link to transform-set in IPsec profile.
-    3. Apply IPsec Profile to Tunnel interface.    
+        c. If ESP: Tunnel or Transport mode (//mode <tunnel-or-transport>)
+    2. Configure IPsec Profile (prev. Crypto-map). Create a link to transform-set in IPsec profile. (//crypto ipsec profile <PROFILE_NAME> -> //set transform-set <TS_NAME>)
+    3. Apply IPsec Profile to Tunnel interface.
+        *under tunnel configuration* //tunnel mode ipsec ivp4
+        //tunnel protection ipsec <PROFILE_NAME>
 
 But before configuring IPsec, IKE (ISAKMP) have to be configured:
     crypto isakmp policy (HAGLE)
