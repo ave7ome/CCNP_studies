@@ -330,7 +330,7 @@ Cisco SD-Access layers:
             Usual Packet: [eth|IP|data]
             VXLAN Packet: [eth|IP|VNID|above_packet_as_data]
             VXLAN-GPO is introduced by Cisco to serve it's purpose on the Policy plane. It includes SGTs (Scalable group tag) to manage the policies received by hosts
-        LISP - Control plane. Directs the traffic to required switch or node of network.
+        LISP (SDA) - Control plane. Directs the traffic to required switch or node of network.
             Each network device (switch or router) has an RLOC (Router LOCation) which identifies it in a network (usually it is a LOOPBACK address). 
             Each endpoint has a EID (Endpoint ID) and is bound to current RLOC (EID-RLOC mapping on CPN)
             Whenever traffic has to be sent from an endpoint to another enpoint, switch requests the direction from Mapping server (control plane node) and then just directs traffic as necessary
@@ -426,8 +426,6 @@ Wireless
         HW (9880, 9840, 9800-L similar to 9200-L, 9300-L)
         SW (Embedded WLC, 9800-CL (CL for cloud)). Cloud version can be deployed in private DC or in Cloud
     APs (9100) - supports mGig technology which allows transfer of big Gbit/s (up to 10) through WIFI.
-
-
 
 
 #                    QoS (Quality of service)
@@ -539,6 +537,7 @@ RP (route processor)
 Centralized and Distributed switching architectures
 Centralized - Packets that has been received by interface on Line card are forwarded to Supervisor before switching decision (CAM & FIB lookup)
 Distributed - Packet received on Line Card is forwarded firectly out of line card through corresponding interface (CAM & FIB tables are stored on LC but populated by Supervisor). Control traffic (like OSPF) still happens on Supervisor
+
 
 #                    Virtualization
 #        ENDPOINT VIRTUALIZATION 
@@ -669,6 +668,24 @@ VPN types
     DMVPN - A hub-and-spoke VPN topology. Many sites establish VPN to the main site. With that it's not required to create a lot of tunnels. NHRP protocol is utilized. Routing is configurable. 
     FlexVPN - A "DMVPN+". It utilizes IKEv2 (can only use version 2 while other VPNs MAY use v1 OR v2) to make DMVPN better but is a different VPN solution
     GET VPN - a VPN for WAN over MPLS networks. Allows to keep the original IP header (with QoSes and other stuff).    
+
+
+#                    LISP (as an independent protocol)
+Was designed to help with the growing amount of routes on the edge Routers (940K+ routes at the moment of writing).
+Instead of having all routers have all the prefixes existing in the internet, LISP allows to have a router domain where packet destined to certain IP, have to be transfered just to the router that has this IP-address on itself.
+All the routers on the way form an Underlay network and doesn't have to know the location of end subnet because packet is encapsulated with additional LISP, UDP (4341) and IP headers. They forward packet to end router.
+That removes the load of knowing all prefixes from many routers.
+
+There are Control plane and Data plane available:
+    Control Plane (LISP) - Where should the packet be forwarded. Mapping server helps to understand where should packet be forwarded.
+                           Mapping Server has access to all the routers on "as-needed" basis as opposed to "have-all-prefixes-at-the-same-time" of usual Routers.
+    Data Plance (LISP) - How should packet traverse the network to reach the destionation. 
+                         Answer is - TUNNELING. Router that first receive the packet is ITR (Ingress tunneling router), last router that receive the packet - ETR (Egress tunneling router)
+                         A usual IP packet in encapsulated on entering the tunnel.
+                         LISP header is added to it with INSTANCE ID information (helpes to identify VRFs as VNID in VXLAN)
+                         UDP header is added. UDP port that is used - 4341. Source port is set up manually that optimized Load Balancing in the environment ***(OPTIMIZE?)
+                         IP header is added. With tunnel IP addresses for packet to be able to reach the destination (RLOC of remote router).
+                         
 
 
 #                    STP (Spanning-tree protocol)
