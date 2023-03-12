@@ -679,13 +679,69 @@ That removes the load of knowing all prefixes from many routers.
 There are Control plane and Data plane available:
     Control Plane (LISP) - Where should the packet be forwarded. Mapping server helps to understand where should packet be forwarded.
                            Mapping Server has access to all the routers on "as-needed" basis as opposed to "have-all-prefixes-at-the-same-time" of usual Routers.
-    Data Plance (LISP) - How should packet traverse the network to reach the destionation. 
-                         Answer is - TUNNELING. Router that first receive the packet is ITR (Ingress tunneling router), last router that receive the packet - ETR (Egress tunneling router)
+    Data Plane (LISP) - How should packet traverse the network to reach the destionation. 
+                         Answer is - TUNNELING. Router that first receive the packet is ITR (Ingress tunneling router), last router that receive the packet - ETR (Egress tunneling router). These are relative so sometimes named xTR.
                          A usual IP packet in encapsulated on entering the tunnel.
                          LISP header is added to it with INSTANCE ID information (helpes to identify VRFs as VNID in VXLAN)
-                         UDP header is added. UDP port that is used - 4341. Source port is set up manually that optimized Load Balancing in the environment ***(OPTIMIZE?)
+                         UDP header is added. UDP port that is used - 4341. Source port is dynamically that optimized Load Balancing in the environment ***(OPTIMIZE?)
                          IP header is added. With tunnel IP addresses for packet to be able to reach the destination (RLOC of remote router).
                          
+LISP is used to separate Location and Identity.
+In LIPS, each router has it's own Locator = RLOC. And each router has a subset of EIDs (endpoint IDs) which are usually subnets.
+
+There are Map Resolver (MR) and Map Server (MS). Usually these are routers. And usually MR and MS are combined in one device.
+Whenever new EID is added to RLOC, it is reported to Map Server. 
+After that whenever other router has to send traffic to that new EID, Ingress router can send a request to MS and will then know where does subnet lives.
+
+If there's a traffic going outside the LISP domain (external), edge router takes a role of a proxy. 
+It can be either Proxy Egress tunnelling router (PETR) or Proxy Ingress tunnelling router (PITR), depending on the destination of traffic.
+
+LISP operation:
+Whenever Router gets connected to LISP domain, it shares it's EIDs (subnets) to the MS. That allows MS to know subnets connected to routers.
+    1. Router 1 gets into LISP domain.
+    2. It sends "MAP REGISTER" message to MS with subnet A in it.
+    3. MS adds subnet A to it's table and send back the "MAP NOTIFY" message.
+
+Whenever another router (router 2) wants to send a packet to subnet A on Router 1:
+    1. Router 2 sens a "MAP REQUEST" message to MR.
+    2. MR checks the table and sends "MAP REQUEST" further to Router 1 since the subnet is there.
+    3. Router 1 then sends a "MAP REPLY" message back to Router 2.
+    4. Then the LISP tunnel is getting formes to send traffic directly between routers. Packet's IP header includes source IP of Router 2 and Destination of Router 1. Real packet IPs are not known to devices on the way.
+
+Whenever the packet is destined to some subnet that does not exist in the LISP domain (located externally):
+    1. Router 2 sends out a  "MAP REQUEST" with subnet Z to MR.
+    2. Since there's no subnet Z on MR, it replies with "NEGATIVE MAP REPLY" - subnet not found in DB message. That means that subnet must be outside on LISP domain.
+    3. After that Router 2 sends out the packet to PxTR device to handle. 
+        
+PxTR does not add upstream subnets to the MR DB.
+
+
+#                    VXLAN (as an independent protocol)
+VXLAN allows L2 packets to be successfully traversed over the L3 network.
+
+Usual Frames (with ETHERNET header included) are being encapsulated and following are being added to them:
+    1. VXLAN header (8 Byte)
+    2. UDP header (8 Byte)
+    3. IP header (20 Byte)
+
+    Above is called "MAC-IN-IP/UDP" 
+    UDP/4789 is used.
+
+    Also ETH header adds up 14 Bytes. (18 Bytes with VLAN data, but usually it gets added to VXLAN header)
+    Since L2 header is not counted up to starting MTU (up to 1500 bytes) of not encapsulated packet.
+
+That means each VXLAN PDU accumulates additional 50 Bytes of MTU to the tunnel.
+
+VXLAN virtual identifier (VNID) allows up to 16 million diffrent values. 
+VLAN only allows 4096.
+
+While LISP has ITR and ETR, in VXLAN, routers are called VTEP.
+
+VXLAN is Data Plane protocol only, by itself it cannot move packets in the network since it doesn't know where to move them.
+Control Plane protocol is required: 
+    - Usually MP-BGP is used for that
+    - ACI uses COOP
+    - SDA uses LISP
 
 
 #                    STP (Spanning-tree protocol)
