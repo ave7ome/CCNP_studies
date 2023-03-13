@@ -756,3 +756,16 @@ Listening - Can't forward network traffic. Can receive and forward BPDUs
 Learning - Can't forward network traffic. Can receive and send BPDUs and alter MAC address table based on received network traffic 
 Forwarding - Port operates as usual
 Broken - Port discards packets while issue exists
+
+
+#                    Trunking protocols (802.1Q, VTP, DTP)
+
+802.1Q - the true trunking protocol. Allows to exchange tagged packets between switches (of ANY vendors)
+VTP (VLAN trunking protocol) - Allows switches to exchange VLAN DB data between each other. If VLAN is created on some switch, other switch connected to it creates same VLAN automatically
+DTP (Dynamic Trunking Protocol) - Allows switches to form TRUNK links automatically if two switches are connected between each other and configured accordingly:
+    "Auto" mode - "i'll be trunk if you want to". Only receives packets. Trunk will be formed only if other side is "Desirable" mode or Hardcoded TRUNK (switchport mode trunk). 
+    "Desirable" mode - "i want to be a trunk, do you want to?". Switch sends out packets to form a trunk between switches. Trunk will be formes if other device is configured with "desirable" mode or "auto" mode or hardcoded trunk.
+    Hardcoded trunk is a one, that is configured by entering "Switchport mode trunk"
+    
+    DTP is not recommended due to "VLAN HOPPING ATTACK". Trunk should be hardcoded manually.
+    
