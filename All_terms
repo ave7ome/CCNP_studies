@@ -769,3 +769,16 @@ DTP (Dynamic Trunking Protocol) - Allows switches to form TRUNK links automatica
     
     DTP is not recommended due to "VLAN HOPPING ATTACK". Trunk should be hardcoded manually.
     
+
+#                    EtherChannels (troubleshoot,configure) - basic, LACP, PAgP(ciscoProprietary)
+Usual Etherchannel - just turn on the port-channel on both sides
+    When in usual mode, "show etherchannel" won't show that EC is down.
+LACP (Link Aggregation Control Protocol) - two modes of EC (passive - enable LACP only if LACP device is detected) (active - enable LACP unconditionally)
+PAgP (Port Aggregation Protocol) - two modes of EC (auto - enable PAgP only if PAgP device is detected) (desirable - Enable PAgP unconditionally)
+
+TSHOOT:
+    "show interfaces port-channel" - check port-channel interface (members, speed)
+    "show lacp/pagp counters" - check counters, DUs that are exchanged
+    "show lacp/pagp internal" - check EC mode, rate of DUs
+    "show lacp/pagp neighbor" - check EC mode, rate of DUs FOR THE NEIGHBOR
+
