@@ -747,7 +747,24 @@ Control Plane protocol is required:
 #                    STP (Spanning-tree protocol)
 https://linkmeup.ru/podcasts/977/
 STP (802.1D) - protocol that allows switches to become aware of other switches through advertising and receiving of BPDUs. Also build loop-free topology
-BPDU - Bridge Protocol Data Unit
+BPDU - Bridge Protocol Data Unit. Some of BPDU information that is exchanged between switches within STP process:
+    Bridge ID - An ID of each switch which consists of:
+        - Bridge Priority (default - 32768, steps are 4096)
+        - Base MAC-Address
+        - VLAN number (number is added to priority value)
+        Root Bridge is usually chosen by manually set priority. If both Priority value and VLAN are same, then tiebreaker is MAC
+    Port Cost - Cost of port (depends on port bandwidth)
+        - Ethernet (10Mbit/s) has a cost of 100
+        - FastEthernet (100Mbit/s) has a cost of 19
+        - GigabitEthernet (1,000Mbit/s) has a cost of 4
+        There are different standarts to STP specifying the cost of ports (802.1d-1990 - unique values up to 600Mbit/s, 802.1d-1998 - unique values up to 50Gbit/s, 802.1t-2001)
+    Root Path Cost - Consist of Port Cost sums for all the links on the way to Root Bridge
+    Port Priority + ID - An STP Port Priority (default value is 128). Also adds up the port ID in system. gi0/0 is 1, gi0/4 is 5 and on.
+    
+    
+Used for network to be redundant AND loop-proof. In a topology with many links going between devices, a root switch is elected through certain means, then the topology is build for every device in broadcast domain to be able to reach the root though SINGLE path.
+Root gets all ports used. Downstream switches only have a single path to the root, others can never lead to root switch in normal circumstances.
+
 
 STP port states:
 Disabled - Port is admin down
@@ -789,6 +806,5 @@ Advanced LACP features:
     "show lacp sys-id / lacp system-priority" - Check / Specify LACP priority for the switch. Used if MIN or MAX links are configured. Switch LACP priority allows for device to specify which interface is chosen as an active and which one as HOT-STANDBY.
     "lacp port priority" - Specify PORT priority opposed to whole Switch priority. Also used to manually specify which interface should be turned to Hot-standby
     CHOICE GOES TO THE LEAST PRIORITY!
-    
     
     
