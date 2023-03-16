@@ -782,3 +782,13 @@ TSHOOT:
     "show lacp/pagp internal" - check EC mode, rate of DUs
     "show lacp/pagp neighbor" - check EC mode, rate of DUs FOR THE NEIGHBOR
 
+Advanced LACP features:
+    "lacp rate fast" - Enable Fast LACPDUs (Slow ones are transmitted once in 30 seconds, fast ones are once every second). Have to be configured on both sides
+    "port-channel min-links" - Set a minimum links at which the port-channel will be a port-channel. If there are 4, minimum is 4 and one link fails - port-channel is destroyed to usual links
+    "port-channel max-bundle" - Set a maximum links available in PC. If there are 2 IFs in PC, you configure maximum to 1, then one interface will got to "Hot-Standby" mode.
+    "show lacp sys-id / lacp system-priority" - Check / Specify LACP priority for the switch. Used if MIN or MAX links are configured. Switch LACP priority allows for device to specify which interface is chosen as an active and which one as HOT-STANDBY.
+    "lacp port priority" - Specify PORT priority opposed to whole Switch priority. Also used to manually specify which interface should be turned to Hot-standby
+    CHOICE GOES TO THE LEAST PRIORITY!
+    
+    
+    
