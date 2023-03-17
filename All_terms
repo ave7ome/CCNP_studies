@@ -760,6 +760,15 @@ BPDU - Bridge Protocol Data Unit. Some of BPDU information that is exchanged bet
         There are different standarts to STP specifying the cost of ports (802.1d-1990 - unique values up to 600Mbit/s, 802.1d-1998 - unique values up to 50Gbit/s, 802.1t-2001)
     Root Path Cost - Consist of Port Cost sums for all the links on the way to Root Bridge
     Port Priority + ID - An STP Port Priority (default value is 128). Also adds up the port ID in system. gi0/0 is 1, gi0/4 is 5 and on.
+
+Elect Root Bridge ID:
+    Each switch at the beginning sends out BPDUs saying "I AM ROOT BRIDGE". 
+    Whenever device receives BPDU with lower Priority value, or Base MAC-Address, it stops considering itself Root and proceeds to choose root ports.
+Elect Root port:
+    Root port is chosen based on the Port cost towards the Root. 
+    Root switch advertises cost to Root as value 0 (since it is a Root). Each following switch advertise cost to root as 0 + it's own best value.
+    If switch has two ways with same port costs towards Root, the port towards the bridge with lower bridge ID will be chosen as Root.
+    If all potential Root ports are leading to switches with the same bridge IDs, Root port will be elected based on lower priority + port ID of the connected Switch.
     
     
 Used for network to be redundant AND loop-proof. In a topology with many links going between devices, a root switch is elected through certain means, then the topology is build for every device in broadcast domain to be able to reach the root though SINGLE path.
