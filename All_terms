@@ -764,11 +764,18 @@ BPDU - Bridge Protocol Data Unit. Some of BPDU information that is exchanged bet
 Elect Root Bridge ID:
     Each switch at the beginning sends out BPDUs saying "I AM ROOT BRIDGE". 
     Whenever device receives BPDU with lower Priority value, or Base MAC-Address, it stops considering itself Root and proceeds to choose root ports.
+
 Elect Root port:
     Root port is chosen based on the Port cost towards the Root. 
     Root switch advertises cost to Root as value 0 (since it is a Root). Each following switch advertise cost to root as 0 + it's own best value.
     If switch has two ways with same port costs towards Root, the port towards the bridge with lower bridge ID will be chosen as Root.
     If all potential Root ports are leading to switches with the same bridge IDs, Root port will be elected based on lower priority + port ID of the connected Switch.
+
+Elect Designated port:
+    Designated port is port facing away from the root (basically any NON-ROOT). 
+    In the link between two switches, there is only 1 (ONE) designated port and one blocking port.
+    1. Chosen based on the path cost to the ROOT (can be checked with "sh spanning-tree vlan 10 root cost")
+    2. If path to ROOT is of the same cost, Designated port is chosen on the switch with lowest bridge ID (priority-vlanID-MAC)
     
     
 Used for network to be redundant AND loop-proof. In a topology with many links going between devices, a root switch is elected through certain means, then the topology is build for every device in broadcast domain to be able to reach the root though SINGLE path.
