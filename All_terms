@@ -777,10 +777,8 @@ Elect Designated port:
     1. Chosen based on the path cost to the ROOT (can be checked with "sh spanning-tree vlan 10 root cost")
     2. If path to ROOT is of the same cost, Designated port is chosen on the switch with lowest bridge ID (priority-vlanID-MAC)
     
-    
 Used for network to be redundant AND loop-proof. In a topology with many links going between devices, a root switch is elected through certain means, then the topology is build for every device in broadcast domain to be able to reach the root though SINGLE path.
 Root gets all ports used. Downstream switches only have a single path to the root, others can never lead to root switch in normal circumstances.
-
 
 STP port states:
 Disabled - Port is admin down
@@ -789,6 +787,15 @@ Listening - Can't forward network traffic. Can receive and forward BPDUs
 Learning - Can't forward network traffic. Can receive and send BPDUs and alter MAC address table based on received network traffic 
 Forwarding - Port operates as usual
 Broken - Port discards packets while issue exists
+
+STP customization:
+
+Uplinkfast - if switch has more than one port in the direction of root, this feature allows it to transition that port from blocking directly to forwarding state if the active root port stops being operation (admin shutdown or anything else)
+        To turn feature on: "spanning-tree uplinkfast" in global config mode. Used only to response to failure that is detected on switches own link (from other side as well)
+        + 3000 to port cost; 
+        + a lot to the bridge priority (+ ~16000)
+
+Backbonefast - if switch gets cut out of it's root link (shutdown or failure on any side) and the only other link towards the root is in blocking state from other end, the switch will think it is a root bridge (since blocking port doesn't send BPDUs) and will send out it's own BPDUs "i am now root bridge". Feature allows to detect these occasions (on the switch which has a blocking port) and response by sending a backbonefast request to current root to make sure it's still there and will then transition it's blocking port to designated state to let switch with failed link know that there is a better bridge (with better bridge ID)
 
 
 #                    Trunking protocols (802.1Q, VTP, DTP)
