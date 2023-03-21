@@ -761,6 +761,10 @@ BPDU - Bridge Protocol Data Unit. Some of BPDU information that is exchanged bet
     Root Path Cost - Consist of Port Cost sums for all the links on the way to Root Bridge
     Port Priority + ID - An STP Port Priority (default value is 128). Also adds up the port ID in system. gi0/0 is 1, gi0/4 is 5 and on.
 
+There are 2 types of BPDU:
+    Configuration BPDUs - is sent out initially during first negotiation and STP domain establishement
+    Notification BPDUs (TCN topology change notification) - is sent out when configuration change (or failure) happens
+
 Elect Root Bridge ID:
     Each switch at the beginning sends out BPDUs saying "I AM ROOT BRIDGE". 
     Whenever device receives BPDU with lower Priority value, or Base MAC-Address, it stops considering itself Root and proceeds to choose root ports.
@@ -788,6 +792,13 @@ Learning - Can't forward network traffic. Can receive and send BPDUs and alter M
 Forwarding - Port operates as usual
 Broken - Port discards packets while issue exists
 
+Timers in 802.1D:
+    Hello Time (def 2 sec) - how often does BPDUs are sent out 
+    Max Age (def 20 sec) - if switch doesn't receive BPDUs from neighboring device for that amount of time, port is transitioned to blocking state and (if it was on a root port) new root port is chosen
+    Forward Delay (def 15 sec) - how long does switch stay in LISTENING and LEARNING states after topology change
+    Aging Time (def 300 sec) - how long does dynamically learned MAC-address is kept in the MAC-address table if there is no traffic received from it
+        Timer is set to 15sec if topology has been changed (TCN sent/received)
+        
 STP customization:
 
 Uplinkfast - if switch has more than one port in the direction of root, this feature allows it to transition that port from blocking directly to forwarding state if the active root port stops being operation (admin shutdown or anything else)
@@ -795,7 +806,14 @@ Uplinkfast - if switch has more than one port in the direction of root, this fea
         + 3000 to port cost; 
         + a lot to the bridge priority (+ ~16000)
 
-Backbonefast - if switch gets cut out of it's root link (shutdown or failure on any side) and the only other link towards the root is in blocking state from other end, the switch will think it is a root bridge (since blocking port doesn't send BPDUs) and will send out it's own BPDUs "i am now root bridge". Feature allows to detect these occasions (on the switch which has a blocking port) and response by sending a backbonefast request to current root to make sure it's still there and will then transition it's blocking port to designated state to let switch with failed link know that there is a better bridge (with better bridge ID)
+Backbonefast - if switch gets cut out of it's root port (shutdown or failure on any side) and the only other link towards the root is in blocking state from other end, the switch will think it is a root bridge (since blocking port doesn't send BPDUs) and will send out it's own BPDUs "i am now root bridge". Feature allows to detect these occasions (on the switch which has a blocking port) and response by sending a backbonefast request to current root to make sure it's still there and will then transition it's blocking port to designated state (to send out BPDUs) to let switch with failed link know that there is a better bridge (with better bridge ID)
+
+Portfast - feature that allows to specify ports connected to single devices and bypass the LIS and LRN states when they come up. Port up/down events will not be considered as topology change (hence no TCN)
+    Can be configured on port or globally (if globally, ACCESS interfaces are switched to portfast)
+    Can be configured on trunk
+
+BPDU Filter (usually in combo with Portfast) - a feature that prohibits BPDUs from being sent or received on specified interface.
+    Can be configured on port or globally (if globally, feature is applied to interfaces with PORTFAST)
 
 
 #                    Trunking protocols (802.1Q, VTP, DTP)
