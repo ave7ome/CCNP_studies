@@ -860,10 +860,17 @@ What changed:
         Alternate port (port is blocked but could be ROOT PORT) - it is allowed to transition to forwarding if root port fails. Basically it received 2nd best BPDU
         Backup port (port is blocked but could be DESIGNATED port) - it serves as backup to DESIGNATED port. Not seen often nowadays because it required few ports on one switch to be connected to shared medium (like hub)
 
-RSPT Port states:
+RSTP Port states:
     (BLK)Discarding (combines Disabled, Blocking and Listening states from original STP) - receives BPDUs on the interface. Doesn't forward user data. Doesn't add MAC-addresses to MAC table
     (LRN)Learning - receives and sends out BPDUs. Adds MAC-address to MAC table for user data traffic but doesn't forward the data
     (FWD)Forwarding - Receives&sends out BPDUs, forwards user traffic
+
+
+#                    MST (Multiple Spanning Tree) (802.1S)
+
+MST allows creation of STP instances and to include VLANs to that instances. That is next level to PVST since PVST creates a new STP instance for each VLAN. If there are many VLANs - huge resource load will be created.
+
+
 
 
 
