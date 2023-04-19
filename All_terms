@@ -870,6 +870,7 @@ RSTP Port states:
 
 MST allows creation of STP instances and to include VLANs to that instances. That is next level to PVST since PVST creates a new STP instance for each VLAN. If there are many VLANs - huge resource load will be created.
 
+It can be used for load balancing - Create 2 instances for 2 different paths and use both to forward traffic for half VLANs through one path and other half through another.
 
 
 
