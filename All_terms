@@ -872,7 +872,25 @@ MST allows creation of STP instances and to include VLANs to that instances. Tha
 
 It can be used for load balancing - Create 2 instances for 2 different paths and use both to forward traffic for half VLANs through one path and other half through another.
 
+    MST configuration:
+    In MST, there is a concept of "REGION".
+    Region - a nubmer of switches running in the same MST-"domain".
+    
+    For switches to belong to same Region, following should match for them:
+        Region Name;
+        Revision Number;
+        Instances with VLAN mappings (VLANs are mapped to instances).
+        
+    There is always Internal Spanning-Tree (IST) Instance - 0. Apart from 0, any number up to 16 can be used.
+    When configuring MST, first of all "spanning-tree mode mst" should be run to change STP mode to MST.
+    
+MST uses long port cost by default:
 
+BW------short---long--|
+10mb-----100---2000000|
+100mb----19----200000-|
+1000mb---4-----20000--|
+10000mb--2-----2000---|
 
 
 #                    Trunking protocols (802.1Q, VTP, DTP)
