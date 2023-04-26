@@ -892,6 +892,11 @@ BW------short---long--|
 1000mb---4-----20000--|
 10000mb--2-----2000---|
 
+MST switches exchange BPDUs just for region instance 0 which is IST (Internal Spanning-tree). 
+Within these BPDUs, there is an information about all other MST instances. 
+In that BPDUs, there is an information about Instance 0, it's root bridge ID, root cost, protocol identifier (MST).
+Also there's MST instances data, it's root bridge ID.
+
 
 #                    Trunking protocols (802.1Q, VTP, DTP)
 
