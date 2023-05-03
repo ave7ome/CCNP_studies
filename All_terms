@@ -897,6 +897,14 @@ Within these BPDUs, there is an information about all other MST instances.
 In that BPDUs, there is an information about Instance 0, it's root bridge ID, root cost, protocol identifier (MST).
 Also there's MST instances data, it's root bridge ID.
 
+!When there's a switch in topology that doesn't belong to the MST region.
+   -If there's a switch that is not in MST region, all the MST switches connected to it will advertise (in BPDUs) the ROOT bridge of IST. And the cost for EACH switch to reach the root will be 0.
+    The tiebreaker for which port to be ROOT and which one to be blocking is about the bridge ID of a switch connected to each port.
+    Each advertisement has a root cost of 0, root bridge is is the same (ROOT of IST), but advertising switch bridge ID will differ, based on that the decision will be made.
+    That sometimes can lead to suboptimal path but it is what it is.
+   -If the switch not is MST region is recognized to be Cisco running PVST, all the MST switches will send out a BPDU for each VLAN that should be advertised over trunk between them.
+
+
 
 #                    Trunking protocols (802.1Q, VTP, DTP)
 
