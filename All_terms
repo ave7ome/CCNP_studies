@@ -824,7 +824,7 @@ Portfast - feature that allows to specify ports connected to single devices and 
 
 BPDU Filter (usually in combo with Portfast) - a feature that prohibits BPDUs from being sent or received on specified interface.
     Can be configured on port or globally (if globally, feature is applied to interfaces with PORTFAST)
-    "spanning-tree bpdufiter enable"
+    "spanning-tree bpdufilter enable"
 
 Root Guard - a feature enabled on the interface that prohibits STP topology changes if these interfaces receive BPDUs with bridge IDs better that current root bridge ID
     Enabled on the interface - "spanning-tree guard root"
