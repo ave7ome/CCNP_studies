@@ -939,3 +939,34 @@ Advanced LACP features:
     CHOICE GOES TO THE LEAST PRIORITY!
     
     
+
+#                    Routing 
+
+Dynamic routing protocols:
+    IGP (Interior Gateway Protocol)
+        RIP;
+        EIGRP;
+        OSPF;
+        IS-IS;
+    EGP (Exterior Gateway Protocol)
+        BGP.
+
+Autonomous System - a set of routers and networks under same management
+    IGP is best suited to share routes within same AS.
+        - better speed
+        - better responsiveness
+    EGP is better suited to share routes between AS'es
+        - better stability
+        - better security
+
+Link State Routing protocols (OSPF, IS-IS)
+    (*)Router know the whole topology
+    Takes more RAM / CPU
+    Faster convergence     
+Distance Vector Routing protocols (RIP, EIGRP)
+    (*)Router know only about the next hop
+    Takes less RAM / CPU
+    Slower convergence
+    (((())))EIGRP is an ADVANCED Distance Vector
+
+
