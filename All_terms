@@ -969,4 +969,36 @@ Distance Vector Routing protocols (RIP, EIGRP)
     Slower convergence
     (((())))EIGRP is an ADVANCED Distance Vector
 
+To determine the best route, routers check:
+    1. Route mask (if there's a route to /25, it is always preferred over /24, /23 etc. route)
+    2. Administrative Distance (lower is better)
+    3. Metric (lower is better)
+    #If all 3 things above are identical, router will load-balance traffic to the subnet using ECMP (Equal Cost Multi-Path)
+
+
+
+#                    OSPF 
+
+OSPF Tables
+    Neighbor Table - a table of every connected router (participating in OSPF) 
+    Topology Table - a table of everything that is known to OSPF (known networks, ALL routers in OSPF)
+        Link State Database (LSDB), same as Topology table - consists of LSAs as entries
+        Link State Advertisement (LSA) - a piece of information shared between routers in OSPF process
+    Routing Table - table of all the best routes known to the router
+
+
+OSPF Packets
+    Hello
+    Database Descriptor (DBD)
+    Link State Request (LSR)
+    Link State Update (LSU)
+    L.S. Acknowledgement (LSAck)
+
+
+
+
+
+
+
+
 
