@@ -980,7 +980,7 @@ To determine the best route, routers check:
 #                    OSPF 
 
 OSPF Tables
-    Neighbor Table - a table of every connected router (participating in OSPF) 
+    Neighbor Table - a table of every directly connected router (participating in OSPF) 
     Topology Table - a table of everything that is known to OSPF (known networks, ALL routers in OSPF)
         Link State Database (LSDB), same as Topology table - consists of LSAs as entries
         Link State Advertisement (LSA) - a piece of information shared between routers in OSPF process
@@ -988,11 +988,14 @@ OSPF Tables
 
 
 OSPF Packets
-    Hello
-    Database Descriptor (DBD)
-    Link State Request (LSR)
-    Link State Update (LSU)
-    L.S. Acknowledgement (LSAck)
+    Hello packets - packets that each router with OSPF process enabled are sending out to 224.0.0.5 multicast-address. Include information about router (helps to determine if adjacency should be formed)
+                    each router with OSPF enabled in it's turn is listening for packets on IP 224.0.0.5
+                    Used to discover other routers with OSPF. 
+    Database Descriptor (DBD) - a packet with summary of LSAs in router's LSDB (Topology table). Usually LSDB contains all LSAs separately, DBD has it summarized
+    Link State Request (LSR) - a request for certain LSAs (unknown to receiving router) after received DBD from other router 
+    Link State Update (LSU) - a reply with LSA requested through LSR
+                              OR a global OSPF update with newly discovered subnet
+    L.S. Acknowledgement (LSAck) - confirmation packet for neighbor routers to make sure LSU have been received.
 
 
 
