@@ -978,6 +978,7 @@ To determine the best route, routers check:
 
 
 #                    OSPF 
+Practical OSPF series (https://www.youtube.com/playlist?list=PLIFyRwBY_4bSkwy0-im5ERL-_CeBxEdx3)
 
 OSPF Tables
     Neighbor Table - a table of every directly connected router (participating in OSPF) 
@@ -998,10 +999,23 @@ OSPF Packets
     L.S. Acknowledgement (LSAck) - confirmation packet for neighbor routers to make sure LSU have been received.
 
 
+OSPF Areas
+    Areas in OSPF work form a 2-tier hierarchy. 
+    That means that there is a central "Area 0" (known as Backbone area).
+    And also there can be other areas (number 1 to 2^32). Each non-Backbone area have to be connected to Area 0. And all communication between areas can only happen through Area 0.
 
+    Each area has it's own LSDB (and therefore set of LSAs). That allows to exchange only relevant information between routers from different Areas.
+    For example: R1 and R2 are connected to R3 which is connected to R4 an R5 in it's place. R4 and R5 are interconnected. R4 has a 10.0.133.16/28 subnet on it.
+    If link from R4 to R3 is dropped, R3 will see route to 10.0.133.16/28 through R5. And since it's OSPF (every route have to know all the topology), will send out the Link-State Update (LSU) with new information to every router upwards.
+    But at the same time, R1 and R2 know the subnet 10.0.133.16/28 is located through R3. And it still is (even after LSU). That update is redundant since nothing changed logically for R1 and R2.
+    Areas having own LSDB help not to receive all of such updates.
 
-
-
+OSPF router types
+    Internal Router - A router with all the interfaces in same area (any area)
+    Backbone Router - A router at lease 1 interface in Area 0
+    ABR (Area Border Router) - A router with it's interfaces in Area 0 and some other Area. Stores LSDB for all areas it connects to (different LSDB for each Area). Summarized LSAs between areas.
+    ASBR (Autonomous System Border Router) - A router with it's interfaces in some Area and some interfaces out of OSPF process (distributing networks from other routing protocol/directly connected ones or static).
+        Router is ASBR if it's in OSPF process AND redistributing external routes into an OSPF process.
 
 
 
