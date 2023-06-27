@@ -989,7 +989,7 @@ OSPF Tables
 
 
 OSPF Packets
-    Hello packets - packets that each router with OSPF process enabled are sending out to 224.0.0.5 multicast-address. Include information about router (helps to determine if adjacency should be formed)
+    Hello packets - packets that each router with OSPF process enabled are sending out to 224.0.0.5 multicast-address. Includes information about router (helps to determine if adjacency should be formed)
                     each router with OSPF enabled in it's turn is listening for packets on IP 224.0.0.5
                     Used to discover other routers with OSPF. 
     Database Descriptor (DBD) - a packet with summary of LSAs in router's LSDB (Topology table). Usually LSDB contains all LSAs separately, DBD has it summarized
@@ -1000,22 +1000,59 @@ OSPF Packets
 
 
 OSPF Areas
-    Areas in OSPF work form a 2-tier hierarchy. 
+    Areas in OSPF form a 2-tier hierarchy. 
     That means that there is a central "Area 0" (known as Backbone area).
     And also there can be other areas (number 1 to 2^32). Each non-Backbone area have to be connected to Area 0. And all communication between areas can only happen through Area 0.
 
     Each area has it's own LSDB (and therefore set of LSAs). That allows to exchange only relevant information between routers from different Areas.
-    For example: R1 and R2 are connected to R3 which is connected to R4 an R5 in it's place. R4 and R5 are interconnected. R4 has a 10.0.133.16/28 subnet on it.
+    For example: R1 and R2 are connected to R3 which is connected to R4 and R5. R4 and R5 are interconnected. R4 has a 10.0.133.16/28 subnet on it.
     If link from R4 to R3 is dropped, R3 will see route to 10.0.133.16/28 through R5. And since it's OSPF (every route have to know all the topology), will send out the Link-State Update (LSU) with new information to every router upwards.
     But at the same time, R1 and R2 know the subnet 10.0.133.16/28 is located through R3. And it still is (even after LSU). That update is redundant since nothing changed logically for R1 and R2.
     Areas having own LSDB help not to receive all of such updates.
 
 OSPF router types
     Internal Router - A router with all the interfaces in same area (any area)
-    Backbone Router - A router at lease 1 interface in Area 0
+    Backbone Router - A router at least 1 interface in Area 0
     ABR (Area Border Router) - A router with it's interfaces in Area 0 and some other Area. Stores LSDB for all areas it connects to (different LSDB for each Area). Summarized LSAs between areas.
     ASBR (Autonomous System Border Router) - A router with it's interfaces in some Area and some interfaces out of OSPF process (distributing networks from other routing protocol/directly connected ones or static).
         Router is ASBR if it's in OSPF process AND redistributing external routes into an OSPF process.
+
+Hello Packet (common information above)
+("(*)" - value have to be matched for routers to establish the adjacency)
+    Each OSPF router is listening to traffic on 224.0.0.5 (Multicast) and sends out Hello packets to that same address. Can be configured to send the Hello's as Unicast if Multicast is restricted.
+    Information transferred in Hello's:
+        Router ID - 32 bit value (like 1.1.1.1), an identificator
+     (*)Hello Interval - a timer mentioning the frequency of sending Hello Packets (how ofter hellos are sent)
+     (*)Dead Interval - timer specifying when the neighbour is considered unreachable ("dead") and is out of neighbor table
+        Neighbors - a list of known neighbours on the link (initially empty)
+     (*)Area ID - an ID of area that link-router belongs to
+     (*)Authentication data - a password that should be used to establish a connectivity to other router (other router should be configured with the same password)
+     (*)Network Mask - subnet mask for the link
+     (*)Area Type
+            Normal - a basic area that allows all routes to be inserted into itself (routes from all areas or from other routing protocols distributed within OSPF process)
+            Stub - an area that allows only routes from OSPF process and summarizes all the routes received from external routing protocols (serves as a default-gateway to reach the prefixes)
+                   An area with nothing behind it and only Area 0 in front.
+            NSSA (Not-so-stubby-area) - a stub area that STILL doesn't allow redistributed (from other routing protocols) routes in common but allows redistributed routes from local area
+                                        Basically a stub area but there are some other subnets behind it (some other routing protocol)
+        Designated Router (DR) - an IP address of DR
+                            DR - A router responsible for link-state Updates (LSU) on the link with multiple routers. Used to prevent all the routers from spamming all the updates. If update is originated from other router on the link it is getting sent only to the DR
+        Backup Designated Router (BDR) - A backup DR. Takes over if something happens to DR
+        Priority - a priority in DR election (more priority - more chances to be chosen as DR/BDR)
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
