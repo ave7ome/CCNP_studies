@@ -993,7 +993,8 @@ OSPF Packets
                     each router with OSPF enabled in it's turn is listening for packets on IP 224.0.0.5
                     Used to discover other routers with OSPF. 
     Database Descriptor (DBD) - a packet with summary of LSAs in router's LSDB (Topology table). Usually LSDB contains all LSAs separately, DBD has it summarized
-    Link State Request (LSR) - a request for certain LSAs (unknown to receiving router) after received DBD from other router 
+    Link State Request (LSR) - a request for certain LSAs (unknown to receiving router) after received DBD with summarized LSAs from other router
+                         LSR - basically a request to router that provided DBD (with summarized LSAs) to expand some of LSAs to be able to insert them into the topology
     Link State Update (LSU) - a reply with LSA requested through LSR
                               OR a global OSPF update with newly discovered subnet
     L.S. Acknowledgement (LSAck) - confirmation packet for neighbor routers to make sure LSU have been received.
@@ -1019,35 +1020,73 @@ OSPF router types
 
 Hello Packet (common information above)
 ("(*)" - value have to be matched for routers to establish the adjacency)
-    Each OSPF router is listening to traffic on 224.0.0.5 (Multicast) and sends out Hello packets to that same address. Can be configured to send the Hello's as Unicast if Multicast is restricted.
+    Each OSPF router is listening to OSPF traffic on 224.0.0.5 IP (Multicast) and sends out Hello packets to that same address. Can be configured to send the Hello's as Unicast if Multicast is restricted. To use unicast, other OSPF Router IPs have to be specified in the OSPF configuration.
     Information transferred in Hello's:
         Router ID - 32 bit value (like 1.1.1.1), an identificator
-     (*)Hello Interval - a timer mentioning the frequency of sending Hello Packets (how ofter hellos are sent)
+     (*)Hello Interval - a timer mentioning the frequency of sending Hello Packets (how often hellos are sent)
      (*)Dead Interval - timer specifying when the neighbour is considered unreachable ("dead") and is out of neighbor table
         Neighbors - a list of known neighbours on the link (initially empty)
-     (*)Area ID - an ID of area that link-router belongs to
+     (*)Area ID - an ID of area that router's interface belong to
      (*)Authentication data - a password that should be used to establish a connectivity to other router (other router should be configured with the same password)
      (*)Network Mask - subnet mask for the link
      (*)Area Type
             Normal - a basic area that allows all routes to be inserted into itself (routes from all areas or from other routing protocols distributed within OSPF process)
-            Stub - an area that allows only routes from OSPF process and summarizes all the routes received from external routing protocols (serves as a default-gateway to reach the prefixes)
-                   An area with nothing behind it and only Area 0 in front.
+            Stub - an area that allows only routes from OSPF process and summarizes all the routes received from external routing protocols (serves as a default-gateway to reach a lot of outer prefixes)
+                   Stub is an area with nothing behind it and only Area 0 in front.
             NSSA (Not-so-stubby-area) - a stub area that STILL doesn't allow redistributed (from other routing protocols) routes in common but allows redistributed routes from local area
-                                        Basically a stub area but there are some other subnets behind it (some other routing protocol)
+                                        Basically NSSA is a stub area but there are some other subnets behind it (some other routing protocol)
         Designated Router (DR) - an IP address of DR
-                            DR - A router responsible for link-state Updates (LSU) on the link with multiple routers. Used to prevent all the routers from spamming all the updates. If update is originated from other router on the link it is getting sent only to the DR
+                            DR - A router responsible for link-state Updates (LSUs) on the link with multiple routers. Used to prevent all the routers from spamming all the updates. If update is originated from other router on the link it is getting sent only to the DR
         Backup Designated Router (BDR) - A backup DR. Takes over if something happens to DR
         Priority - a priority in DR election (more priority - more chances to be chosen as DR/BDR)
  
+    OSPF Neighbor adjacency states:
+        DOWN - when router gets configured with the OSPF process and there are no other routers it can establish neighborship to. Adjacency is never displayed as DOWN (technically DOWN is not a state) because whenever OSPF is enabled, Hello packets are being sent but no device replies and initial router doesn't know anyones Router ID. Neighbor is added to Neighbor table only when Router know the Router ID (when some other device replies with Hello or sends it out first)
+        ATTEMPT - a state available only in non-broadcast multi-access (NBMA) network where multicast/broadcast traffic is prohibited. ATTEMPT is an OSPF state of the router explicitly configured as OSPF neighbor to which connection is attempted to be established.
+        INIT - a state that happens when router receives a Hello packet on the link when being in DOWN state. All the outbound Hello packets in this state will start to include neighbor ID in Neighbors attribute
+        2-WAY - a state that specifies that there is a 2-way connectivity between devices, both routers sent out Hello packets and received them from each other with the neighbor's Router ID in Neighbors attribute. Main point is that router if router is in 2-WAY state, it received a Hello packet from neighbor and saw own Router ID
+        EXSTART - after 2-WAY state, routers inspect received Hello packets and if all of them have matching "hello interval", "dead interval", "area ID", "area type", "authentication data" and "subnet mask on link" they move to EXSTART state. In that state, they decide who will be a Master and who'll be Slave on that adjacency. It is done by exchanging the DBD (both routers send DBD saying they're the Master). Router with the higher Router ID is elected as Master
+        EXCHANGE - state happening after Master/Slave election has been completed. Router elected as Slave transition from EXSTART to EXCHANGE and sends out DBD confirmation that it's a Slave. Master after that transition to EXCHANGE as well. After that With Slave DBD confirmation, Slave also sends it's LSDB. Master sends out a DBD with it's own LSDB as a Master. Slave answers with an empty DBD for that. In case Slave would like to say something, it adds a bit to empty DBD.
+        LOADING - Routers transition into loading state after both of them have successfully exchanged LSDBs. In that state, peers know which LSA are in their neighbors LSDBs and can send out an LSR to specify some of summarized LSAs (LSRequest -> LSUpdate -> LSAck process). 
+        FULL - Router transition the neighbor to FULL state after it receives LSU from peer and sent a LSAck. It thinks that now topology table is full since it got all the required information.
 
+Possible packet exchange (with state changes)
+R1(DOWN,OSPF_ON)     --- R2(DOWN,OSPF_OFF)
+-Hello->
+                         //turn on OSPF on R2
 
+R1(DOWN,OSPF_ON)     --- R2(DOWN,OSPF_ON)
+                     <-Hello-
 
+R1(INIT)             --- R2(DOWN)
+-Hello,Neighbor:R2->
 
+R1(INIT)             --- R2(2-WAY)
+                     <-Hello,Neighbor:R1-
 
+R1(2-WAY)            --- R2(2-WAY)
+//if 6 parameters match, transition to EXSTART
 
+R1(EXSTART)          --- R2(EXSTART)
+-DBD,Master->       <-DBD,Master-
+-DBD,Slave+LSDB->
 
+R1(EXCHANGE)         --- R2(EXCHANGE)
+                     <-DBD,Master+LSDB-
+-DBD,Slave->                               //if Slave wants to say something after that, a bit is set in that empty DBD respose           
+//after LSDB exchange, transition to LOADING
 
+R1(LOADING)         --- R2(LOADING)
+-LSR->
+                    <-LSU-
+-LSAck->
 
+R1(FULL)         --- R2(LOADING)
+                 <-LSR-
+-LSU->
+                 <-LSAck-
+
+R1(FULL)         --- R2(FULL)
 
 
 
