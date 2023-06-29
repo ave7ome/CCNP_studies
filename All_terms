@@ -977,7 +977,7 @@ To determine the best route, routers check:
 
 
 
-#                    OSPF 
+#                    OSPF (AD - 110)
 Practical OSPF series (https://www.youtube.com/playlist?list=PLIFyRwBY_4bSkwy0-im5ERL-_CeBxEdx3)
 
 OSPF Tables
@@ -1042,7 +1042,7 @@ Hello Packet (common information above)
  
     OSPF Neighbor adjacency states:
         DOWN - when router gets configured with the OSPF process and there are no other routers it can establish neighborship to. Adjacency is never displayed as DOWN (technically DOWN is not a state) because whenever OSPF is enabled, Hello packets are being sent but no device replies and initial router doesn't know anyones Router ID. Neighbor is added to Neighbor table only when Router know the Router ID (when some other device replies with Hello or sends it out first)
-        ATTEMPT - a state available only in non-broadcast multi-access (NBMA) network where multicast/broadcast traffic is prohibited. ATTEMPT is an OSPF state of the router explicitly configured as OSPF neighbor to which connection is attempted to be established.
+        ATTEMPT - a state available only in non-broadcast multi-access (NBMA) network where multicast/broadcast traffic is prohibited (serves as a replacement for DOWN state in NBMA network). ATTEMPT is an OSPF state of the router explicitly configured as OSPF neighbor to which connection is attempted to be established.
         INIT - a state that happens when router receives a Hello packet on the link when being in DOWN state. All the outbound Hello packets in this state will start to include neighbor ID in Neighbors attribute
         2-WAY - a state that specifies that there is a 2-way connectivity between devices, both routers sent out Hello packets and received them from each other with the neighbor's Router ID in Neighbors attribute. Main point is that router if router is in 2-WAY state, it received a Hello packet from neighbor and saw own Router ID
         EXSTART - after 2-WAY state, routers inspect received Hello packets and if all of them have matching "hello interval", "dead interval", "area ID", "area type", "authentication data" and "subnet mask on link" they move to EXSTART state. In that state, they decide who will be a Master and who'll be Slave on that adjacency. It is done by exchanging the DBD (both routers send DBD saying they're the Master). Router with the higher Router ID is elected as Master
@@ -1050,6 +1050,7 @@ Hello Packet (common information above)
         LOADING - Routers transition into loading state after both of them have successfully exchanged LSDBs. In that state, peers know which LSA are in their neighbors LSDBs and can send out an LSR to specify some of summarized LSAs (LSRequest -> LSUpdate -> LSAck process). 
         FULL - Router transition the neighbor to FULL state after it receives LSU from peer and sent a LSAck. It thinks that now topology table is full since it got all the required information.
 
+________________________________________________OSPF ROUTER STATES
 Possible packet exchange (with state changes)
 R1(DOWN,OSPF_ON)     --- R2(DOWN,OSPF_OFF)
 -Hello->
@@ -1087,6 +1088,41 @@ R1(FULL)         --- R2(LOADING)
                  <-LSAck-
 
 R1(FULL)         --- R2(FULL)
+________________________________________________OSPF ROUTER STATES
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
