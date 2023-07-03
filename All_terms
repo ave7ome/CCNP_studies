@@ -977,7 +977,7 @@ To determine the best route, routers check:
 
 
 
-#                    OSPF (AD - 110)
+#                    OSPF (AD - 110)  (Mcast - 224.0.0.5) (Mcast DR/BDR - 224.0.0.6)
 Practical OSPF series (https://www.youtube.com/playlist?list=PLIFyRwBY_4bSkwy0-im5ERL-_CeBxEdx3)
 
 OSPF Tables
@@ -1023,8 +1023,8 @@ Hello Packet (common information above)
     Each OSPF router is listening to OSPF traffic on 224.0.0.5 IP (Multicast) and sends out Hello packets to that same address. Can be configured to send the Hello's as Unicast if Multicast is restricted. To use unicast, other OSPF Router IPs have to be specified in the OSPF configuration.
     Information transferred in Hello's:
         Router ID - 32 bit value (like 1.1.1.1), an identificator
-     (*)Hello Interval - a timer mentioning the frequency of sending Hello Packets (how often hellos are sent)
-     (*)Dead Interval - timer specifying when the neighbour is considered unreachable ("dead") and is out of neighbor table
+     (*)Hello Interval(10sec default) - a timer mentioning the frequency of sending Hello Packets (how often hellos are sent)
+     (*)Dead Interval(40sec default) - timer specifying when the neighbour is considered unreachable ("dead") and is out of neighbor table
         Neighbors - a list of known neighbours on the link (initially empty)
      (*)Area ID - an ID of area that router's interface belong to
      (*)Authentication data - a password that should be used to establish a connectivity to other router (other router should be configured with the same password)
@@ -1040,18 +1040,19 @@ Hello Packet (common information above)
         Backup Designated Router (BDR) - A backup DR. Takes over if something happens to DR
         Priority - a priority in DR election (more priority - more chances to be chosen as DR/BDR)
  
-    OSPF Neighbor adjacency states:
-        DOWN - when router gets configured with the OSPF process and there are no other routers it can establish neighborship to. Adjacency is never displayed as DOWN (technically DOWN is not a state) because whenever OSPF is enabled, Hello packets are being sent but no device replies and initial router doesn't know anyones Router ID. Neighbor is added to Neighbor table only when Router know the Router ID (when some other device replies with Hello or sends it out first)
-        ATTEMPT - a state available only in non-broadcast multi-access (NBMA) network where multicast/broadcast traffic is prohibited (serves as a replacement for DOWN state in NBMA network). ATTEMPT is an OSPF state of the router explicitly configured as OSPF neighbor to which connection is attempted to be established.
-        INIT - a state that happens when router receives a Hello packet on the link when being in DOWN state. All the outbound Hello packets in this state will start to include neighbor ID in Neighbors attribute
-        2-WAY - a state that specifies that there is a 2-way connectivity between devices, both routers sent out Hello packets and received them from each other with the neighbor's Router ID in Neighbors attribute. Main point is that router if router is in 2-WAY state, it received a Hello packet from neighbor and saw own Router ID
-        EXSTART - after 2-WAY state, routers inspect received Hello packets and if all of them have matching "hello interval", "dead interval", "area ID", "area type", "authentication data" and "subnet mask on link" they move to EXSTART state. In that state, they decide who will be a Master and who'll be Slave on that adjacency. It is done by exchanging the DBD (both routers send DBD saying they're the Master). Router with the higher Router ID is elected as Master
-        EXCHANGE - state happening after Master/Slave election has been completed. Router elected as Slave transition from EXSTART to EXCHANGE and sends out DBD confirmation that it's a Slave. Master after that transition to EXCHANGE as well. After that With Slave DBD confirmation, Slave also sends it's LSDB. Master sends out a DBD with it's own LSDB as a Master. Slave answers with an empty DBD for that. In case Slave would like to say something, it adds a bit to empty DBD.
-        LOADING - Routers transition into loading state after both of them have successfully exchanged LSDBs. In that state, peers know which LSA are in their neighbors LSDBs and can send out an LSR to specify some of summarized LSAs (LSRequest -> LSUpdate -> LSAck process). 
-        FULL - Router transition the neighbor to FULL state after it receives LSU from peer and sent a LSAck. It thinks that now topology table is full since it got all the required information.
+OSPF Neighbor adjacency states:
+    DOWN - when router gets configured with the OSPF process and there are no other routers it can establish neighborship to. Adjacency is never displayed as DOWN (technically DOWN is not a state) because whenever OSPF is enabled, Hello packets are being sent but no device replies and initial router doesn't know anyones Router ID. Neighbor is added to Neighbor table only when Router know the Router ID (when some other device replies with Hello or sends it out first)
+    ATTEMPT - a state available only in non-broadcast multi-access (NBMA) network where multicast/broadcast traffic is prohibited (serves as a replacement for DOWN state in NBMA network). ATTEMPT is an OSPF state of the router explicitly configured as OSPF neighbor to which connection is attempted to be established.
+    INIT - a state that happens when router receives a Hello packet on the link when being in DOWN state. All the outbound Hello packets in this state will start to include neighbor ID in Neighbors attribute
+    2-WAY - a state that specifies that there is a 2-way connectivity between devices, both routers sent out Hello packets and received them from each other with the neighbor's Router ID in Neighbors attribute. Main point is that router if router is in 2-WAY state, it received a Hello packet from neighbor and saw own Router ID
+    EXSTART - after 2-WAY state, routers inspect received Hello packets and if all of them have matching "hello interval", "dead interval", "area ID", "area type", "authentication data" and "subnet mask on link" they move to EXSTART state. In that state, they decide who will be a Master and who'll be Slave on that adjacency. It is done by exchanging the DBD (both routers send DBD saying they're the Master). Router with the higher Router ID is elected as Master
+    EXCHANGE - state happening after Master/Slave election has been completed. Router elected as Slave transition from EXSTART to EXCHANGE and sends out DBD confirmation that it's a Slave. Master after that transition to EXCHANGE as well. After that With Slave DBD confirmation, Slave also sends it's LSDB. Master sends out a DBD with it's own LSDB as a Master. Slave answers with an empty DBD for that. In case Slave would like to say something, it adds a bit to empty DBD.
+    LOADING - Routers transition into loading state after both of them have successfully exchanged LSDBs. In that state, peers know which LSA are in their neighbors LSDBs and can send out an LSR to specify some of summarized LSAs (LSRequest -> LSUpdate -> LSAck process). 
+    FULL - Router transition the neighbor to FULL state after it receives LSU from peer and sent a LSAck. It thinks that now topology table is full since it got all the required information.
 
 ________________________________________________OSPF ROUTER STATES
 Possible packet exchange (with state changes)
+________________________________________________
 R1(DOWN,OSPF_ON)     --- R2(DOWN,OSPF_OFF)
 -Hello->
                          //turn on OSPF on R2
@@ -1090,16 +1091,53 @@ R1(FULL)         --- R2(LOADING)
 R1(FULL)         --- R2(FULL)
 ________________________________________________OSPF ROUTER STATES
 
+DR and BDR election metrics:
+    1. Highest Priority number (can be set manually 0-255). If priority is 0 - interface will ALWAYS be DROTHER
+    2. Highest Router-ID
+    3. Highest IP-address on Interface
 
+    In topology of any number of routers, each with same priority, DR/BDR election depends exclusively on which router is enabled first. It can be the one with RouterID 1.1.1.1 and it still will be the DR. Whenever any other router (RouterID 2.2.2.2 for example) gets up, it'll see that R1 is DR and won't be able to do anything apart from becoming BDR.
+ (!)There is no Preempt for DR/BDR election in OSPF
 
+    Topology of 4 routers. R1, R2, R3 and R4. Each has priority 1. RIDs are 1.1.1.1, 2.2.2.2, 3.3.3.3 and 4.4.4.4. All are disabled.
+    1. R1 gets enabled first. Starts to send out Hello packets with own RID, priority, DR and BDR IPs. Since there's yet no DR/BDR, it's 0.0.0.0
+    2. After WAIT timer is over, R1 elects itself as DR. All Hellos after that include DR value of R1 interface 10.0.0.1
+    3. R2 gets enabled second. Starts to send out Hellos as R1 initially did with R2 values (DR/BDR still 0.0.0.0)
+    4. R2 receives a Hello from R1 initially and it's DR value changes to R1 IP. Since there's no preemt, R2 sets it's own IP as BDR. Hellos now include DR with R1 IP (10.0.0.1) and BDR with R2 IP (10.0.0.2)
+    5. R3 and R4 gets enabled after that. Once they receive Hello from R1 or R2, their DR/BDR in Hello will change to new values - DR with R1 IP (10.0.0.1) and BDR with R2 IP (10.0.0.2)
+    6. R3 and R4 will become DROTHER.
+    7. In OSPF, DR and BDR will establish FULL adjacency with each other router on the link. And will exchange LSDB
+    8. DROTHERs on the other hand will only establish FULL adjacency with DR/BDR. DROTHER to DROTHER adjacency will remain 2-WAY
+    9. DROTHERs doesn't need to exchange LSDBs to each other since there's a DR/BDR who know all the required information and share it
+    10. "R1#show ip ospf neighbor"  will show FULL for every other router
+        "R2#show ip ospf neighbor"  will show FULL for every other router
+        "R3#show ip ospf neighbor"  will show FULL for R1/R2 (DR/BDR) and 2-WAY for R4 (DROTHER)
+        "R4#show ip ospf neighbor"  will show FULL for R1/R2 (DR/BDR) and 2-WAY for R3 (DROTHER)
 
+    WAIT timer (same duration as dead interval, 40 sec default) - If OSPF router does not receive any responce to it's Hello packets for duration of wait timer, it will set itself as a DR in next Hello advertisements (0.0.0.0 before the wait timer passes)
 
+    DR/BDR/DROTHER concept is working on per interface basis. NOT ON PER ROUTER. 
+    If some router is considered DR - that only means that it's reachable interface is DR. Router can have another interface which will be in DROTHER state at the same time.
 
+Routing update propagation scenarios (Broadcast network)
+    DR/BDR/DROTHER roles of routers. At some time any of those can receive a network update.
+    Below are scenarios where DR, BDR or DROTHER receives update and how is it propagated:
 
+    1. (DR). Update comes to DR
+    1.1. DR sends out an LSU to MCAST IP 224.0.0.5 (all OSPF routers)
+    1.2. BDR sends out an LSAck to 224.0.0.5 after receiving LSU from DR
+    1.3. DROTHERs send out an LSAck to 224.0.0.6 (DR/BDR routers)
 
+    2. (BDR). Update comes to BDR
+    2.1. BDR sends out an LSU to MCAST IP 224.0.0.5 (all OSPF routers)
+    2.2. DR sends out an LSAck to 224.0.0.5 after receiving LSU from BDR
+    2.3. DROTHERs send out an LSAck to 224.0.0.6 (DR/BDR routers)
 
-
-
+    3. (DROTHER). Update comes to DROTHER
+    3.1. DROTHER sends out an LSU to MCAST IP 224.0.0.6 (DR/BDR routers)
+    3.2. DR sends out an LSU to 224.0.0.5 (all OSPF routers) after receiving LSU from DROTHER
+    3.3. BDR sends out an LSAck to 224.0.0.5 after receiving LSU from DR
+    3.4. DROTHERs send out an LSAck to 224.0.0.6 (DR/BDR routers)
 
 
 
