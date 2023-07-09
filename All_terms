@@ -942,14 +942,25 @@ Advanced LACP features:
 
 #                    Routing 
 
+AD:
+    Directly connected - 0
+    Static             - 1   (can be manually set to any number)
+    EBGP               - 20
+    IntEIGRP           - 90  (internally learned routes)
+    OSPF               - 110
+    IS-IS              - 115
+    RIPv2              - 120
+    ExtEIGRP           - 170 (externally learned routes)
+    IBGP               - 200
+
 Dynamic routing protocols:
     IGP (Interior Gateway Protocol)
-        RIP;
-        EIGRP;
-        OSPF;
-        IS-IS;
+        RIP;   (for updates and communication: IP protocol 17 - UDP, port 520)
+        EIGRP; (for updates and communication: IP protocol 88)
+        OSPF;  (for updates and communication: IP protocol 89)
+        IS-IS; (for updates and communication: IP protocol 124)
     EGP (Exterior Gateway Protocol)
-        BGP.
+        BGP.   (for updates and communication: IP protocol 6 - TCP, port 179)
 
 Autonomous System - a set of routers and networks under same management
     IGP is best suited to share routes within same AS.
@@ -959,15 +970,18 @@ Autonomous System - a set of routers and networks under same management
         - better stability
         - better security
 
-Link State Routing protocols (OSPF, IS-IS)
-    (*)Router know the whole topology
+Link State Routing protocols (OSPF, IS-IS). 
+    (*)Router knows the whole topology
     Takes more RAM / CPU
     Faster convergence     
 Distance Vector Routing protocols (RIP, EIGRP)
-    (*)Router know only about the next hop
+    (*)Router knows only about the next hop
     Takes less RAM / CPU
     Slower convergence
-    (((())))EIGRP is an ADVANCED Distance Vector
+
+    EIGRP - an Advanced distance vector protocol
+        EIGRP can work with just the update from the routers. Not all routes have to be advertised
+        EIGRP establishes the neighborships (usually no neighborship in distance vector)
 
 To determine the best route, routers check:
     1. Route mask (if there's a route to /25, it is always preferred over /24, /23 etc. route)
