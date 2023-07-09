@@ -1120,7 +1120,7 @@ DR and BDR election metrics:
     1. R1 gets enabled first. Starts to send out Hello packets with own RID, priority, DR and BDR IPs. Since there's yet no DR/BDR, it's 0.0.0.0
     2. After WAIT timer is over, R1 elects itself as DR. All Hellos after that include DR value of R1 interface 10.0.0.1
     3. R2 gets enabled second. Starts to send out Hellos as R1 initially did with R2 values (DR/BDR still 0.0.0.0)
-    4. R2 receives a Hello from R1 initially and it's DR value changes to R1 IP. Since there's no preemt, R2 sets it's own IP as BDR. Hellos now include DR with R1 IP (10.0.0.1) and BDR with R2 IP (10.0.0.2)
+    4. R2 receives a Hello from R1 and it's DR value changes to R1 IP. Since there's no preemt, R2 sets it's own IP as BDR. Hellos now include DR with R1 IP (10.0.0.1) and BDR with R2 IP (10.0.0.2)
     5. R3 and R4 gets enabled after that. Once they receive Hello from R1 or R2, their DR/BDR in Hello will change to new values - DR with R1 IP (10.0.0.1) and BDR with R2 IP (10.0.0.2)
     6. R3 and R4 will become DROTHER.
     7. In OSPF, DR and BDR will establish FULL adjacency with each other router on the link. And will exchange LSDB
@@ -1156,8 +1156,20 @@ Routing update propagation scenarios (Broadcast network)
     3.3. BDR sends out an LSAck to 224.0.0.5 after receiving LSU from DR
     3.4. DROTHERs send out an LSAck to 224.0.0.6 (DR/BDR routers)
 
+OSPF Costs
+    Since each router in OSPF process know the full topology, they also know the path cost to reach the remote destination.
+    Cost is calculated based on the link speeds between routers on the way to destination.
+    OSPF cost is called DELAY - a metric based on link speed.
+    Delay is calculated on the formula - Reference bandwidth / Link bandwidth.
+        Reference bandwidth in OSPF is 100mbps. So a 10mbps link has a delay (metric) of 10 - 100/10
+        100mbps link is 1 - 100/100.
+    Reference bandwidth can be increased/decreased.    
+    OSPF cost value is 16 bit. It can have values 0-65535
+    Fractional Delay values are rounded up to lower integer value.
 
-
+    There are different issues with changing the OSPF reference bandwidth:
+        If it is left as is (100mbps), links with values of 100mbps, 1gbps, 10gbps and higher will ALL have the delay of 1 (minimum value) and will just be the same for OSPF process.
+        If it is set to really high values (1tbps or more), low speed links (1mbps, 10mbps, 100mbps) will ALL have the delay of 65535 (maximum value).
 
 
 
