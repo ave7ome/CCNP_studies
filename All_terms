@@ -1025,6 +1025,13 @@ OSPF Areas
     But at the same time, R1 and R2 know the subnet 10.0.133.16/28 is located through R3. And it still is (even after LSU). That update is redundant since nothing changed logically for R1 and R2.
     Areas having own LSDB help not to receive all of such updates.
 
+    Area Types
+            Normal - a basic area that allows all routes to be inserted into itself (routes from all areas or from other routing protocols distributed within OSPF process)
+            Stub - an area that allows only routes from OSPF process and summarizes all the routes received from external routing protocols (serves as a default-gateway to reach a lot of outer prefixes)
+                   Stub is an area with nothing behind it and only Area 0 in front.
+            NSSA (Not-so-stubby-area) - a stub area that STILL doesn't allow redistributed (from other routing protocols) routes in common but allows redistributed routes from local area
+                                        Basically NSSA is a stub area but there are some other subnets behind it (some other routing protocol)
+
 OSPF router types
     Internal Router - A router with all the interfaces in same area (any area)
     Backbone Router - A router at least 1 interface in Area 0
@@ -1044,13 +1051,8 @@ Hello Packet (common information above)
      (*)Authentication data - a password that should be used to establish a connectivity to other router (other router should be configured with the same password)
      (*)Network Mask - subnet mask for the link
      (*)Area Type
-            Normal - a basic area that allows all routes to be inserted into itself (routes from all areas or from other routing protocols distributed within OSPF process)
-            Stub - an area that allows only routes from OSPF process and summarizes all the routes received from external routing protocols (serves as a default-gateway to reach a lot of outer prefixes)
-                   Stub is an area with nothing behind it and only Area 0 in front.
-            NSSA (Not-so-stubby-area) - a stub area that STILL doesn't allow redistributed (from other routing protocols) routes in common but allows redistributed routes from local area
-                                        Basically NSSA is a stub area but there are some other subnets behind it (some other routing protocol)
         Designated Router (DR) - an IP address of DR
-                            DR - A router responsible for link-state Updates (LSUs) on the link with multiple routers. Used to prevent all the routers from spamming all the updates. If update is originated from other router on the link it is getting sent only to the DR
+                            DR - A router responsible for link-state Updates (LSUs) on the link with multiple routers. Used to prevent all the routers from spamming all the updates. If update is originated from other router (not BDR) on the link it is getting sent only to the DR
         Backup Designated Router (BDR) - A backup DR. Takes over if something happens to DR
         Priority - a priority in DR election (more priority - more chances to be chosen as DR/BDR)
  
@@ -1156,7 +1158,7 @@ Routing update propagation scenarios (Broadcast network)
     3.3. BDR sends out an LSAck to 224.0.0.5 after receiving LSU from DR
     3.4. DROTHERs send out an LSAck to 224.0.0.6 (DR/BDR routers)
 
-OSPF Costs
+OSPF Costs (also called Delay)
     Since each router in OSPF process know the full topology, they also know the path cost to reach the remote destination.
     Cost is calculated based on the link speeds between routers on the way to destination.
     OSPF cost is called DELAY - a metric based on link speed.
@@ -1171,11 +1173,32 @@ OSPF Costs
         If it is left as is (100mbps), links with values of 100mbps, 1gbps, 10gbps and higher will ALL have the delay of 1 (minimum value) and will just be the same for OSPF process.
         If it is set to really high values (1tbps or more), low speed links (1mbps, 10mbps, 100mbps) will ALL have the delay of 65535 (maximum value).
 
+OSPF LSA types 
+(all the below LSAs information is shared ONLY for links/prefixes that actually participate in OSPF process) - link is added to OSPF/prefix is shared in OSPF
+    LSA type 1 (Router LSA)   - Router LSA is exchanged exclusively within the area of it's origination. Router LSA is sent by every router. Router LSA sent by Router consists of the information about IP Networks / Masks / Costs on each of that Routers link. Used to build topology map of the area. 
+    LSA type 2 (Network LSA)  - Network LSA is exchanged exclusively within the area of it's origination. Network LSA is sent only by DR router elected on the multi-access link. Network LSA consist of the same information as LSA type 1, summarized for all the routers on the multi-access link.
+    LSA type 3 (Summary LSA)  - Summary LSA is exchanged between Areas. Summary LSAs are sent only by ABRs in both directions. Summary LSAs summarize LSA1, LSA2 and LSA3. Summary LSAs are exchanged to share the routes existing in every area to all other areas. For each route in area, a single Summary LSA is sent from ABR (if area 1 has 30 prefixes, 30 type 3 LSAs will be sent to area 0, for updates from area 0 to area 2, there will be 30 prefixes(area 1) and 20 additional prefixes (area 0), that will sum to 50 total prefixes which is 50 total Summary LSAs).
+    LSA type 5 (External LSA) - External LSA is exchanged from ASBR to all areas (area it's part of, then area 0, then all remote areas that exist in OSPF process). External LSA exchange prefixes originated in remote routing processes outside of OSPF and is forwarded unchanged thoughout OSPF domain. External LSA specify that "to reach certain network, go to ASBR". Since initially ASBR only shares LSA1 and LSA2 wihin the area, area 0 and other areas know nothing about it. For LSA5 to work, LSA4 is required:
+        LSA type 4 (ASBR-Summary LSA) - ASBR-Summary LSA is exchanged with all the areas. Sent by ABR when ASBR is in foreign area. LSA4 allows all the routers in all the areas to know where to look for ASBR. ABR send out "to reach ASBR, go to myself".
 
-
-
-
-
+OSPF LSA types deep dive:
+    LSA1 - Router LSA.  
+    LSA2 - Network LSA
+        In LSA1, Router is identifying itself, it's OSPF attached links and it's costs. There are 4 different options each link can be connected to:
+        1. "Point-to-Point to another router". Connection to another OSPF router on a P2P link.
+        2. "Transit Network". DR for Multi-Access link with OSPF Neighbors
+        3. "Stub Network". Includes network ID, Masks and cost of directly connected network
+        (not used or very rare) 4. "Virtual Link". Used to build a virtual connectivity between Area0 ABR and some ABR between two NON-0 areas connected together to form a virtual connectivity making Area 0 think that faraway ABR is actually connected to it.
+        
+        There can be 6 scenarios:
+            (in every scenario, nothing happens before OSPF is configured and interface is not added to OSPF process or network is not defined in it)
+        Basic Loopback (LOOPBACK interface type by default) - create loopback and add to OSPF process, then it is added into LSDB and Router LSA is formed to reflect the loopback link that is now participating into the OSPF process as a "Stub network". Router ID, Mask (always /32 for LOOPBACK type interface) and cost is displayed in LSDB
+        Loopback set to Point-to-Point interface type manually - same as scenario above, but looback is manually reconfigured to be taken as P2P interface. Same outcome - "Stub Network" but with mask, that you specified on the loopback link.
+        Serial interface (P2P interface type by default) with no neighbors - add serial to OSPF process, then it is added into LSDB and Router LSA is formed. Same as 2nd scenario, "Stub Network" with all same details
+        Serial interface (P2P interface type by default) with neighbor - add serial on neighbor router to OSPF process, then the neighborship is formed between two routers over serial links. In such option, every router send out an LSA1 with 2 links. "Stub network" with Network ID, Mask and Cost. Also "Point-to-point to another router" link which specifies the Neighbor Router ID, Link IP address and interface cost.
+        Ethernet interface (BROADCAST interface type by default) with no neighbors - Interface type is BROADCAST but all in all, it's same as scenario 3.
+        Ethernet interface (BROADCAST interface type by default) with neighbor - Once two routers connected over ethernet link form neighborship, a "Transit network" type LSA1 is formed. It specifies that all the information (attached links, mask, costs) is contained in LSA2 (Network LSA). "Transit network" type shared by DR.
+            "Transit network" type includes the IP address of DR and cost. Since the DR is responsible for sharing the LSA2
 
 
 
