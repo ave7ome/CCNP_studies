@@ -1206,9 +1206,17 @@ OSPF LSA types deep dive:
         Every prefix received from foreign area by area 0 is redistributed further to other areas. Added to LSDB with ABR Router-ID (ABR between area 0 and area which received the prefix)
         ABR REgenerates an LSA3 from other LSA3's received from other areas.        
         
-    LSA4 - 
+    LSA5 (External LSA) usually is originated with the LSA4 (ASBR summary LSA) 
+        LSA4 & LSA5 are originated only if there is an ASBR in OSPF topology.
+        LSA5 - update with external subnet, mask an metric
+        LSA4 - update with the router ID that originated LSA5 and how to reach it (through ABR that made an advertisement)
+        Router in OSPF becomes an ASBR if it starts to redistribute routes not participating in the current OSPF process.
+            It can be EIGRP, RIP, BGP, Static routes, directly connected routes, even routes from other OSPF process.
+        After redistribution starts, ASBR begin to generate (if there is something to redistribute, if there is no available routes that are NOT already in OSPF - no LSA5 will be originated, only LSA4) LSAs5.
+        In LSDB, same area as ASBR, only LSA5 are visible with the subnet, mask and metric to reach the network.                
+        Areas other than ASBR area receive IDENTICAL LSA5 (with router-id from different area even though there is no information about that router for other areas)
+            In addition other areas receive LSA4 from ABRs with information on how to reach the ASBR. Always reachable through the ABR
 
-    LSA5 - 
 
 
 
