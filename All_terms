@@ -1206,8 +1206,9 @@ OSPF LSA types deep dive:
         Every prefix received from foreign area by area 0 is redistributed further to other areas. Added to LSDB with ABR Router-ID (ABR between area 0 and area which received the prefix)
         ABR REgenerates an LSA3 from other LSA3's received from other areas.        
         
+    LSA4 - 
 
-
+    LSA5 - 
 
 
 
