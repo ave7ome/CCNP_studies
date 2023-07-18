@@ -1217,6 +1217,18 @@ OSPF LSA types deep dive:
         Areas other than ASBR area receive IDENTICAL LSA5 (with router-id from different area even though there is no information about that router for other areas)
             In addition other areas receive LSA4 from ABRs with information on how to reach the ASBR. Always reachable through the ABR
 
+OSPF Network types
+    Point-to-point - a network with just two routers connected through a single link (for example serial is defaulted to this type)
+    Broadcast - a network (basically an ethernet connectivity to switch for router) with multiple OSPF routers available on a single link
+    NBMA (non-broadcast-multi-access) - a network with multiple devices where broadcast/multicast traffic is prohibited.
+    Point-to-Multipoint - basically a hub-and-spoke OSPF network. There is a single OSPF router that has a neighborship to few other OSPF routers which cannot be interconnected to each other
+    Point-to-Multipoint non-broadcast - point-to-multipoint network with broadcast/multicast traffic prohibited
+
+    P2P - Max 2 routers. Full mesh. No DR election. 10/40 timers. Auto neighbor discovery. Discovery, hellos, neighbor communication and LSAs are sent to 224.0.0.5 because there is no other routers and such packets won't reach any other OSPF router. Next-hop for prefixes is a peer
+    Broadcast - inf amount of routers. Full mesh. DR/BDR election. 10/40 timers. Auto neighbor discovery. Discovery and hellos sent to 224.0.0.5. Neighbor communication packets are sent as unicast by each router to every other router. LSAs are sent out to DR/BDR and as multicast further on. Next hop for prefix is originating router.
+    NBMA - inf amount of routers. Full mesh. DR/BDR election. 30/120 timers. Since multicast is prohibited, no neighbor discovery - every communication between routers is configured as unicast. Discovery and hellos sent to Neighbor IP. Neighbor communication packets are sent as unicast by each router to every other router. LSAs are sent out to DR/BDR as unicast and then DR/BDR imitates the multicast traffic - sends out all updates as unicast to every router. Next hop for prefix is originating router.
+    P2Multipeer - inf amount of routers. No full mesh, spokes only connect to hub, hub connects to all spokes. No DR/BDR election since hub is kind of considered as a DR at all times. 30/120 timers. Neighbors discovers automatically using 224.0.0.5. Discovery and hellos sent to 224.0.0.5. Neighbor communication is unicast router-to-router. LSAs are sent as unicast from hub to spokes and from spokes to hub. Next-hop IP for spokes reaching for other spoke subnet is an ip of a Hub.
+    P2Multipeer-NB - inf amount of routers. No full mesh, spokes only connect to hub, hub connects to all spokes. No DR/BDR election since hub is kind of considered as a DR at all times. 30/120 timers. Since multicast is prohibited, no neighbor discovery - every communication between routers is configured as unicast. Discovery and hellos sent to Neighbor IP. Neighbor communication packets are sent as unicast by each router to every other router. LSAs are sent as unicast.  Next-hop IP for spokes reaching for other spoke subnet is an ip of a Hub.
 
 
 
@@ -1231,6 +1243,4 @@ OSPF LSA types deep dive:
 
 
 
-
-
-
+ 
