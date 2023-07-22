@@ -1181,6 +1181,11 @@ OSPF LSA types
     LSA type 5 (External LSA) - External LSA is exchanged from ASBR to all areas (area it's part of, then area 0, then all remote areas that exist in OSPF process). External LSA exchange prefixes originated in remote routing processes outside of OSPF and is forwarded unchanged thoughout OSPF domain. External LSA specify that "to reach certain network, go to ASBR". Since initially ASBR only shares LSA1 and LSA2 wihin the area, area 0 and other areas know nothing about it. For LSA5 to work, LSA4 is required:
         LSA type 4 (ASBR-Summary LSA) - ASBR-Summary LSA is exchanged with all the areas. Sent by ABR when ASBR is in foreign area. LSA4 allows all the routers in all the areas to know where to look for ASBR. ABR send out "to reach ASBR, go to myself".
     LSA type 7 (NSSA external LSA) - originated in NSSA ONLY - instead of LSA5 (LSA4 and LSA5 prohibited in NSSA or Stub Areas). Shared as LSA5 further out of the Area. Each LSA7 is shared for each Prefix received from other routing protocols
+  There also are Opaque LSAs - LSAs that carry non-OSPF information over OSPF domain (usually some attributes from other routing protocols shared via ASBRs)
+  Usually Opaque LSAs are used to pass some routing attributes from ASBR in one area to ASBR in another area (since both these ASBRs have some external subnets available, these could be different BPG sessions)
+    LSA type 9 (Local Link Opaque LSA) - information is shared only till the next router on a link. Information such as BGP attributes
+    LSA type 10 (Local Area Opaque LSA) - information is shared only within local Area (like LSA1, LSA2)
+    LSA type 11 (OSPF Domain Opaque LSA) - information is shared within the whole OSPF Domain.
 
 OSPF LSA types deep dive:
     LSA1 - Router LSA.  
