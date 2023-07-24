@@ -1181,6 +1181,9 @@ OSPF LSA types
     LSA type 5 (External LSA) - External LSA is exchanged from ASBR to all areas (area it's part of, then area 0, then all remote areas that exist in OSPF process). External LSA exchange prefixes originated in remote routing processes outside of OSPF and is forwarded unchanged thoughout OSPF domain. External LSA specify that "to reach certain network, go to ASBR". Since initially ASBR only shares LSA1 and LSA2 wihin the area, area 0 and other areas know nothing about it. For LSA5 to work, LSA4 is required:
         LSA type 4 (ASBR-Summary LSA) - ASBR-Summary LSA is exchanged with all the areas. Sent by ABR when ASBR is in foreign area. LSA4 allows all the routers in all the areas to know where to look for ASBR. ABR send out "to reach ASBR, go to myself".
     LSA type 7 (NSSA external LSA) - originated in NSSA ONLY - instead of LSA5 (LSA4 and LSA5 prohibited in NSSA or Stub Areas). Shared as LSA5 further out of the Area. Each LSA7 is shared for each Prefix received from other routing protocols
+  Next are much less used LSAs. 
+    LSA type 6 (Multicast routing LSA) - Not implemented in Cisco. PIM is used for the cause.
+    LSA type 8 (External attribute for BGP)
   There also are Opaque LSAs - LSAs that carry non-OSPF information over OSPF domain (usually some attributes from other routing protocols shared via ASBRs)
   Usually Opaque LSAs are used to pass some routing attributes from ASBR in one area to ASBR in another area (since both these ASBRs have some external subnets available, these could be different BPG sessions)
     LSA type 9 (Local Link Opaque LSA) - information is shared only till the next router on a link. Information such as BGP attributes
@@ -1261,14 +1264,15 @@ OSPF Area Types
 OSPF Route codes
     "O" - intra-area route (LSA1,LSA2)
     "O IA" - inter-area route (LSA3)
-    "O E2/E1" - external route redistributed into OSPF (E2), (E1)
-    "O N2/N1" - external route redistributed into OSPF in NSSA Area (N2), (N1)
+    "O E2/E1" - external route redistributed into OSPF (E2) with default ASBR to external routing protocol default metric, for (E1) metric is different from default and is summarized on the whole way to the external routing Autonomous System
+    "O N2/N1" - external route redistributed into OSPF in NSSA Area (N2) with default ASBR to external routing protocol default metric, for (N1) metric is different from default and is summarized on the whole way to the external routing Autonomous System
 
-Why do we need LSA4?
-What is E1, N1 type routes?
-All types of LSA.
-Opaque LSA.
+OSPF Passive interface
+    Passive interface Feature is used to prevent OSPF Router from sending Hello packets off a certain interface
+        That allows certain interfaces to share into OSPF process the access subnets located on the interface but not to send Hellos in their direction (since there's probably only endpoints with no routers)
+    Routers can be configured with passive interface default - all interfaces are passive by default. Useful if there are a lot of access subnets.
 
+SPF algorythm (dijkstra)
 
 
 
