@@ -1242,10 +1242,44 @@ OSPF Area Types
         Normal area receives all LSA3 from other areas, all LSA5 as well.
     Stub Area - an area that allows only LSA1, LSA2 and LSA3. It receives all LSA3 from other Areas. Additionally in Stub Area, ABR distributes default route into the Area as an LSA3.
     Totally Stub Area - same as Stub, but LSA3 is prohibited apart from a single 0.0.0.0/0 LSA3 shared from it's ABR. 
+            to configure NSSA - "area * stub" on area's ABR ONLY
+        Stub config options for ABR:
+            "no-summary" (create Totally Stub) - ABR shares a 0/0 route into Stub Area as a LSA3 (other LSA3s are prohibited)
+            "no-ext-capability" - opaque LSAs are prohibited
     NSSA (Not So Stubby Area) - NSSA is like a Stub Area but with ASBR which redistributes routes from other routing protocols. LSA1, LSA2 and LSA3 are allowed in an area. LSA4 and LSA5 are prohibited. 
         Routes from different routing protocols are shared within the Area as Type 7 LSAs (LSA7) - these are basically LSA5 but within NSSA. 
         Possible issue: Type 5 LSAs from other NSSAs are not shared into the area so external routes from other areas should be reachable by some other means.
+        There's a setting "default-information-originate" which allows for ABR to share a default route as LSA7 into the NSSA area
     Totally NSSA - Same as NSSA but type 3 LSAs are also prohibited and ABR shares a single 0.0.0.0/0 LSA3 as a default route. That remediates the possible issue of NSSA.  
+            to configure NSSA - "area * nssa" on ALL routers in an area
+        NSSA config options for ABR:
+            "default-information-originate" - ABR shares a 0/0 route into NSSA as a LSA7
+            "no-summary" (create Totally NSSA) - ABR shares a 0/0 route into NSSA as a LSA3 (other LSA3s are prohibited)
+            "no-ext-capability" - opaque LSAs are prohibited
+            "no-redistribution" - if ABR is also ASBR, externally redistributed routes are not shared into NSSA (since one of first two commands are probably already configured) but shared into other areas
+
+OSPF Route codes
+    "O" - intra-area route (LSA1,LSA2)
+    "O IA" - inter-area route (LSA3)
+    "O E2/E1" - external route redistributed into OSPF (E2), (E1)
+    "O N2/N1" - external route redistributed into OSPF in NSSA Area (N2), (N1)
+
+Why do we need LSA4?
+What is E1, N1 type routes?
+All types of LSA.
+Opaque LSA.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
