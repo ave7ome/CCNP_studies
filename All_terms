@@ -1272,8 +1272,25 @@ OSPF Passive interface
         That allows certain interfaces to share into OSPF process the access subnets located on the interface but not to send Hellos in their direction (since there's probably only endpoints with no routers)
     Routers can be configured with passive interface default - all interfaces are passive by default. Useful if there are a lot of access subnets.
 
-SPF algorythm (dijkstra)
+OSPF Authentication
+    Simple password authentication - a clear text password auth. Routers send password in clear text. NOT SECURE AT ALL. Like using telnet instead of SSH. Easily compromisable.
+        To configure: 
+            1. Specify password on the interface "ip ospf authentication-key *****"
+            2. Turn on authentication either in ospf process under "area * authentication" (for whole area) command or under interface configuration
+    Hash-based authentication
+            Done by hashing the authentication password. Hashing is when hashing algorithm takes something (phrase or Packet) and turns it into something else by representing it in some other way.
+            Example of hashing: we can take word "hello". It can be represented as 8+5+12+12+15 (number of each letter in the alphabet) = 52. So "hello" = 52. Value 52 in that case is called "Digest"
+            And then by taking number 52, we cannot reverse-engineer it into "hello", because there are a lot of other sequences that can give the value of 52. 
+        How it works: 
+            0. MD5 authentication have to be configured on the OSPF process, some password set up.
+            1. Before sending any OSPF packet (Hello, LSA, DBD, LSU, LSR, LSAck), Router calculates the Hash Digest of a packet+set up password (calculate: digest of packet+password)
+            2. Then the packet is sent to neighbors but only with the calculated hash digest (send: packet+digest), no password is sent
+            3. Neighbors then check the digest and calculate their own digest of packet+password (password should be configured on all OSPF routers communicating with authentication)
+            4. If digest matches, packet is accepted.
+            5. To further guard the communication, while MD5 authentication is configured, each router adds Sequence number to every packet and the hash key value. 
+                (seq# is added to prevent man in the middle from sending same hello packet to neighbors over and over while compromising the sending router - that would allow adjacent routers to think that the router is OK, since correct hello packets are coming fine)
 
+OSPF algorithm - Dijkstra algorithm. Shortest Path First.
 
 
 
