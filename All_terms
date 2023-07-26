@@ -1289,7 +1289,15 @@ OSPF Authentication
             4. If digest matches, packet is accepted.
             5. To further guard the communication, while MD5 authentication is configured, each router adds Sequence number to every packet and the hash key value. 
                 (seq# is added to prevent man in the middle from sending same hello packet to neighbors over and over while compromising the sending router - that would allow adjacent routers to think that the router is OK, since correct hello packets are coming fine)
+        To Configure:
+            1. Set the password on the interface "ip ospf message-digest-key *** md5 *******"
+            2. Turn on the authentication eigher under ospf process commands "area ** authentication message-digest" or under interface configuration "ip ospf authentication message-digest"
+        Key rotation - a meachinsm allowing to change hashing key withour tearing up the OSPF adjacency. To do that, configure more that one md5 passwords (with different keys) on the interface where key have to be rotated.
+            If more than one password (with different keys) is matched, routers will have adjacency established for both keys and the old password can be safely deleted afterwards.
+        Key Chains - a technology allowing usage of more secure hashing algorithm (default is md5) like SHA. In combination HMAC-SHA.
 
+
+Why do i need key rotation?
 OSPF algorithm - Dijkstra algorithm. Shortest Path First.
 
 
