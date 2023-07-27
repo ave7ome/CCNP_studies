@@ -1294,10 +1294,14 @@ OSPF Authentication
             2. Turn on the authentication eigher under ospf process commands "area ** authentication message-digest" or under interface configuration "ip ospf authentication message-digest"
         Key rotation - a meachinsm allowing to change hashing key withour tearing down the OSPF adjacency. To do that, configure more that one md5 password entries (with different keys) on the interface where key have to be rotated.
             If more than one password (with different keys) is matched, routers will have adjacency established for each of keys and the old password can be safely deleted afterwards.
-        Key Chains - a technology allowing usage of more secure hashing algorithm (default is md5) like SHA. In combination HMAC-SHA.
-
-
-
+            OSPF router sends out number of packets equal to number of configured MD5 passwords.
+    Key Chains - a technology allowing usage of more secure hashing algorithm (default is md5) like SHA1 (SHA1's digest is 160bit). In combination HMAC-SHA.
+            MD5 can still be used in Key chains.
+        To Configure:
+            1. Create Key chain. "key chain <name>"
+            2. Create a key in a key chain. "key <#>"
+            3. Provide settings to created key. Required: "cryptographic-algorithm <alg>" (md5, hmac-sha-1, hmac-sha-256 etc.), "key-string <password>"
+            4. (optional) key rotation can be configured in a form of when to send the key and when to accept: "sent-lifetime...", "accept-lifetime..."
 
 Why do i need key rotation?
 OSPF algorithm - Dijkstra algorithm. Shortest Path First - Helps to build a route trees for every router to reach every other router with as less cost on a way as possible
