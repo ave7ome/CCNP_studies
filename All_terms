@@ -1303,7 +1303,6 @@ OSPF Authentication
             3. Provide settings to created key. Required: "cryptographic-algorithm <alg>" (md5, hmac-sha-1, hmac-sha-256 etc.), "key-string <password>"
             4. (optional) key rotation can be configured in a form of when to send the key and when to accept: "sent-lifetime...", "accept-lifetime..."
 
-Why do i need key rotation?
 OSPF algorithm - Dijkstra algorithm. Shortest Path First - Helps to build a route trees for every router to reach every other router with as less cost on a way as possible
     Cost in OSPF is OSPF_reference_bandwidth/link_bandwidth
     In Dijkstra algorithm, there are 2 lists, [visited_nodes] and [unvisited_nodes], 2nd list is filled with all routers before algorithm start. Every time a router is visited it is added to 1st list
