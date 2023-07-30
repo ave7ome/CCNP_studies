@@ -988,6 +988,9 @@ Scopes and Special Addresses
     | 2000::/3  | GLOBAL Unicast (Internet)        | /3 mask means than first 3 bits are fixed for the IPv6-address. (2 = 0010 therefore 001 doesn't change for IP-addresses). Like that, any IP starting with 2 or 3 is in range.
     | fc00::/7  | Unique-Local (LAN)               | /7 mask equals to addresses starting from either fc00 or fd00 (first 7 bits cannot change, 8th bit is responsible for decision if it's C or D)
     | fe80::/10 | Link-Local Unicast (Same switch) | /10 mask equals to addresses starting from one of: fe80, fe90, fea0, feb0.
+    | ff00::/8  | Multicast addresses              | ff00 - ffff
+
+"%5" in the end of IPv6-address specifies the interface to which the IPv6-address is assigned.
 
 Unique-local was previously named "Site-local"
 
@@ -1013,13 +1016,21 @@ Multicast
 Communication from one node to another is called Unicast Communication from one node to many is called Multicast.
 The following IPv6 multicast addresses may be used in in the link-local scope:
 
+All IPv6 Multicast routing protocol addresses start with FF02:
 | Range     | Purpose                                |
 | --------- | -------------------------------------- |
 | ff02::1   | All Nodes within the network segment   |
 | ff02::2   | All Routers within the network segment |
+| ff02::A   | All EIGRP Routers                      | On the link address - applies only for link-local
+| ff02::5   | All OSPF Routers                       | On the link address - applies only for link-local
+| ff02::5   | All OSPF DR/BDR Routers                | On the link address - applies only for link-local
 | ff02::fb  | mDNSv6                                 |
 | ff02::1:2 | All DHCP Servers and Agents            |
 | ff02::101 | All NTP Servers                        |
+
+In Multicast addresses, FF is unchanged. But further 2 nibbles (nibble is 4bit) can have different values.
+Last nibble of FF00 is a SCOPE of Multicast. 0 and 1 are local (packet doesn't leave NIC). 2 is on-the-link, link-local.
+3rd nibble of FF00 is either Temporary (value 0) or Permament (value 1) address
 
 A full list is maintained by [IANA]
 You can actually ping these addresses, e.g. `ping ff02::1`
