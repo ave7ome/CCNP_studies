@@ -1135,6 +1135,7 @@ OSPF Packets
     Hello packets - packets that each router with OSPF process enabled are sending out to 224.0.0.5 multicast-address. Includes information about router (helps to determine if adjacency should be formed)
                     each router with OSPF enabled in it's turn is listening for packets on IP 224.0.0.5
                     Used to discover other routers with OSPF. 
+                    Multicast packets are local to a link segment, they are non-routable.
     Database Descriptor (DBD) - a packet with summary of LSAs in router's LSDB (Topology table). Usually LSDB contains all LSAs separately, DBD has it summarized
     Link State Request (LSR) - a request for certain LSAs (unknown to receiving router) after received DBD with summarized LSAs from other router
                          LSR - basically a request to router that provided DBD (with summarized LSAs) to expand some of LSAs to be able to insert them into the topology
