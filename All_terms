@@ -1471,7 +1471,10 @@ OSPF Filtering
                       "area <#> filter-list prefix <prefix-list> <in/out>" (IN is for routes to to not be accepted in area, OUT is for router to not leave the area)
         Distribute-list - used to filter the routes from getting into the router's routing table. Route will still be in LSDB, router will know about it but won't input into the routing table.
                           To do: under router ospf enter "distribute-list <ACL-number/prefix-list/route-map>". Have to specify the ACL or prefix-list or route-map before.
-
+        Also routes distributed by ASBR can be filtered out from being spread in OSPF process.
+        That can be done by redistributing the routes on ASBR with the route-map specified.
+        First route-map sequence have to be created with some matching clauses and deny action - that will deny matched prefixes from redistribution.
+        Command is under router ospf "redistribute <*> subnets route-map <RM-NAME>" (* is type of redistribution like static,eigrp,bgp etc.)
 
 
 Understand Wildcard masks
