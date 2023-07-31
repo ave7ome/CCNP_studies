@@ -1123,6 +1123,16 @@ To determine the best route, routers check:
 #                    OSPF (AD - 110)  (Mcast - 224.0.0.5) (Mcast DR/BDR - 224.0.0.6)
 Practical OSPF series (https://www.youtube.com/playlist?list=PLIFyRwBY_4bSkwy0-im5ERL-_CeBxEdx3)
 
+Adjacency established if following matches for neighbors:
+   +Hello timer
+   +Dead timer
+   +Area ID
+   +Area Type
+   +Authentication parameters
+   +Subnet on the link
+   +MTU
+----Link network type DOESN'T have to match to establish the adjacency.
+
 OSPF Tables
     Neighbor Table - a table of every directly connected router (participating in OSPF) 
     Topology Table - a table of everything that is known to OSPF (known networks, ALL routers in OSPF)
@@ -1303,6 +1313,13 @@ OSPF Costs (also called Delay)
         If it is left as is (100mbps), links with values of 100mbps, 1gbps, 10gbps and higher will ALL have the delay of 1 (minimum value) and will just be the same for OSPF process.
         If it is set to really high values (1tbps or more), low speed links (1mbps, 10mbps, 100mbps) will ALL have the delay of 65535 (maximum value).
 
+OSPF Routing tweaks
+    It's possible to change the AD of
+        All routes in OSPF on a certain router - navigate to router ospf command and then: "distance <number>" (number is 0-255)
+        All routes in OSPF received from certain router in the area - router ospf and then: "distance <number> <neighbor-RID> <RID-wildcard>" (number is 0-255, neighbor-RID is a neighbor ID to which the change should be applied, RID-wildcard is a mask to the RID)
+    It's also possible to change to cost of a certain interface
+        Navigate to interface - interface GI0/1 and then: "ip ospf cost <number>" (number is a manual cost value)
+
 OSPF LSA types 
 (all the below LSAs information is shared ONLY for links/prefixes that actually participate in OSPF process) - link is added to OSPF/prefix is shared in OSPF
     LSA type 1 (Router LSA)   - Router LSA is exchanged exclusively within the area of it's origination. Router LSA is sent by every router. Router LSA sent by Router consists of the information about IP Networks / Masks / Costs on each of that Routers link. Used to build topology map of the area. 
@@ -1402,7 +1419,7 @@ OSPF Passive interface
         That allows certain interfaces to share into OSPF process the access subnets located on the interface but not to send Hellos in their direction (since there's probably only endpoints with no routers)
     Routers can be configured with passive interface default - all interfaces are passive by default. Useful if there are a lot of access subnets.
 
-OSPF Authentication
+OSPF Authentication (can be configured both in ROUTER OSPF mode and on the INTERFACE --- INTERFACE config is prevalent)
     Simple password authentication - a clear text password auth. Routers send password in clear text. NOT SECURE AT ALL. Like using telnet instead of SSH. Easily compromisable.
         To configure: 
             1. Specify password on the interface "ip ospf authentication-key *****"
@@ -1439,14 +1456,26 @@ OSPF algorithm - Dijkstra algorithm. Shortest Path First - Helps to build a rout
     Whenever first node is selected, costs to connected destinations are added to the cost table. Node is added to visited
     Then the lowest cost node is chosen and all the costs to other nodes from it is summed up in a table and updated. Node is added to visited
     This is done to each node and when all of them are visited, result table is the end tree that will be used in the process activity. 
+
+OSPF Summarization
+    In OSPF, it is possible to summarize the information about networks shared through LSA3 (command is under router ospf: "area <#> range <IP-prefix> <Subnet-mask>" - # is an area number, IP-prefix is a prefix value to which to summarize, Subnet-mask is a summary mask)
+    Example: few subnets like 10.0.0.0/24, 10.0.1.0/24, 10.0.100.0/24, 10.0.200.0/24, 10.0.250.0/24 etc. can be summarized to 10.0.0.0/16 with the command "area 0 range 10.0.0.0 255.255.0.0".
+    Also external routes (shared by ASBR) can be summarized: under router ospf, command "summary-address <IP-prefix> <Subnet-mask>" (values are same as in ABR summarization)
     
+OSPF Filtering
+    In OSPF, advertised routes can be filtered to prevent them from being shared. There are different possibilities to do so:
+        "Not-advertise" command - can be done during the area summarization command: "area <#> range <IP-prefix> <Subnet-mask> not-advertise".
+                                  badly scalable and also cannot nicely filter out non-backbone area routes to other non-backbone area. It'll either be filtered out from whole OSPF process (backbone area as well) or won't be filtered at all
+        Filter-list - used in conjunction with prefix-list. First of all prefix-list have to be specified with "deny" prefixes for those that should not be shared (don't forget "0.0.0.0/0 le 32")
+                      After that, filter-list with created prefix-list should be applied under router ospf either for prefixes not to be shared OUT of specified area or IN to the specified area
+                      "area <#> filter-list prefix <prefix-list> <in/out>" (IN is for routes to to not be accepted in area, OUT is for router to not leave the area)
+        Distribute-list - used to filter the routes from getting into the router's routing table. Route will still be in LSDB, router will know about it but won't input into the routing table.
+                          To do: under router ospf enter "distribute-list <ACL-number/prefix-list/route-map>". Have to specify the ACL or prefix-list or route-map before.
 
 
 
-
-
-
-
+Understand Wildcard masks
+Understand subnetting
 
 
 
