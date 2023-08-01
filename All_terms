@@ -1120,7 +1120,7 @@ To determine the best route, routers check:
 
 
 
-#                    OSPF (AD - 110)  (Mcast - 224.0.0.5) (Mcast DR/BDR - 224.0.0.6)
+#                    OSPF (AD - 110)  (Mcast - 224.0.0.5 / FF02::5) (Mcast DR/BDR - 224.0.0.6 / FF02::6)
 Practical OSPF series (https://www.youtube.com/playlist?list=PLIFyRwBY_4bSkwy0-im5ERL-_CeBxEdx3)
 
 Adjacency established if following matches for neighbors:
@@ -1476,6 +1476,69 @@ OSPF Filtering
         First route-map sequence have to be created with some matching clauses and deny action - that will deny matched prefixes from redistribution.
         Command is under router ospf "redistribute <*> subnets route-map <RM-NAME>" (* is type of redistribution like static,eigrp,bgp etc.)
 
+
+
+#                    EIGRP (iEIGRP AD - 90, eEIGRP AD - 170) (Mcast - 224.0.0.10 / FF02::A)
+EIGRP - Enhanced Interior Gateway Routing Protocol
+
+Dynamic Neighbor discovery
+RTP (reliable transport protocol) to confirm the advertisement have been received
+DUAL (Diffusing update algorithm) - analogue to Dijkstra algorithm in OSPF. Used to make the routing decision
+
+EIGRP Tables:
+    Neighbor Table - 
+    Interface Table - 
+    Topology Table - 
+
+
+EIGRP Timers (DON'T HAVE TO BE THE SAME FOR ADJACENCY TO BE ESTABLISHED)
+    Hello interval - 5 seconds (default). How often Hello packets are sent out.
+    Hold (dead) timer - 15 seconds (default). Example: R1 send Hellos to R2. Hold timer is information advertised by R1 to R2 about how long should R2 wait for Hellos from R1 before considering it unavailable.
+
+
+EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like me")
+    (default)  Bandwidth.
+    (default)  Delay.
+    (optional) Reliability.
+    (optional) Load.
+    (optional) MTU.
+    
+    EIGRP metric formula = ( (K1*Bmin + (K2*Bmin)/(256-L) + K3*D) * K5/(K4+R) ) * 256              //   If K5 = 0, then K5/(K4+R) = 1 (THAT IS AN EXCEPTION)
+                            Bmin = (10^7)/Least-Bandwidth
+                            Delay (D) is in 10th of microseconds. Can be checked by "show interface" - it's specified in usc there. Divide this value by 10 and it'll be 10th of microseconds.
+                            Reliability (R) - ?
+                            Load (L) - ?
+                            Default K values: 
+                                K1 = 1 
+                                K2 = 0 
+                                K3 = 1 
+                                K4 = 0 
+                                K5 = 0
+
+
+EIGRP Path Selection
+    Reported Distance (RD) - a metric to reach some subnet shared from the neighbor (metric for neighbor to reach the subnet).
+    Feasible Distance (FD) - RD + routers metric to reach the neighbor that shared the RP metric
+    Successor - a route to subnet with the lowest FD
+    Feasible successor - a backup route to subnet with 2nd lowest FD (used if primary successor failed)
+        Some route can become feasible successor only if it's RD is lower than Successor's FD.
+
+    Active state - Even though route might not match the criteria to become feasible successor (=route cannot be used in case all successors fail), query "how to reach the subnet" is sent into the network.
+                   So Active state is when query is sent to other routers and an answer is expected.
+        | There were an issue "Stuck in active" (SIA). That's when subnet reachability stops, router sends a query asking if there's another path (in active state at that moment)
+        | and it sets timer for 3 minutes for query to come back. If some issues happen on link during that time - there will be no response and it'll bring the link down.
+    Now there's SIA-query for such cases. If there's no responce in 90 seconds, router waiting for reply will send an SIA-query asking why there's no answer.
+    If it's all good, they'll receive SIA-reply and will not bring link down.
+
+ 
+EIGRP Stub routing
+    Stub router - router which won't be used for queries about reaching the network if other routers lose the connectivity to some subnet.
+                  Stub router is the one that has just a single router it connects to and no routers are connected further ahead.
+                  Stub router doesn't distribute any routes to it's neighbors by default, that's why some options should be configured as well.
+                  Command is under router eigrp <#>: "eigrp stub <options>" (options being "connected", "summary", "static" - depending on what should be advertised. Usually - connected)
+
+https://www.youtube.com/watch?v=e5qYqNX6f0k
+54:25
 
 Understand Wildcard masks
 Understand subnetting
