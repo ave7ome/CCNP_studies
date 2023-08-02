@@ -957,8 +957,10 @@ However, this can only be done _once_ per address in order to void ambiguity:
     ff:0:0:0:1:0:0:1 (correct)
     ff::1:0:0:1 (correct)
     ff::1::1 (ambiguous, wrong)
-
+shared from the neighbor
 According to RFC 5952 `ff:0:0:0:1::1` is not correct either because the longest group of concurrent zeroes must be shortened.
+
+IPv6 is disabled by default on Cisco devices, to enable: "ipv6 unicast-routing"
 
 Protocols
 | Number | Protocol  | Purpose                                                                                                 |
@@ -1481,27 +1483,31 @@ OSPF Filtering
 #                    EIGRP (iEIGRP AD - 90, eEIGRP AD - 170) (Mcast - 224.0.0.10 / FF02::A)
 EIGRP - Enhanced Interior Gateway Routing Protocol
 
-Dynamic Neighbor discovery
-RTP (reliable transport protocol) to confirm the advertisement have been received
-DUAL (Diffusing update algorithm) - analogue to Dijkstra algorithm in OSPF. Used to make the routing decision
+-Dynamic Neighbor discovery
+-RTP (reliable transport protocol) to confirm the advertisement have been received
+-DUAL (Diffusing update algorithm) - analogue to Dijkstra algorithm in OSPF. Used by EIGRP to make the routing decision
+
+Adjacency will be established if following matches:
+    -
+    -
+    -
+    
 
 EIGRP Tables:
-    Neighbor Table - 
+    Neighbor Table - Table of available neighbors. "show ip eigrp neighbors" to display on device (+detail to see details like if the neighbor is STUB router)
     Interface Table - 
     Topology Table - 
-
 
 EIGRP Timers (DON'T HAVE TO BE THE SAME FOR ADJACENCY TO BE ESTABLISHED)
     Hello interval - 5 seconds (default). How often Hello packets are sent out.
     Hold (dead) timer - 15 seconds (default). Example: R1 send Hellos to R2. Hold timer is information advertised by R1 to R2 about how long should R2 wait for Hellos from R1 before considering it unavailable.
 
-
-EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like me")
+EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like Me")
     (default)  Bandwidth.
     (default)  Delay.
     (optional) Reliability.
     (optional) Load.
-    (optional) MTU.
+    (optional) MTU. - not in the formula, used as a last resort
     
     EIGRP metric formula = ( (K1*Bmin + (K2*Bmin)/(256-L) + K3*D) * K5/(K4+R) ) * 256              //   If K5 = 0, then K5/(K4+R) = 1 (THAT IS AN EXCEPTION)
                             Bmin = (10^7)/Least-Bandwidth
@@ -1515,9 +1521,8 @@ EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like me")
                                 K4 = 0 
                                 K5 = 0
 
-
 EIGRP Path Selection
-    Reported Distance (RD) - a metric to reach some subnet shared from the neighbor (metric for neighbor to reach the subnet).
+    Reported Distance (RD) - a metric shared by the neighbor for it to reach some subnet (metric for neighbor to reach the subnet).
     Feasible Distance (FD) - RD + routers metric to reach the neighbor that shared the RP metric
     Successor - a route to subnet with the lowest FD
     Feasible successor - a backup route to subnet with 2nd lowest FD (used if primary successor failed)
@@ -1530,17 +1535,51 @@ EIGRP Path Selection
     Now there's SIA-query for such cases. If there's no responce in 90 seconds, router waiting for reply will send an SIA-query asking why there's no answer.
     If it's all good, they'll receive SIA-reply and will not bring link down.
 
- 
 EIGRP Stub routing
     Stub router - router which won't be used for queries about reaching the network if other routers lose the connectivity to some subnet.
                   Stub router is the one that has just a single router it connects to and no routers are connected further ahead.
                   Stub router doesn't distribute any routes to it's neighbors by default, that's why some options should be configured as well.
                   Command is under router eigrp <#>: "eigrp stub <options>" (options being "connected", "summary", "static" - depending on what should be advertised. Usually - connected)
 
-https://www.youtube.com/watch?v=e5qYqNX6f0k
-54:25
+EIGRP Load Balancing
+    By default, there's only 1 route to destination and EIGRP chooses the best one.
+    Feature "EIGRP Variance" can be configured to load balance the traffic over two links to same destination even if their metric is different.
+    Variance is configured under router eigrp <#>: "variance <number>"
+    Variance number works like following:
+        Successors metric (FD) is multiplied by variance number and FD of other routes that will be within the range of multiplication result, will be used to load balance the traffic.
+        For example there are two routes to subnet X.X.X.X, one with FD:5000, another with FD:9000. If variance of 2 is configured, 5000*2=10000, the route with FD:9000 will be used to LB the traffic.
+        Load balancing will be proportional, since first route is better, it'll receive more traffic.
+    
+EIGRP Summarization
+    There are Manual and Automatic summarization.
+    Automatic is configured under router eigrp <#>: "auto-summary", but it summarizes in the classful boundaries (10.0.1.0 + 10.0.0.0 + 10.0.2.0 + 10.0.3.0 will be summarized into 10.0.0.0/8)
+    Manual is configured under interface: "ip summary-address eigrp <#> <summarized-IP> <summary-MASK>"
 
+EIGRP for IPv6
+    -Next-hop is neighbor link-local address
+    -No auto-summarization
+    -Neighbors don't have to be on the same subnet
+    -Updates are on FF02::A
 
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ VERY POORLY DESCRIBED BY KEVIN WALLACE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CHECK SOME OTHER COURSES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Named EIGRPv6 - a concept of EIGRP configuration (can be applied both to IPv4 and IPv6 versions) that allows configuring (under different mode) settings for different IP address-families at the same time   
+                Done by creating EIGRP virtual instance ("router eigrp <name>")
+                 address-families
+My understanding: it is possible to configure EIGRP as a common instance (virtual instance) on the router, then distribute the EIGRP processes over address-families (like IPv4 and IPv6).
+                  it's possible to configure settings for all interfaces (default) under that address families, also settings for the whole topology (variance)
+                  In virtual instance another variable appears in regards to metric formula - K6 (for speeds more than 10gbit/s)
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ VERY POORLY DESCRIBED BY KEVIN WALLACE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CHECK SOME OTHER COURSES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+EIGRP Authentication
+    Plain text authentication - password is configured on routers and with EIGRP updates, the password is sent. It has to match on two routers to establish adjacency. Sent in plain text - UNSECURE
+    Hash-based authentication - Password is configured on routers, with EIGRP updates the password hash-digest is sent. 
+                                1. Update is sent from router with hash-key auth configured. It is sent with Hash-digest attached.
+                                2. When another router receives update, it hashes the routing update with configured password.
+                                3. If both Digest values match then update is valid and will be accepted (it is only possible if the same password is configured on both sides)
+    Key-chain can be configured (same as OSPF) to cycle the hashing keys.
+
+    Plain EIGRP supports only MD5 hashing algorithm.
+    Named EIGRP supports both MD5 and SHA algorithms.
 
 
 
