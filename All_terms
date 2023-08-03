@@ -1122,7 +1122,7 @@ To determine the best route, routers check:
 
 
 
-#                    OSPF (AD - 110)  (Mcast - 224.0.0.5 / FF02::5) (Mcast DR/BDR - 224.0.0.6 / FF02::6)
+#                    OSPF (AD - 110)  (Mcast - 224.0.0.5 / FF02::5) (Mcast DR/BDR - 224.0.0.6 / FF02::6, TTL=1) (IP protocol - 89)
 Practical OSPF series (https://www.youtube.com/playlist?list=PLIFyRwBY_4bSkwy0-im5ERL-_CeBxEdx3)
 
 Adjacency established if following matches for neighbors:
@@ -1480,17 +1480,21 @@ OSPF Filtering
 
 
 
-#                    EIGRP (iEIGRP AD - 90, eEIGRP AD - 170) (Mcast - 224.0.0.10 / FF02::A)
+#                    EIGRP (iEIGRP AD - 90, eEIGRP AD - 170) (Mcast - 224.0.0.10 / FF02::A, TTL=1) (IP protocol - 88)
 EIGRP - Enhanced Interior Gateway Routing Protocol
+    Proprietary but Cisco opened it to other vendors (around 2010). But vendors don't really introduced into their OS.
 
+(!)Cannot be configured on the interface config level. Can only be done with named EIGRP.
+
+Features:
 -Dynamic Neighbor discovery
--RTP (reliable transport protocol) to confirm the advertisement have been received
+-RTP (reliable transport protocol) to confirm the advertisement have been received. All the updates are confirmed to originating router.
 -DUAL (Diffusing update algorithm) - analogue to Dijkstra algorithm in OSPF. Used by EIGRP to make the routing decision
 
 Adjacency will be established if following matches:
-    -
-    -
-    -
+    -AS number
+    -K-number values
+    -Authentication configuration
     
 
 EIGRP Tables:
@@ -1498,9 +1502,10 @@ EIGRP Tables:
     Interface Table - 
     Topology Table - 
 
-EIGRP Timers (DON'T HAVE TO BE THE SAME FOR ADJACENCY TO BE ESTABLISHED)
+EIGRP Timers (DON'T HAVE TO MATCH FOR ADJACENCY TO BE ESTABLISHED)
     Hello interval - 5 seconds (default). How often Hello packets are sent out.
     Hold (dead) timer - 15 seconds (default). Example: R1 send Hellos to R2. Hold timer is information advertised by R1 to R2 about how long should R2 wait for Hellos from R1 before considering it unavailable.
+
 
 EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like Me")
     (default)  Bandwidth.
@@ -1568,6 +1573,7 @@ Named EIGRPv6 - a concept of EIGRP configuration (can be applied both to IPv4 an
 My understanding: it is possible to configure EIGRP as a common instance (virtual instance) on the router, then distribute the EIGRP processes over address-families (like IPv4 and IPv6).
                   it's possible to configure settings for all interfaces (default) under that address families, also settings for the whole topology (variance)
                   In virtual instance another variable appears in regards to metric formula - K6 (for speeds more than 10gbit/s)
+                  "Named" is because usually EIGRP is created "router eigrp <#>" where <#> is an AS number, and for named it should be created with a certain name instead of AS number.
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ VERY POORLY DESCRIBED BY KEVIN WALLACE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CHECK SOME OTHER COURSES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 EIGRP Authentication
@@ -1581,9 +1587,15 @@ EIGRP Authentication
     Plain EIGRP supports only MD5 hashing algorithm.
     Named EIGRP supports both MD5 and SHA algorithms.
 
+https://www.youtube.com/playlist?list=PLxyr0C_3Ton1IiuKroFD6i_vm61dapmKQ
+https://www.youtube.com/watch?v=3ZlFUUYx7vY&list=PLxyr0C_3Ton1IiuKroFD6i_vm61dapmKQ&index=24
+09:48
 
 
 #                BGP (eBGP AD - 20, iBGP AD - 200)
+
+
+
 
 BGP Mind-Map
 https://anetworkartist.blogspot.com/2023/06/bgpv4-mindmap.html
