@@ -102,6 +102,10 @@ VSS - stacking mechanism that allows two physical switches to be represented as 
 
 
 #                    WLAN (wireless LAN) design
+
+Useful on Wireless (+recommended learning in the end of publication)
+https://packetpushers.net/askjjx-help-office-wi-fi-is-so-bad-an-intern-is-following-the-ceo-around-with-an-ap/ 
+
 Comparison of basic Access devices (switches) to Autonomous access points:
     SVI (switched virtual interface)   ---    BVI (bridged virtual interface)
     VLAN                               ---    SSID
