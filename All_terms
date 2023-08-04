@@ -1326,7 +1326,7 @@ OSPF Routing tweaks
     It's also possible to change to cost of a certain interface
         Navigate to interface - interface GI0/1 and then: "ip ospf cost <number>" (number is a manual cost value)
 
-OSPF LSA types 
+OSPF LSA types (Only LSA5 is shared between areas, other types stay in the area)
 (all the below LSAs information is shared ONLY for links/prefixes that actually participate in OSPF process) - link is added to OSPF/prefix is shared in OSPF
     LSA type 1 (Router LSA)   - Router LSA is exchanged exclusively within the area of it's origination. Router LSA is sent by every router. Router LSA sent by Router consists of the information about IP Networks / Masks / Costs on each of that Routers link. Used to build topology map of the area. 
     LSA type 2 (Network LSA)  - Network LSA is exchanged exclusively within the area of it's origination. Network LSA is sent only by DR router elected on the multi-access link. Network LSA consist of the same information as LSA type 1, summarized for all the routers on the multi-access link.
