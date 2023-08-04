@@ -1509,7 +1509,7 @@ EIGRP Tables:
 EIGRP Timers (DON'T HAVE TO MATCH FOR ADJACENCY TO BE ESTABLISHED)
     Hello interval - 5 seconds (default). How often Hello packets are sent out.
     Hold (dead) timer - 15 seconds (default). Example: R1 send Hellos to R2. Hold timer is information advertised by R1 to R2 about how long should R2 wait for Hellos from R1 before considering it unavailable.
-
+    #timers can be changed on the interface basis - "ip hello-interval eigrp <AS#>" and "ip hold-interval eigrp <AS#>"
 
 EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like Me")
     (default)  Bandwidth.
@@ -1592,8 +1592,7 @@ EIGRP Authentication
     Named EIGRP supports both MD5 and SHA algorithms.
 
 https://www.youtube.com/playlist?list=PLxyr0C_3Ton1IiuKroFD6i_vm61dapmKQ
-https://www.youtube.com/watch?v=3ZlFUUYx7vY&list=PLxyr0C_3Ton1IiuKroFD6i_vm61dapmKQ&index=24
-09:48
+https://www.youtube.com/watch?v=fg2flRb5us0&list=PLxyr0C_3Ton1IiuKroFD6i_vm61dapmKQ&index=23
 
 
 #                BGP (eBGP AD - 20, iBGP AD - 200)
