@@ -1482,6 +1482,14 @@ OSPF Filtering
         First route-map sequence have to be created with some matching clauses and deny action - that will deny matched prefixes from redistribution.
         Command is under router ospf "redistribute <*> subnets route-map <RM-NAME>" (* is type of redistribution like static,eigrp,bgp etc.)
 
+OSPFv3 for IPv6
+    IPv6 version of OSPF differs from IPv4 version in some additional LSA types:
+        LSA1,LSA2 also exist on the OSPFv3 but there's no more prefix information on the existing networks carried in the LSA information
+        LSA9 (named Intra Area Prefix Link State) is a new LSA type responsible for carrying the subnet information shared within the area for interfaces participating in the OSPFv3 process. 1 LSA for each subnet
+        LSA8 (named Link States) is also a new LSA type which is local in the OSPFv3 LSDB to every router in the process. Each router has it's own LSA8, one LSA8 for each of it's interfaces in OSPFv3 and one LSA8 for every connected to router interface of adjacent router.
+
+        LSA3 in OSPFv3 is named "inter-area prefix"
+        LSA4 in OSPFv3 is named "inter-area router"
 
 
 #                    EIGRP (iEIGRP AD - 90, eEIGRP AD - 170) (Mcast - 224.0.0.10 / FF02::A, TTL=1) (IP protocol - 88)
