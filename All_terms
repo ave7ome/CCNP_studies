@@ -1615,7 +1615,7 @@ EIGRP Authentication
     Named EIGRP supports both MD5 and SHA algorithms.
 
 EIGRP passive-interface
-
+    Hellos are not sent/received for the passive-interface
 
 https://www.youtube.com/playlist?list=PLxyr0C_3Ton1IiuKroFD6i_vm61dapmKQ
 https://www.youtube.com/watch?v=fg2flRb5us0&list=PLxyr0C_3Ton1IiuKroFD6i_vm61dapmKQ&index=23
@@ -1623,11 +1623,78 @@ https://www.youtube.com/watch?v=fg2flRb5us0&list=PLxyr0C_3Ton1IiuKroFD6i_vm61dap
 
 #                BGP (eBGP AD - 20, iBGP AD - 200)
 
-
-
+BGP whole-lab from Ivan Pepelnjak
+https://github.com/ipspace/bgplab
+https://ipspace.github.io/bgplab/
 
 BGP Mind-Map
 https://anetworkartist.blogspot.com/2023/06/bgpv4-mindmap.html
+
+BGP Mnemonics:
+    "We Love Oranges AS Oranges Mean Pure Refreshment"
+     Weight (higher is better)
+        Local Preference (higher is better)
+             Originated locally
+                     AS-path (shorter is better)
+                        Origin type ( IGP < EGP < Incomplete )
+                                MED (lower is better)
+                                     Paths (external>internal)
+                                           Router-ID (lower is better)
+
+BGP basics
+    BGP runs whole internet on it's shoulders
+    Organizations are divided into AS (Autonomous System)
+    Generally used to load-balance or filter updates/prefixes from ISPs
+
+eBGP and iBGP exist
+    eBGP - external BGP used over the internet (BGP is eBGP if neighbor is in different AS)
+    iBGP - internal BGP generally used within the organization (BGP is iBGP if neighbor is in same AS) 
+
+BGP Characteristics
+    - EGP (Exterior Gateway Protocol)
+    - Forms Neighbogships (adjacencies)
+    - Neighbor's IP-address is manually configured
+    - A TCP session is established (tcp/179) between neighbors
+    - Advertises Address Prefix and Lenght (called NLRI - Network Layer Reachability Information)
+    - Advertises a collection of Path Attributes used for path selection
+    - Path-Vector routing protocol
+
+BGP confederation & BGP Route-Reflector
+    Example: there's iBGP of 5 routers. By default (by BGP design), there must be a full-mesh connectivity between them.
+    And since it is a MUST, there's always an assumption that there actually is.
+    Therefore routers doesn't share the information received from neighbors by default.
+    But if there's more and more routers - number of required adjacencies will be unreasonable.
+
+    To address the above issue, there are some features available:
+ (!)BGP confederation - a subset of ASes within one single AS. That way 3 routers from example can be in one sub-AS interconnected in full mesh (3 adjacencies), and other 2 routers in another sub-AS (1 adjacency there + 1 between sub-ASes)
+ (!)Route-Reflector - a BGP router configuration allowing device to share the updates and prefixes (NLRI) received from other router. (works kind of as a DR in OSPF)
+
+BGP Neighbor formation and States
+    Idle state - initial state of forming an adjacency. Activates once the interconnected devices linked interfaces are brought UP (given that BGP configuration is in place)
+                 After that routers will try to establish a TCP connection. Transition to CONNECT state
+    Connect state - At this point, the TCP 3-way handshake is initiated to establish a connection. SYN> -> <SYN,ACK -> ACK> . 
+                    After successfully establishing connectivity, transition to ACTIVE state
+    Active state - There's a TCP session established and routers are actively trying to establish the BGP neighborship. Transition to OPEN SENT state
+    Open Sent state - BGP router sends a request to open a neighborship. Other router sends an open message back. If both received the message, transition to OPEN CONFIRM state.
+    Open Confirm state - 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Understand Wildcard masks
 Understand subnetting
