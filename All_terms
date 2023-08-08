@@ -1646,6 +1646,10 @@ BGP basics
     Organizations are divided into AS (Autonomous System)
     Generally used to load-balance or filter updates/prefixes from ISPs
 
+AS - "a network in a network of networks". An entity managed by one organization that is represented by some number of publicly available external subnets.
+BGP itself is the only available protocol that allows organization to publish their servers (in internal subnets) externally. 
+    Generally, some organization can get internet access just by routing everything to 0.0.0.0/0 through ISP. But organization's internal servers won't be available like that.
+
 eBGP and iBGP exist
     eBGP - external BGP used over the internet (BGP is eBGP if neighbor is in different AS)
     iBGP - internal BGP generally used within the organization (BGP is iBGP if neighbor is in same AS) 
@@ -1677,6 +1681,22 @@ BGP Neighbor formation and States
     Active state - There's a TCP session established and routers are actively trying to establish the BGP neighborship. Transition to OPEN SENT state
     Open Sent state - BGP router sends a request to open a neighborship. Other router sends an open message back. If both received the message, transition to OPEN CONFIRM state.
     Open Confirm state - 
+
+BGP Path attributes
+   -Well-known, mandatory --- attributes that MUST be supported by any router that has BGP implemented in compliance with RFC stardard. Always passed forward in NLRI
+        AS-Path (all AS values that traffic has to pass on the way to announced subnet)
+        Next-Hop (next-hop value to reach the subnet, usually it's an interface of advertising router)
+        Origin (where router has been originated, either further AS, or locally or INCOMPLETE)
+   -Well-known, discretionary --- attributes that MUST be supported by any router that has BGP implemented in compliance with RFC stardard. Passed forward in NLRI only if value is defined and non-default
+        Local Preference 
+        Atomic Aggregate
+   -Optional, Transitive --- attributes (usually proprietary) that doesn't have to be supported by routers by default. Always passed forward in NLRI whether it is supported further on or not
+        Aggregator
+        Community
+   -Optional, Non-Transitive --- attributes (usually proprietary) that doesn't have to be supported by routers by default. Doesn't have to be passed forward in NLRI.
+        MED (Metric)
+        Originator ID
+        Cluster
 
 
 https://www.youtube.com/watch?v=SVo6cDnQQm0
