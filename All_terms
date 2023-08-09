@@ -1678,9 +1678,25 @@ BGP Neighbor formation and States
                  After that routers will try to establish a TCP connection. Transition to CONNECT state
     Connect state - At this point, the TCP 3-way handshake is initiated to establish a connection. SYN> -> <SYN,ACK -> ACK> . 
                     After successfully establishing connectivity, transition to ACTIVE state
-    Active state - There's a TCP session established and routers are actively trying to establish the BGP neighborship. Transition to OPEN SENT state
-    Open Sent state - BGP router sends a request to open a neighborship. Other router sends an open message back. If both received the message, transition to OPEN CONFIRM state.
-    Open Confirm state - 
+    Active state - There's a TCP session established and routers are actively trying to establish the BGP neighborship. Then router sends a request for a BGP adjacency (message "Open sent" is sent). Transition to OPEN SENT state
+    Open Sent state - Other router recognizes the "Open Sent" message from another router and transitions to OPEN STATE as well. Sends a confirmaion "Open Confirm" and transitions to OPEN CONFIRM state
+    Open Confirm state - Initial router receives "Open Confirm" and then routers transition to ESTABLISHED state
+
+    get more infor about neighbor formation and states
+    __________________________________________________
+
+BGP Messages
+    Open - sent during the neighborship negotiation. 
+           carries "BGP Version Number", "Local AS Number", "Hold Time", "BGP Router ID", some optional params.
+    Keepalive - basically a "Hello" message. Routers send a keepalive every 60 seconds (by default) for other router to be sure that the neighbor is still up and running. If keepalives are not received for 180 seconds, neighborship is teared up.
+    Update - contains NLRI, path attributes, withdrawn routes
+    Notification - contains an error code, error subcode, information about error
+
+BGP Timers (default are 60s/180s - Keepalive/Hold)
+    Keepalive timer
+    Hold timer
+
+m
 
 BGP Path attributes
    -Well-known, mandatory --- attributes that MUST be supported by any router that has BGP implemented in compliance with RFC stardard. Always passed forward in NLRI
@@ -1698,9 +1714,24 @@ BGP Path attributes
         Originator ID
         Cluster
 
+    Attributes from mnemonics:
+    Weight - Cisco proprietary. Used for outbound path decision. Router can set this parameter when receiving updates. Higher Weight is preferred. (Optional, Transitive)
+    Local Preference - Used for outbound path decision. Carried throughout the AS. A number applied to some route once it is received in the table. Higher LocPref is preferred (Well-known, Discretionary)
+    Originate - Where prefix has been originated. If originated locally, then preferred over any other NLRI.
+    AS-Path - Number os AS to reach the prefix. Lower is better. Used for inbound path decision.
+              Possible to manipulate using "AS-path prepend" - this allows adding of a lot of ASes to the path to make it less favorable.
+    Origin Type - How the route was injected into the BGP. "i" is preferred to "e" and "e" is preferred to "?"
+                  "i" - NETWORK command 
+                  "e" - EGP (not used anymore) 
+                  "?" - redistributed
+    MED (Metric) - A number applied to externally distributed prefix. The lower the better. Example: i announce my external subnet and have few ISP connections. If i apply lower MED to one of announcements, it'll become the better path.
+    Paths - Prefer eBGP path over iBGP path
+    Router-ID - A tie breaker. Lower router ID is preferred.
 
+BGP Synchronization
+    
 https://www.youtube.com/watch?v=SVo6cDnQQm0
-33:14
+59:56
 
 
 
