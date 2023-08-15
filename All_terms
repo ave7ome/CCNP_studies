@@ -1,4 +1,4 @@
-All terms and points are covered here in a way I understood it.
+ethanalyzer local interface inband capture-filter "host 10.144.200.33" limit-captured-frames 100 write bootflash:test.pcapAll terms and points are covered here in a way I understood it.
 ***( - get to know the definition more
  
 https://linkmeup.gitbook.io/sdsm/0.-planirovanie
@@ -1552,7 +1552,7 @@ EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like Me")
     (!)Simple metric formula with just defaults: Metric = 256 * (10,000,000/Least-Bandwidth + Delays_summary/10)  
         (Delays_summary is a value of delays as specified on devices, not in 10th of microseconds)
 
-EIGRP Path Selection
+EIGRP Path Selectionethanalyzer local interface inband capture-filter "host 10.144.200.33" limit-captured-frames 100 write bootflash:test.pcap
     Reported Distance (RD) - a metric shared by the neighbor for it to reach some subnet (metric for neighbor to reach the subnet).
     Feasible Distance (FD) - RD + routers metric to reach the neighbor that shared the RP metric
     Successor - a route to subnet with the lowest FD
@@ -1664,14 +1664,16 @@ BGP Characteristics
     - Path-Vector routing protocol
 
 BGP confederation & BGP Route-Reflector
-    Example: there's iBGP of 5 routers. By default (by BGP design), there must be a full-mesh connectivity between them.
+    Example: there's iBGP of 5 routers. By default (by iBGP design), there must be a full-mesh connectivity between them.
     And since it is a MUST, there's always an assumption that there actually is.
     Therefore routers doesn't share the information received from neighbors by default.
     But if there's more and more routers - number of required adjacencies will be unreasonable.
 
     To address the above issue, there are some features available:
  (!)BGP confederation - a subset of ASes within one single AS. That way 3 routers from example can be in one sub-AS interconnected in full mesh (3 adjacencies), and other 2 routers in another sub-AS (1 adjacency there + 1 between sub-ASes)
+                        that would basically be a set of eBGPs within an iBGP
  (!)Route-Reflector - a BGP router configuration allowing device to share the updates and prefixes (NLRI) received from other router. (works kind of as a DR in OSPF)
+                      to configure router as an RR (route-reflector) - under "router bgp <#>", configure "neighbor <neigh_IP> route-reflector-client" on all routers that need to participate in iBGP route sharing
 
 BGP Neighbor formation and States
     BGP neighbor establishment process is SLOW. Give it some time
@@ -1735,22 +1737,55 @@ BGP best path algorithm
     Router-ID - A tie breaker. Lower router ID is preferred.
 
     Currently used attributes for Cisco BGP process (going from top to bottom and if any attribute is more preferred, check stops and route is added to Routing Table):
-    1. Higher Weight
-    2. Higher Local Preference
-    3. Originated locally (in same AS) or externally
+    1. Higher Weight (assigned to prefix via route-map)
+    2. Higher Local Preference (assigned to prefix via route-map)
+    3. Originated locally (in same AS) or externally (cannot be changed as it is origination)
     4. Accumulated IGP (AIGP) - ?
-    5. AS-Path
-    6. Origin Type 
-    7. Lower MED
-    8. Paths (eBGP over iBGP)
+    5. AS-Path (automatically built based on path, or can be changed through prepend)
+    6. Origin Type (cannot be changed as it is origination)
+    7. Lower MED (assigned to prefix via route-map)
+    8. Paths (eBGP over iBGP) (cannot be manually manipulated)
     9. Oldest route
-    10. Router-ID (lower RID wins)
+    10. Router-ID (lower RID wins) 
     11. Lower Cluster list length
     12. Lower next-hop address
     
-
 BGP Synchronization
-    
+    Old feature (from early 1990-s) that allowed BGP router to advertise a prefix from itself to a eBGP neighbor ONLY if the initial router had the subnet in it's routing table received through some IGP (EIGRP, OSPF etc.)
+    Example: There are two AS - 65100 and 65200.
+             In 65100, there are two routers, in 65200 there is 1 router. Synchronization is ON for all in BGP processes
+             65100 routers (R2 and R3) have iBGP formed between them, also 65200 router (R1) has eBGP formed to R2 from 65100
+             R3 has a loopback IP and R2 has a loopback IP configured
+          (!)If these loopbacks is not in any IGP (OSPF, EIGRP, IS-IS, RIP etc.), it will not be shared over eBGP neighborship
+            To enable sharing - either configure IGP and add route to it's routing table or disable synchonization
+
+BGP Summarization
+    Summarized == Aggregated (in BGP)
+    to summarize subnet in BGP - under "router BGP <#>", "aggregate-address <subnet_aggregated> <subnet_mask> <OPTIONS>" (OPTIONS can be "summary-only" for example, which makes router to ONLY advertise the aggregated address)
+
+BGP Multihop
+    in BGP it is possible to form a neighborship with non-adjacent router, with the router that is located behind the adjacent one, for example
+    to do that, additional configuration is required under "router BGP <#>" - configure neighbor with it's remote-as, then configure neighbor with option "neighbor <neighbor_IP> ebgp-multihop <#>" (# - number of hops away)
+
+BGP Peer-group
+    peer-group can be created to make configuration easier for many neighbors at once with the same settings
+    create a peer group and assign neighbor to it
+
+eBGP vs. iBGP (differences)
+    - sending a prefix in eBGP changes "next-hop" attribute for the prefix to the IP of router that shared the information about prefix last. 
+            in iBGP - "next-hop" is the one initially received within the AS (if received by AS Edge device, the route is to outside of AS). Can be fixed by "neighbor <neigh_IP> next-hop-self" command on AS edge router
+    - iBGP peers doesn't share prefixes received from BGP ("i" or "e") neighbors (route reflectors / BGP confederations help with that)
+
+BGP IPv6
+    configured by utilizing address-families (MP-BGP)
+    before configuring, route-map has to be created that's going to advertise egress IPv6 address as a next-hop:
+        "route-map <RM_NAME>"
+        "set ipv6 next-hop <IPv6_on_router>"
+
+    Basically, to configure ipv6 BGP, first under "router bgp <#>", a neighbor (ipv4 format) has to be specified
+    then under "address-family ipv4" and "address-family ipv6", shared network should be specified in corresponding format (ipv4 for ipv4, ipv6 for ipv6)
+    after that, neighbor have to be activated under "address-family ipv6" and route-map specified to set the next-hop to ipv6 address
+
 https://www.youtube.com/watch?v=SVo6cDnQQm0
 59:56
 
