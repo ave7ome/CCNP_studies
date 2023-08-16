@@ -102,6 +102,7 @@ VSS - stacking mechanism that allows two physical switches to be represented as 
 
 
 #                    WLAN (wireless LAN) design
+Wireless details are on Line 1802 (more or less) in GitHub
 
 Useful on Wireless (+recommended learning in the end of publication)
 https://packetpushers.net/askjjx-help-office-wi-fi-is-so-bad-an-intern-is-following-the-ceo-around-with-an-ap/ 
@@ -113,7 +114,7 @@ Comparison of basic Access devices (switches) to Autonomous access points:
 Autonomous design (old)
     Main issue for Autonomous deployment is low scalability. For Core deployments connected through L3, VLAN cannot be stretched reliably for clients to be able to move from one physical place to another and still be connected to same VLAN.
     Also it's difficult to configure a lot of device manually.
-    Two devices below used to help configure a lot of devices. But there still were issues with pushing the config.
+    Two devices below used to help configure a lot of devices. But there still were issues with pushing the config. Devices are now not supported.
     WLSM (Wireless LAN Services Module) - EOS 
     WLSE (Wireless LAN Solution Engine) - EOS
 
@@ -124,19 +125,21 @@ Lightweight design (modern)
 
 WLC deployment design models
     Centralized (APs are in campus, WLC is in DC, tunnel is used to exchange traffic between APs and WLC).
-        Pros: L2 Roam - VLANs are located on all APs, users can safely move from anywhere to anywhere and still be on their same subnet.
-        Cons: Logically clients are located in the DC which is not quite secure. Also licensing should be considered. WLC controllers can manage only certain number of devices
+       +Pros: L2 Roam - VLANs are located on all APs, users can safely move from anywhere to anywhere and still be on their same subnet.
+       -Cons: Logically clients are located in the DC which is not quite secure. Also licensing should be considered. WLC controllers can manage only certain number of devices
     Distributed (Same as Centralized, but there are different WLCs for every building).
-        Pros: Still L2 Roam within the building
-        Cons: Licensing (1 WLC for certain number of APs) and number of controllers is increased.
+       +Pros: Still L2 Roam within the building
+       -Cons: Licensing (1 WLC for certain number of APs) and number of controllers is increased.
     Branch (Flex connect) - used for small buildings. APs and WLC are deployed as in Centralised model but tunnel established between them only transfers Control Plane traffic. Data plane remains at AP and is sent out directly to Switch.
-        Requirements: <100ms latency to WLC, <50 APs
-        Pros: Efficient traffic route (no need to send traffic to DC first). Simpler WLC topology.
-        Cons: No more L2 roam, but since it's a branch design it might not be needed.
-    Cloud (Meraki) - Wireless controllers are located in the cloud. APs are installed on site and they transfer control plane traffic to the cloud. DP is going to upstream swtiches.
-        Requirements: Cisco Meraki APs
-        Pros: No licensing issues (increased with the number of used APs), no need to manage controller Hardware. Data traffic of wireless clients is passed to local switch instead of being tunneled to controller
-        Cons: No L2 roam in case the Distribution switches (or access switches) are L3 interconnected 
+        That is called FlexConnnect, LOCAL SWITCHED option.
+        FlexConnect can be configured to CENTRAL SWITCHED option - normal operation, when Data plane traffic is also sent through CAPWAP tunnel from AP to WLC
+       *Requirements: <100ms latency to WLC, <50 APs
+       +Pros: Efficient traffic route (no need to send traffic to DC first). Simpler WLC topology.
+       -Cons: No more L2 roam, but since it's a branch design it might not be needed.
+    Cloud (Meraki) - Wireless controllers are located in the cloud. APs are installed on site and they transfer control plane traffic to the cloud. Data Plane traffic is going to upstream swtiches.
+       *Requirements: Cisco Meraki APs
+       +Pros: No licensing issues (increased with the number of used APs), no need to manage controller Hardware. Data traffic of wireless clients is passed to local switch instead of being tunneled to controller
+       -Cons: No L2 roam in case the Distribution switches (or access switches) are L3 interconnected 
 
 Wireless AP deployment and placement
     COVERAGE
@@ -317,7 +320,6 @@ Campus Fabric is:
     CTS (ISE basically) - Cisco TrustSec
 
 DNA Center is a physical appliance only(!)
-
 
 SDA doesn't operate in subnets. If a new EP comes online, nobody knows a destination to it at first.
 
@@ -1126,7 +1128,12 @@ To determine the best route, routers check:
 
 
 
-#                    OSPF (AD - 110)  (Mcast - 224.0.0.5 / FF02::5) (Mcast DR/BDR - 224.0.0.6 / FF02::6, TTL=1) (IP protocol - 89)
+#                    OSPF 
+## (AD - 110)  
+## (Mcast - 224.0.0.5 / FF02::5) 
+## (Mcast DR/BDR - 224.0.0.6 / FF02::6, TTL=1) 
+## (IP protocol - 89)
+
 Practical OSPF series (https://www.youtube.com/playlist?list=PLIFyRwBY_4bSkwy0-im5ERL-_CeBxEdx3)
 
 Adjacency established if following matches for neighbors:
@@ -1492,7 +1499,13 @@ OSPFv3 for IPv6
         LSA4 in OSPFv3 is named "inter-area router"
 
 
-#                    EIGRP (iEIGRP AD - 90, eEIGRP AD - 170) (Mcast - 224.0.0.10 / FF02::A, TTL=1) (IP protocol - 88)
+#                    EIGRP 
+## (iEIGRP AD - 90, eEIGRP AD - 170) 
+## (Mcast - 224.0.0.10 / FF02::A, TTL=1) 
+## (IP protocol - 88)
+
+
+
 EIGRP - Enhanced Interior Gateway Routing Protocol
     Proprietary but Cisco opened it to other vendors (around 2010). But vendors don't really introduced into their OS.
 
@@ -1621,7 +1634,8 @@ https://www.youtube.com/playlist?list=PLxyr0C_3Ton1IiuKroFD6i_vm61dapmKQ
 https://www.youtube.com/watch?v=fg2flRb5us0&list=PLxyr0C_3Ton1IiuKroFD6i_vm61dapmKQ&index=23
 
 
-#                BGP (eBGP AD - 20, iBGP AD - 200)
+#                BGP 
+##    (eBGP AD - 20, iBGP AD - 200)
 
 BGP whole-lab from Ivan Pepelnjak
 https://github.com/ipspace/bgplab
@@ -1786,17 +1800,25 @@ BGP IPv6
     then under "address-family ipv4" and "address-family ipv6", shared network should be specified in corresponding format (ipv4 for ipv4, ipv6 for ipv6)
     after that, neighbor have to be activated under "address-family ipv6" and route-map specified to set the next-hop to ipv6 address
 
-https://www.youtube.com/watch?v=SVo6cDnQQm0
-59:56
 
+#   Wireless
+Wireless design is on Line 104 in this document
 
+AP connectivity options
+    Ad Hoc Wireless LAN - two devices communicate each other directly (withoup accessing AP) and act as wireless devices
+    Infrastructure Wireless LAN - devices communicate with AP which is connected to a network switch through the ethernet port
+    Mesh Wireless LAN - wireless AP is not connected to a switch through ethernet port, instead this AP is communicating to another wireless AP somewhere away
+                        that allows the signal from 1st AP to be sent to 2nd AP (or visa versa) and be regenerated on latter one to transmit the requests To or From the WiFi clients
 
+Wireless Communications
+    To transmit data from device to device over WiFi Access point:
+        1. Data is reaching the WiFi AP as an electric signal
+        2. It get's transformed into electro-magnetic signal (EMS) or Radio Frequency signal (RFS). RFS is a specific type of EMS - a combination of oscilating electric and magnetic fields
+        3. RFS is transmitted through AP antenna
+        4. RFS is received by another WiFi device antenna and decoded into electric signal.
 
-
-
-
-
-
+https://www.youtube.com/watch?v=s_-OJebBiBc&list=PLDmbik4NbmjLbdXIgjiYoZVdGRU7gzEEF&index=2
+32:24
 
 
 
