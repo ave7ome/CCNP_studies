@@ -1,4 +1,4 @@
-ethanalyzer local interface inband capture-filter "host 10.144.200.33" limit-captured-frames 100 write bootflash:test.pcapAll terms and points are covered here in a way I understood it.
+All terms and points are covered here in a way I understood it.
 ***( - get to know the definition more
  
 https://linkmeup.gitbook.io/sdsm/0.-planirovanie
