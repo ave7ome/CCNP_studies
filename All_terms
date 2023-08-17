@@ -1788,6 +1788,7 @@ BGP Peer-group
 eBGP vs. iBGP (differences)
     - sending a prefix in eBGP changes "next-hop" attribute for the prefix to the IP of router that shared the information about prefix last. 
             in iBGP - "next-hop" is the one initially received within the AS (if received by AS Edge device, the route is to outside of AS). Can be fixed by "neighbor <neigh_IP> next-hop-self" command on AS edge router
+    - in addition to above point - iBGP router doesn't change ANY attribute of received prefix
     - iBGP peers doesn't share prefixes received from BGP ("i" or "e") neighbors (route reflectors / BGP confederations help with that)
 
 BGP IPv6
@@ -1801,7 +1802,7 @@ BGP IPv6
     after that, neighbor have to be activated under "address-family ipv6" and route-map specified to set the next-hop to ipv6 address
 
 
-#   Wireless
+#                Wireless
 Wireless design is on Line 104 in this document
 
 AP connectivity options
