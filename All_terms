@@ -1801,6 +1801,7 @@ BGP IPv6
     then under "address-family ipv4" and "address-family ipv6", shared network should be specified in corresponding format (ipv4 for ipv4, ipv6 for ipv6)
     after that, neighbor have to be activated under "address-family ipv6" and route-map specified to set the next-hop to ipv6 address
 
+    To verify BGP IPv6 config: "show bgp ipv6 unicast" and "show bgp ipv6 unicast summary"
 
 #                Wireless
 Wireless design is on Line 104 in this document
