@@ -1797,7 +1797,7 @@ BGP IPv6
         "route-map <RM_NAME>"
         "set ipv6 next-hop <IPv6_on_router>"
 
-    Basically, to configure ipv6 BGP, first under "router bgp <#>", a neighbor (ipv4 format) has to be specified
+    Basically, to configure ipv6 BGP, first under "router bgp <#>", a neighbor (either ipv6 or ipv4 format) has to be specified
     then under "address-family ipv4" and "address-family ipv6", shared network should be specified in corresponding format (ipv4 for ipv4, ipv6 for ipv6)
     after that, neighbor have to be activated under "address-family ipv6" and route-map specified to set the next-hop to ipv6 address
 
