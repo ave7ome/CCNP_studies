@@ -1818,8 +1818,117 @@ Wireless Communications
         3. RFS is transmitted through AP antenna
         4. RFS is received by another WiFi device antenna and decoded into electric signal.
 
+Radio Frequency
+    Radio frequency signal (RFS) transmission can be imagined as a sinusoid. It starts at 0:0, makes an amplitude up to 1 (not an actual value), back to 0, then to -1 and then back to 0.
+    So that motion 0 -> 1 -> 0 -> -1 -> 0 is called Cycle.
+    Radio Frequency is a number of cycles completed per second. 1 Hz = 1 cycle.
+        Hertz is a measurement of cycles/s
+
+RF Range
+    2.4 GHz band = 2.4 to 2.4835 GHz
+    5 GHz band = 5.15 to 5.85 GHz
+    Wireless communication as a whole happen between 3kHz and 300GHz (300000000kHz)
+    Wireless bands are subdivided into channels
+
+2.4 GHz band theory
+    This band is divided into 14 channels
+    There are 5 MHz between all channels from 1 to 13, there are 12 MHz between channels 13 and 14
+    Channel 14 is allowed only in Japan with old 802.11b WiFi standard
+    Taking up a certain channel for transmission uses 22MHz, that means that if 6th channel is taken and there are 5 MHz between channels, it'll interfere with channels 5 and 7 (5 MHz dif) and channels 4 and 8 (10 MHz dif)
+        That means that 4,5,7,8 cannot be safely used without interference. since other channels usage also take 2 channels to each side, next possible channel to use after 6 would be 11 (9,10,12,13 taken for 11)
+    All in all - channels 1, 6 and 11 can be used and be placed next to each other safely.
+
+5 GHz band theory
+    5 GHz is better than 2.4 GHz in terms of interference, usually no issues with that
+
+There's a WiFi 6e in development which brings a 6 GHz channel to the game
+
+RF signal strength
+    Measured in dBm (decibel milliwats)
+    Router Transmitters in antenna range between 1 and 100 mW (mW = 1/1000 W)
+    1mW = 0dBm, 10mW = 10dBm, 100mW = 20dBm, 1000mW = 30dBm
+        basically, multiplying mW by 10 will add 10 dBm to the signal strength
+                or multiplying mW by 2 will add 3 dBm to the signal strength
+    Closer to zero value means a stronger signal
+    -30dBm is amazing
+    -90dBm is considered unusable
+
+Signal to Noise Ratio (SNR)
+    Difference in decibels between signal and background noise
+    Calculated as a "Signal - Noise = SNR"
+    Usually >20 dBM SNR is good for data transmission
+    For Voice it's >25 for good voice transmission
+
+Access point modes
+    Autonomous AP  - can be used to place a lot of APs. One AP connects internet through it's WAN port, then other APs are interconnected via LAN interfaces
+                     Scales poorly since every device have to be manually configured to match the first AP (which connects to internet)
+                     More than 4 is not recommended, after that WLC is better suited to do the job
+    Lightweight AP - APs are brainless, controlled by WLC (contact WLC through CAPWAP tunnel protocol)
+
+Lightweight APs
+    Local Mode: default mode, basic AP - provides SSID, WiFi access, can do some background operations in non-active times (like looking for rogue APs)
+    Monitor Mode: not handling user data, used for background tasks (like searching for rogues, being used for triangulation - location based services, monitor IDS events)
+    FlexConnect Mode: data plane traffic is not transmitted to WLC, it goes directly between APs, only control plane and management plane traffic is going to WLC
+    Sniffer Mode: used to analyze traffic, capture traffic and forward for analysis (wireshard for example)
+    Rogue Detector Mode: used exactly to look for rogue APs
+    Bridge Mode: used for mesh networks (interconnect two APs to present WiFi network in mildly remote location, about 100m far), P2P, P2MultiP
+    Flex+Bridge Mode: combine FlexConnect and Bridge
+    SE-Connect Mode: AP operates as spectrum analyzer device (with Cisco Spectrum Expert software), it scan RF spectrum to see that happen, gathers information about all channels and forwards to the Cisco software
+
+Antenna Types
+    Omnidirectional antenna - coverage are is approximately equal in all directions 
+                              If i look straight down on the antenna, the signal is distributed evenly in all directions (about -5 dBm)
+                              If i look from the side - antenna doesn't disribute any signal top and bottom
+                              Doughnut shape doverage
+            Example: Dipole antenna - it loks like a stick with the wires inside curved and charged "-" and "+" in a way to radiate the signal in all directions
+    Directional antenna - coverage is focused on some certain direction of signal radiation (no or low coverage behind that chosen direction)
+            Example: Patch antenna (mildly strong signal in a conus area), Yagi antenna (strong signal far away in a straight line), Dish antenna (like Yagi but VERY strong signal)
+
+Access Point Operation
+    1 - Boot State. AP boots up local OS and receives addressing from DHCP server
+    2 - WLC Discovery State. AP searches for WLC with CAPWAP Discovery Request Messages
+                             Broadcast over UDP 5246 and directly to known WLC addresses
+    3 - CAPWAP Tunnel State. CAPWAP tunnels are established between AP and WLC to send Data/Control Plane traffic
+    4 - WLC Join State. CAPWAP message exchange authenticates and associates Lightweight ACP with WLC
+    5 - Image Download State. Lightweight AP compares running OS to the one stored on WLC and updates if needed
+    6 - Config Download State. Lightweight AP downloads configuration from WLC (SSID, QoS, Security etc.)
+    7 - Run State. Lightweight AP is operational.
+    8 - Reset State. Lightweight AP tears down CAPWAP tunnels and start over the process
+
+WLC Discovery Process
+    Attempts to find as many WLCs as possible
+    1. CAPWAP Discovery Request messages are sent out from Lightweight AP as broadcast on a local subnet
+    2. IP-addresses manually configured and stored on LAP are checked
+    3. DHCP option 43 can be used to send the WLC IP-address
+    4. LAP attempts to resolve request to CISCO-CAPWAP-CONTROLLER.localdomain
+    5. If no WLC found, LAP reboots and does the discovery again
+    
+    In the end of discovery, LAP has a list of available WLCs. Which WLC will LAP join:
+        1. Previously known controller
+        2. Master controller
+        3. Least-loaded controller
+
+L2 and L3 Roaming
+    Roaming - when wireless client changes which AP it is connected to
+    Intracontroller roaming - roaming between APs of the same WLC
+    Intercontroller roaming - roaming between APs of different WLCs
+    L2 roaming - client moves between APs which WLCs belong to the same VLAN. Client keeps it's IP-address and it happens seamlessly
+    L3 roaming - client moves between APs which WLCs belong to different VLANs. In this case IP-address changes by default and connections are reset
+                 But it's possible to configure mobility groups (consisting of WLCs), then even though client moved and now part of different WLC, it still connect over that "Foreigh Controller" to original one - "Anchor Controller"
+                 For that to happen, CAPWAP tunnel is built between two Controllers
+
+
+
+
+
+
+
+
+https://kwtrain.com/pt
+https://bit.ly/ptconfig
+https://bit.ly/wlcdownload
 https://www.youtube.com/watch?v=s_-OJebBiBc&list=PLDmbik4NbmjLbdXIgjiYoZVdGRU7gzEEF&index=2
-32:24
+01:28:00
 
 
 
