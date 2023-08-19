@@ -1816,6 +1816,7 @@ Wireless Communications
     To transmit data from device to device over WiFi Access point:
         1. Data is reaching the WiFi AP as an electric signal
         2. It get's transformed into electro-magnetic signal (EMS) or Radio Frequency signal (RFS). RFS is a specific type of EMS - a combination of oscilating electric and magnetic fields
+            AP is generating electromagnetic field (radio wave)
         3. RFS is transmitted through AP antenna
         4. RFS is received by another WiFi device antenna and decoded into electric signal.
 
