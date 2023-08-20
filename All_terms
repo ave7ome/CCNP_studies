@@ -1806,6 +1806,13 @@ BGP IPv6
 #                Wireless
 Wireless design is on Line 104 in this document
 
+Important variables
+   *Frequency (Hz) - amount of transmitted signals per second in a form of wave swings.     
+            Radio frequency signal (RFS) transmission can be imagined as a sinusoid. It starts at 0:0, makes an amplitude up to 1 (not an actual value), back to 0, then to -1 and then back to 0.
+            So that motion 0 -> 1 -> 0 -> -1 -> 0 is called Cycle.
+   *Wavelength - how long does wave move forward before next cycle (the higher the frequence, the lower the wavelength)
+
+
 AP connectivity options
     Ad Hoc Wireless LAN - two devices communicate each other directly (withoup accessing AP) and act as wireless devices
     Infrastructure Wireless LAN - devices communicate with AP which is connected to a network switch through the ethernet port
