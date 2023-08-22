@@ -1911,17 +1911,21 @@ Access point modes
     Autonomous AP  - can be used to place a lot of APs. One AP connects internet through it's WAN port, then other APs are interconnected via LAN interfaces
                      Scales poorly since every device have to be manually configured to match the first AP (which connects to internet)
                      More than 4 is not recommended, after that WLC is better suited to do the job
-    Lightweight AP - APs are brainless, controlled by WLC (contact WLC through CAPWAP tunnel protocol)
+    Lightweight AP - APs are brainless, controlled by WLC (contact WLC through CAPWAP tunnel protocol). Data is invisible (since it's encapsulated) for switches on the way from AP to WLC.
 
 Lightweight APs
-    Local Mode: default mode, basic AP - provides SSID, WiFi access, can do some background operations in non-active times (like looking for rogue APs)
-    Monitor Mode: not handling user data, used for background tasks (like searching for rogues, being used for triangulation - location based services, monitor IDS events)
-    FlexConnect Mode: data plane traffic is not transmitted to WLC, it goes directly between APs, only control plane and management plane traffic is going to WLC
-    Sniffer Mode: used to analyze traffic, capture traffic and forward for analysis (wireshard for example)
-    Rogue Detector Mode: used exactly to look for rogue APs
-    Bridge Mode: used for mesh networks (interconnect two APs to present WiFi network in mildly remote location, about 100m far), P2P, P2MultiP
-    Flex+Bridge Mode: combine FlexConnect and Bridge
-    SE-Connect Mode: AP operates as spectrum analyzer device (with Cisco Spectrum Expert software), it scan RF spectrum to see that happen, gathers information about all channels and forwards to the Cisco software
+   *Client-supporting modes
+        Local Mode: default mode, basic AP - provides SSID, WiFi access, can do some background operations in non-active times (like looking for rogue APs)
+        FlexConnect Mode: data plane traffic is not transmitted to WLC, it goes directly between APs, only control plane and management plane traffic is going to WLC. That allows for much shorter path of a traffic from client to server
+        Bridge Mode: used for mesh networks (interconnect two or more APs to present WiFi network in mildly remote location, about 100m far), P2P, P2MultiP. Example is a park in college campus, students have to be able to use WiFi in park anywhere therefore most logical option is mesh network of APs (cables are difficult to connect in a field)
+             MAP (Mesh Access Point) - APs in mesh network in bridge mode
+             RAP (Root Access Point) - AP that is connected to the network through the wire
+        Flex+Bridge Mode: combine FlexConnect and Bridge
+   *Utility-based modes  
+        Monitor Mode: Listening for surroundings but not handling user data, used for background tasks (like searching for rogue APs, being used for triangulation - location based services, monitor IDS events)
+        Sniffer Mode: Listening for 802.11 traffic on APs with clients, used to analyze traffic, capture traffic and forward for analysis (wireshard for example)
+        Rogue Detector Mode: used exactly to look for rogue APs, usually APs in such mode DISABLE antennas radiation and receival. Such devices listen for ARPs on WIRE from potentially Rogue MAC-addresses. Switch interface connecting to such AP is usually in trunk to receive all packets 
+        SE-Connect Mode: Listening for NOISE, AP operates as spectrum analyzer device (with Cisco Spectrum Expert software), it scan RF spectrum to see that happen, gathers information about all channels and forwards to the Cisco software. Detects NOISE in the air
 
 Antenna Types (comes with the dBi values giving a hint on how strong their dBm increase will be)
     Omnidirectional antenna - coverage are is approximately equal in all directions. Usually used in home routers
