@@ -1933,15 +1933,23 @@ Antenna Types (comes with the dBi values giving a hint on how strong their dBm i
                               If i look from the side (E-plane or Elevation) - antenna doesn't disribute any signal top and bottom
             Example: Dipole antenna - it looks like a stick with the wires inside curved and charged "-" and "+" in a way to radiate the signal in all directions
                      Collinear antenna - made of array of dipole elements
-    Directional antenna - coverage is focused on some certain direction of signal radiation (no or low coverage behind that chosen direction). Connects to AP through a cable wire
-            Example: Patch antenna (mildly strong signal in a wide cone area), 
-                     Yagi antenna (strong signal far away in a straight line), 
-                     Dish antenna (like Yagi but VERY strong signal)
+    Directional antenna - coverage is focused on some certain direction of signal radiation (no or low coverage behind and to the sides of that chosen direction). Connects to AP through a cable wire
+            Example: Patch antenna (mildly strong signal in a wide cone area) 
+                     Yagi antenna (strong signal far away in kind of a straight line)
+                     Parabolic dish antenna (like Yagi but VERY strong signal and very straight line)
 
     Values identifying antenna strength
         dBi (decibells relative to isotropic) - antennas radiating power in perfect environment (not reachable in any way)
         dBd (decibells relative to dipole) - dipole antennas radiating power with all the degradation taken into account
 
+Wireless Frame Types
+    Data frames - frames with data :). As in wired network, consist of data in the depth of it with headers (SMAC, DMAC) in front of data and CRC Checksum behind the data
+                  Includes NULL FRAME - sent by device connected to WiFi to say that it's going to power saving mode for AP to buffer frames directed to it.
+    Management frames - divided into 3 groups of frames
+                        Beacon and Probe frames - used by AP and device to discover each other
+                        Authentication and Association frames - used to confirm the identity of device
+                        De-Authentication and Re-Association frames - used during roaming to re-register device on new AP
+    Control frames - RTS (request to send), CTS (clear to send) and ACK (Acknowledgement) frames. This is the sequence AP&device go through initiated by device to make sure it can start transmitting the signal and use the band
 
 Access Point Operation
     1 - Boot State. AP boots up local OS and receives addressing from DHCP server
