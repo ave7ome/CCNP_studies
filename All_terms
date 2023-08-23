@@ -1,4 +1,4 @@
-10.144.196.162All terms and points are covered here in a way I understood it.
+All terms and points are covered here in a way I understood it.
 ***( - get to know the definition more
  
 https://linkmeup.gitbook.io/sdsm/0.-planirovanie
@@ -1942,14 +1942,39 @@ Antenna Types (comes with the dBi values giving a hint on how strong their dBm i
         dBi (decibells relative to isotropic) - antennas radiating power in perfect environment (not reachable in any way)
         dBd (decibells relative to dipole) - dipole antennas radiating power with all the degradation taken into account
 
+Wireless terminology
+    Service cell - a signal reach of a single Access Point 
+    Basic Service Set (BSS) - a set of services provided by AP in it's service cell
+    Service Set Identifier (SSID) - basically a WiFi network association (name)
+    Basic Service Set Identifier (BSSID) - an association of specific SSID to specific AP, written in a form of MAC-address so it differs from AP to AP even for same SSID
+    Extended Service Set (ESS) - a set of services provided by more than one APs in their service cells
+
+
 Wireless Frame Types
     Data frames - frames with data :). As in wired network, consist of data in the depth of it with headers (SMAC, DMAC) in front of data and CRC Checksum behind the data
                   Includes NULL FRAME - sent by device connected to WiFi to say that it's going to power saving mode for AP to buffer frames directed to it.
     Management frames - divided into 3 groups of frames
-                        Beacon and Probe frames - used by AP and device to discover each other
-                        Authentication and Association frames - used to confirm the identity of device
-                        De-Authentication and Re-Association frames - used during roaming to re-register device on new AP
+           discovery:   Beacon and Probe frames - used by AP and device to discover each other. Basically if these are successful, device will see the SSID in it's list
+                            BEACON frames are constantly radiated by the AP and it include SSID (name), channel it resides at and Ruleset for the WiFi network
+                            If host already know SSID, it sends out a PROBE frame itself on all the channels asking the AP WiFi network "are you there?". If he finds AP with specified SSID on some channel, the AP sends back the PROBE RESPONSE (very similar frame to BEACON)
+          connection:   Authentication and Association frames - used to confirm the identity of device. Basically to connect device to AP to use some SSID and connect to it
+                            AUTHENTICATION REQUEST ("may i join the SSID?" message) frame is sent on the initial attempt to connect to discovered SSID. Once it is received by AP, it sends an AUTHENTICATION RESPONCE. Responce containts either "open" message saying that client can authenticate freely, or challenges it with WPA2 (or other security protocol) to enter the password. WPA2 will introduce additional frames to the process, password input happens on that step
+                            If client is allowed to connect (security challenge passed, "open" received), ASSOCIATION REQUEST is sent by client host. AP adds device on it's client table in a pair CLIENT_NAME - MAC_ADDRESS and sends an ASSOCIATION RESPONCE. Now client is connected and using the WiFi network  
+       disconnection:   De-Authentication and Re-Association frames - used during roaming to re-register device on new AP. As a result, client is no longer associated to the AP or even deleted completely
+                            DE-AUTHENTICATION frame is sent either by client or by AP whenever it's required to delete the connection from AP memory
+                            DE-ASSOCIATION frame is sent, again, either by client or by AP but after that, client info is not deleted from AP, CLIENT_NAME - MAC_ADDRESS pair is staying in AP memory. That is usually used for seamless roaming between APs. Device deassociates from one AP, remains in memory (on WLC) and appear on another AP.
     Control frames - RTS (request to send), CTS (clear to send) and ACK (Acknowledgement) frames. This is the sequence AP&device go through initiated by device to make sure it can start transmitting the signal and use the band
+
+Wireless Traffic Flow
+    WiFi operates only in HALF DUPLEX mode, meaning that only one device can speak at a time or only AP can speak. No two devices can communicate at the same time.
+    For that, there are various technics to make sure no device nor AP is sending frames whenever there's already a traffic exchange going on.
+    All WiFi devices has an IFS (Inter-Frame Space) that activates after it sent out a frame. At that time, client doesn't send any frames.
+    During waiting time, devices "listen to the air" and check if there's a frame exchange going on. No traffic is sent during that time
+    Also there's a NAV (Network Allocation Vector) which is basically a timer for when can client device send traffic out. When it hits 0, frame is sent (but it is not sent if there's conversation in the air)
+    Each 802.11 packet has a DURATION value in it's header, duration is based on the frame length. Devices that doesn't participate in exchange are listening for frames and check the duration of ones being sent by other WiFi devices, that duration is added to NAV
+
+    ACK message is sent to each frame received by either client or AP. 
+    There are also REQUEST TO SEND, CLEAR TO SEND messages. RTS are sent by client, CTS are sent by AP.
 
 Access Point Operation
     1 - Boot State. AP boots up local OS and receives addressing from DHCP server
@@ -1975,14 +2000,42 @@ WLC Discovery Process
         2. Master controller
         3. Least-loaded controller
 
-L2 and L3 Roaming
+Wireless Roaming
     Roaming - when wireless client changes which AP it is connected to
     Intracontroller roaming - roaming between APs of the same WLC
     Intercontroller roaming - roaming between APs of different WLCs
-    L2 roaming - client moves between APs which WLCs belong to the same VLAN. Client keeps it's IP-address and it happens seamlessly
-    L3 roaming - client moves between APs which WLCs belong to different VLANs. In this case IP-address changes by default and connections are reset
-                 But it's possible to configure mobility groups (consisting of WLCs), then even though client moved and now part of different WLC, it still connect over that "Foreigh Controller" to original one - "Anchor Controller"
-                 For that to happen, CAPWAP tunnel is built between two Controllers
+
+Autonomous Wireless Roaming
+    Example: wireless client is in a reach of two APs with the same SSID. It is closer to 1st one therefore connected to it
+    If the client needs to change it's location, and it happens to be closer to 2nd AP, it'll start receiving less RSSI from the 1st one
+    Once 2nd RSSI is better, client will send an AUTHENTICATION frame to 2nd AP and once the process is done, it'll send a RE-ASSOCIATION frame to now appear on another AP
+    Also there'll be a DE-ASSOCIATION message to 1st AP
+
+L2 Roaming
+    Client moves between APs which WLCs belong to the same VLAN. Client keeps it's IP-address and it happens seamlessly
+    Once RSSI becomes very bad for one AP, client scans for different APs with better RSSI
+    If it finds one, it'll move to is (same as described in autonomous roaming)
+
+    From the perspecitve of WLC:
+     (1)When there's only one WLC and it is receiving CAPWAP traffic from AP1 regarding certain client with certain MAC
+        And suddenly it received a message with that MAC from another AP2, it recognizes that roaming happened and changes the information for that device's MAC to link it to AP2 (specifying that this MAC is located on AP2)
+     (2)There can be two (or more) WLCs, WLC1 manages AP1 and WLC2 manages AP2. 
+        If WLCs are in the same mobility group, when roaming happened AP1->AP2, CAPWAP traffic for the client device will start to appear on WLC2.
+        Then WLC2 sends a request to WLC1 asking if it knows about the client. WLC1 responds with the information is has (IP, QoS, Security)
+    
+L3 Roaming 
+    Client moves between APs which WLCs belong to different VLANs. In this case IP-address changes by default and connections are reset
+        But it's possible to configure mobility groups (consisting of WLCs), then even though client moved and now part of different WLC, it still connect over that new "Foreigh Controller" to original one - "Anchor Controller"
+        For that to happen, CAPWAP tunnel is built between two Controllers
+
+    It is also possible to configure public access SSID internally even within the same network as the SSID that should be explicitly protected (like an internal one)
+    For that, example: there's an AP1 belonging to WLC1, internal SSID is configured to AP1 by WLC1 and the public SSID is configured to AP1 by WLC2
+    It is possible to set the "Predefined Anchor" for the public SSID to make sure that public SSID traffic is sent to AP1, then encapsulated in CAPWAP tunnel to WLC1 (Foreign WLC for such traffic) and then encapsulated to CAPWAP tunnel sent to WLC2
+    WLC2 in such example is located in DMZ behind a Firewall (to protect the internet traffic)
+
+
+
+
 
 
 
