@@ -1979,11 +1979,11 @@ Wireless Traffic Flow
     RTS, CTS and ACK messages are control frames and can be sent in a groups (many at a time)
 
 Access Point Operation
-    1 - Boot State. AP boots up local OS and receives addressing from DHCP server
+    1 - Boot State. AP boots up local OS and receives addressing from DHCP server (inc. options 3 - default gateway IP, 6 - DNS server IP, 15 - domain name; can also provide option 43 - WLC IP-address, if configured to)
     2 - WLC Discovery State. AP searches for WLC with CAPWAP Discovery Request Messages
                              Broadcast over UDP 5246 and directly to known WLC addresses
     3 - CAPWAP Tunnel State. CAPWAP tunnels are established between AP and WLC to send Data/Control Plane traffic
-    4 - WLC Join State. CAPWAP message exchange authenticates and associates Lightweight ACP with WLC
+    4 - WLC Join State. CAPWAP message exchange authenticates and associates Lightweight ACP with WLC. A list of WLCs is built.
     5 - Image Download State. Lightweight AP compares running OS to the one stored on WLC and updates if needed
     6 - Config Download State. Lightweight AP downloads configuration from WLC (SSID, QoS, Security etc.)
     7 - Run State. Lightweight AP is operational.
@@ -1996,7 +1996,11 @@ WLC Discovery Process
     3. DHCP option 43 can be used to send the WLC IP-address
     4. LAP attempts to resolve request to CISCO-CAPWAP-CONTROLLER.localdomain
     5. If no WLC found, LAP reboots and does the discovery again
-    
+
+    Discovery goes as following, if at any step the WLC IP address is received, discovery stops(?):
+        DHCP option -> DNS request to name from p.4 -> cached list from before reboot is checked -> Broadcast to 255.255.255.255 -> Checks if there's statically WLC IP configured -> **
+            ** - If AP before reboot was linked to WLC that was part of mobility group, it received IPs of other WLCs in mobility group therefore AP checks these IP-addresses -> if no IPs found, AP resets
+
     In the end of discovery, LAP has a list of available WLCs. Which WLC will LAP join:
         1. Previously known controller
         2. Master controller
