@@ -2042,8 +2042,61 @@ L3 Roaming
     It is possible to set the "Predefined Anchor" for the public SSID to make sure that public SSID traffic is sent to AP1, then encapsulated in CAPWAP tunnel to WLC1 (Foreign WLC for such traffic) and then encapsulated to CAPWAP tunnel sent to WLC2
     WLC2 in such example is located in DMZ behind a Firewall (to protect the internet traffic)
 
+Wireless troubleshooting
+    Common approaches:
+        Bottom-up. That means checking physical layer first, datalink second and going up if all good
+        Up-bottom. Means checking application layer first and then going down if all good
+        "Divide & conquer". That means checking the ping connectivity or some other common thing first and going from there. It gives a hint where to move
+        "Follow the path". Means to track the data path from client to server and seeing if there are issues somewhere on the path
+
+    Troubleshooting AP to WLC issues
+        There might be issues on discovery process when AP tries to find WLC in the network.
+            AP haven't received WLC server IP through option 43 from DHCP (option not configured)
+            AP haven't received Domain name from DHCP (option 15)
+            AP cannot reach WCL through broadcast due to incorrect VLAN config
+            No access over port udp/5246 (used by AP for WLC discovery)
+            NATting is configured to reach WLC but it's not set up correctly either on WLC (ip-address)
+            Certificate issues (something is not matched) or wrong
+
+    Troubleshooting Client Host to AP issues
+        There might be issues for client device (1)connecting to- or (2)using- the AP wireless network
+            (1) There might be physical issues like increased interference (=decreased received signal strength). Can be checked by different device if that is the case
+            (1) There might be datalink issues with client having mismatched parameters with AP's SSID
+            (1) Security issues with client not supporting security parameters of AP (WEP, WPA, WPA2, WPA3) or having it wrong
+            (2) DHCP issues when client connected to SSID cannot reach the DHCP server and receive an IP-address
+            (2) Sometimes there are issues when client is connected to network both with wire and wireless
+
+    Troubleshooting Client performance issues
+        There can be issues with clients successfully connected to wireless network but it is slow or performing poorly
+            Issue can be on physical layer.
+            Distance to AP is too big -> low received signal (RSSI) -> lower bandwidth
+            AP antenna can be too low power or directed in the wrong direction
+            Issues like signal absorbtion / reflection
+
+            Issue can be on logical layer
+            Too many clients connected to AP, too much half-duplex traffic -> "congestion"
+            Client can use legacy protocol (slower connection that AP provides)
+            There can be too much coverage, too many APs which lead to unnecesary roaming too many times (20% coverage overlap between APs is recommended, 35% for voice)
+            Also if signal is too big for AP, device with lower receive signal strength can just not be able to reach it back
+
+Wireless network components (APs, WLC, client host) communication to wired network
+    Every AP connects to wired network through a switch (usually). Therefore switch have to have correct interface configuration to where AP connects to
+    
+    In case of Autonomous AP, interface should usually be a trunk to carry all the configured SSIDs out to network without them intersecting.
+        Internal traffic, management traffic and public traffic should be split to different VLANs for security reasons
+    
+    In case of Lightweight APs, the client traffic is not seen when it leaves the AP because it will be encapsulated into CAPWAP tunnel
+        It'll only be seen once it reached the WLC and is out of it. Therefore in that case LAPs should be connected to access interface
+        And WLC should be connected to switch trunk port
+    For LAP to get IP-address from DHCP, it have to be able to reach the DHCP server within it's network (or through DHCP relay) connected to switch
+    Clients connecting to that LAP's wireless networks will not use the same network, it'll be different since the traffic goes through the tunnel first
+        For client's DHCP connection, there is a Proxying feature on the WLC.
+        If WLC Proxy is disabled, client's DHCP requests are broadcasted to DHCP server in this network. Either it is located in L2 reach or using DHCP-relay on the L3 device on the way
+        If WLC Proxy is enabled, client's DHCP requests are directed to specified IP-address set up in Proxying feature. WLC can direct DHCP requests to itself serving as a DHCP server
 
 
+
+    
 
 
 
