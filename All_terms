@@ -2095,6 +2095,22 @@ Wireless network components (APs, WLC, client host) communication to wired netwo
         If WLC Proxy is enabled, client's DHCP requests are directed to specified IP-address set up in Proxying feature. WLC can direct DHCP requests to itself serving as a DHCP server
 
 
+https://kwtrain.com/pt
+https://bit.ly/ptconfig
+https://bit.ly/wlcdownload
+https://www.youtube.com/watch?v=s_-OJebBiBc&list=PLDmbik4NbmjLbdXIgjiYoZVdGRU7gzEEF&index=2
+01:28:00
+
+
+#                NTP
+
+NTP (Network Time Protocol) is used on devices to synchonize the time between each other to some certain NTP authority
+
+Why NTP is needed
+    Time-based passwords - if time is very much off, passwords won't work
+    Key-chains key rotations based on time
+    Device log events - if time is off, troubleshooting will be much more difficult since engineer won't know when certain event happened
+    Encryption certificates validation - each certificate have validity dates and times, lack of correct times will stop certs from working
 
     
 
@@ -2106,11 +2122,7 @@ Wireless network components (APs, WLC, client host) communication to wired netwo
 
 
 
-https://kwtrain.com/pt
-https://bit.ly/ptconfig
-https://bit.ly/wlcdownload
-https://www.youtube.com/watch?v=s_-OJebBiBc&list=PLDmbik4NbmjLbdXIgjiYoZVdGRU7gzEEF&index=2
-01:28:00
+
 
 
 
