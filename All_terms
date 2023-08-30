@@ -1894,18 +1894,34 @@ Wireless standarts differences (802.11 with some letters on the end)
     Initially in 1999 there were two standards (one for 2.4GHz, another for 5GHz), 5GHz was faster due to more complex transmission technology. Most people used 2.4GHz
     In 2003, new 2.4GHz standard has been developed with higher speeds
     In 2009, new standart for 2.4GHz/5GHz was introduced. Added MIMO (technology to transmit traffic through all antennas at once) and aggregated radio channels (40MHz) (for more throughput)
-    In 2014, 5GHz standard has been improved to support more than 1Gbit/s rates by utilizing 160MHz aggregated channels and MUMIMO (multiple user communication with MIMO)
+    In 2014, 5GHz standard has been improved to support more than 1Gbit/s rates by utilizing up to 160MHz aggregated channels and MUMIMO (multiple user communication with MIMO but only from AP to device)
     In 2019 even better standard was developed with 1-6GHz ISM frequencies being able to be utilized. Bidirectional MUMIMO introduced. 600-9608 Mbit/s speeds available and better support of more clients located in the close reach
 
 Wireless technologies (some will just be here with no explanation)
-    OFDM (used initially in 5GHz wifi standard from 1999, also added into 2.4GHz 2003 wifi standard)
-    DSSS (used initially in 2.4GHz wifi standard from 1999)
+    FDM (Frequence Division Multiplexing)
+    OFDM (used initially in 5GHz wifi standard from 1999, also added into 2.4GHz 2003 wifi standard) - Orthagonal Frequence Division Multiplexing
+        1 bit of data can be sent using a 2 MHz frequency range
+        Here, 2MHz is used and all bits are data
+        to get rid of 2MHz "sub-channels" interfering with each other, orthagonal multiplexing is done
+        orthagonal means that data is transmitted with 90 degree delay for subchannels next to each other 
+        for example channel 1 is transmitted as sin function (start at 0 on 0degree, "1" at 90degree, 0 at 180degree, "-1" at 270degree, 0 at 360 degree)
+        channel 2 is transmitted as cosin function (start at "1" at 0degree, 0 at 90degree, "-1" at 180degree and so on)
+        above means that when there's a transmit peak for one subchannel, other subchannel is in 0
+    DSSS (used initially in 2.4GHz wifi standard from 1999) - Direct-Sequence Spread Spectrum
+        1 bit of data can be sent using a 2 MHz frequency range
+        A channel is represented by 22 MHz -> therefore, 11 bits is possible
+        in DFSS, there were sent 1 bit of data and 10 bits of "chips" (extra bits) - they provided protection from unwanted interference
+        So instead of sending 11 bits of data, only 1 bit of data has been sent
+    QAM (Quadrature Amplitude Modulation) - an ability to represent more than 1 bit in 2MHz frequency range by changing the amplitude and wavelength (16-QAM, 16 = 2^4 -> 4 bits instead of 1; same system for 64-QAM, 256-QAM, 1024-QAM)
     MIMO (multiple input, multiple output) - technology that allows to split portions of data on AP to send them through different antennas
         receiving host should also have few antennas to be able to receive portions of data from AP and combine them together upon receival
     Channel aggregation - a technology used to increase throughput by combining power of few radio channels
-    MUMIMO
-    OFDMA
-    Bidirectional MUMIMO
+    MUMIMO (Multiple User MIMO) - same as MIMO, but now can be used to transmit from different antennas to different clients at the same time (normally only one communication can happen). Only works from APs to devices, downstream
+    OFDMA Orthagonal Frequence Division Multiple Access - introduced TTW (time to wake) which are certain timeslots when clients can speak in network 
+                                                                 and BSS coloring (kind of like VLAN) when signals to SSID on specific channel is tagged to be able to be distinguished from different SSID signals.
+    Bidirectional MUMIMO - same as MUMIMO but now can both transmit from APs to devices in multiple streams and also receive from devices to APs (that's why bidirectional)
+    Beamforming - ability to alter the wave in way to either increase the signal to/from wanted source/destination (constructive interference - summing two waves beaming at the same time with the same wavelength)
+                                                          or to decrease the signal effectively to 0 (destructive interfecence - summing two waves beaming absolutely symmetrical horizontally which effectively sum them up to 0)
 
 Access point modes
     Autonomous AP  - can be used to place a lot of APs. One AP connects internet through it's WAN port, then other APs are interconnected via LAN interfaces
@@ -1945,8 +1961,10 @@ Antenna Types (comes with the dBi values giving a hint on how strong their dBm i
 Wireless terminology
     Service cell - a signal reach of a single Access Point 
     Basic Service Set (BSS) - a set of services provided by AP in it's service cell
+    Independent Basic Service Set (IBSS) - set of services provided without some intermediate AP device (direct device to device)
     Service Set Identifier (SSID) - basically a WiFi network association (name)
     Basic Service Set Identifier (BSSID) - an association of specific SSID to specific AP, written in a form of MAC-address so it differs from AP to AP even for same SSID
+    Multiple BSSID - just a set of associations in form of MAC-address (when AP radiates more than one SSIDs)
     Extended Service Set (ESS) - a set of services provided by more than one APs within their service cells
 
 
@@ -1968,6 +1986,7 @@ Wireless Frame Types
 
 Wireless Traffic Flow
     WiFi operates only in HALF DUPLEX mode, meaning that only one device can speak at a time or only AP can speak. No two devices can communicate at the same time. If they could - traffic would be unintelligible
+ (!)Introduction of MUMIMO changed the above behaviour
     For that, there are various technics to make sure no device nor AP is sending frames whenever there's already a traffic exchange going on.
     All WiFi devices has an IFS (Inter-Frame Space) that activates after it sent out a frame. At that time, client doesn't send any frames. IFS can either be SIFS (short IFS) or DIFS (distributed IFS)
     During waiting time, devices "listen to the air" and check if there's a frame exchange going on. No traffic is sent during that time
@@ -2099,7 +2118,7 @@ https://kwtrain.com/pt
 https://bit.ly/ptconfig
 https://bit.ly/wlcdownload
 https://www.youtube.com/watch?v=s_-OJebBiBc&list=PLDmbik4NbmjLbdXIgjiYoZVdGRU7gzEEF&index=2
-01:28:00
+02:11:00
 
 
 #                NTP
