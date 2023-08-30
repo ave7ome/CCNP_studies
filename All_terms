@@ -2121,7 +2121,7 @@ https://www.youtube.com/watch?v=s_-OJebBiBc&list=PLDmbik4NbmjLbdXIgjiYoZVdGRU7gz
 02:11:00
 
 
-#                NTP
+#                NTP (udp/123)
 
 NTP (Network Time Protocol) is used on devices to synchonize the time between each other to some certain NTP authority
 
@@ -2131,10 +2131,30 @@ Why NTP is needed
     Device log events - if time is off, troubleshooting will be much more difficult since engineer won't know when certain event happened
     Encryption certificates validation - each certificate have validity dates and times, lack of correct times will stop certs from working
 
+How NTP works
+    There is a certain level of time accuracy which is called "Stratum". Stratum #, where # is a certain number from 0 to 15. The lower the number - the more accurate is the time source
+    Usually all devices are configured with NTP server from which they'll get a current time.
+
+NTP can be configured
+    As Unicast client-server relationship - client gets configured with NTP server(-s) and ask it for current time
+    Multicast/Broadcast - NTP server gets configured with certain settings and time will be Multicasted to necessary IPs or Broadcasted to connected subnets from that server
+
+NTP time synchronization is slow because the time on the NTP time source can be wrong. So sync happens slow
+
+Basic NTP configuration to make Cisco router Master and another router to have Master as an NTP server:
+  on master:
+    conf t
+    ntp master 1 (1 is stratum #)
+  on another router:
+    conf t
+    ntp server <IP_OF_MASTER>
+
+It is best practice to have more than 1 reference servers for NTP configuration. 4, for example
+    If 1 of these 4 servers has time way off, it is logically removed from being referenced to, others are chosen based on certain criterias like latency etc.
+
+NTP Peers can be configured in a scenario where there a two edge routers and they relate to NTP reference servers in the internet
+    If internet servers are unreachable for extended time, NTP peers (edge routers) will sync with each other to provide a single time reference for all other routers in the network
     
-
-
-
 
 
 
