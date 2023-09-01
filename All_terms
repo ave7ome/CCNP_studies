@@ -2165,6 +2165,7 @@ Also can be used to change IP-addresses internally (Gray to another Gray in case
 
 NAT terminology
     Source NAT - a NAT that changes the source IP-address for traffic passing the NATting device (on the way back, there will be NAT translation in the table and it'll work like destination NAT)
+        SNAT is bidirectional (a one-to-one translation, can be used by both sides of translation)
     Destination NAT - a NAT that changes the destination IP-address for traffic passing the NATting device (on the way back - it works like source NAT)
     NAT - alternation of IP-address (or addresses) for certain traffic passing the NATting device
     PAT - alternation of IP-address and Port for traffic going through NATting device
@@ -2172,6 +2173,7 @@ NAT terminology
     Dynamic NAT - a NAT where a lot of IP-addresses can be translated into different outside IP-addresses (a pool of 2-3-4-5 and mor IPs, any of them is chosen for translation)
     Inside NAT - "inside" is a perspective of router, inside is internal network
     Outside NAT - "outside" is external network, usually Internet
+        When creating Outside NAT, "add-route" (adds static route to forward traffic destined to local IP straight to end destination IP) is required
 
     Inside Local - internal IP of internal device before SNAT
     Inside Global - external IP of internal device after SNAT
