@@ -2156,7 +2156,27 @@ NTP Peers can be configured in a scenario where there a two edge routers and the
     If internet servers are unreachable for extended time, NTP peers (edge routers) will sync with each other to provide a single time reference for all other routers in the network
     
 
+#                NAT
 
+NAT (Network Address Translation)
+
+NAT is a technology, allowing inside network IP-addresses ("Gray IP") to be altered into Internet IP addresses ("White IP") when leaving the network
+Also can be used to change IP-addresses internally (Gray to another Gray in case of some B2B DMZ connectivity)
+
+NAT terminology
+    Source NAT - a NAT that changes the source IP-address for traffic passing the NATting device (on the way back, there will be NAT translation in the table and it'll work like destination NAT)
+    Destination NAT - a NAT that changes the destination IP-address for traffic passing the NATting device (on the way back - it works like source NAT)
+    NAT - alternation of IP-address (or addresses) for certain traffic passing the NATting device
+    PAT - alternation of IP-address and Port for traffic going through NATting device
+    Static NAT - a NAT with hardcoded address translation (specified IP-address into another specified IP-address)
+    Dynamic NAT - a NAT where a lot of IP-addresses can be translated into different outside IP-addresses (a pool of 2-3-4-5 and mor IPs, any of them is chosen for translation)
+    Inside NAT - "inside" is a perspective of router, inside is internal network
+    Outside NAT - "outside" is external network, usually Internet
+
+    Inside Local - internal IP of internal device before SNAT
+    Inside Global - external IP of internal device after SNAT
+    Outside Global - external IP of external device before DNAT
+    Outside Local - internal IP of external device after DNAT
 
 
 
