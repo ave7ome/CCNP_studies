@@ -41,8 +41,11 @@ DC new cool topology:
     Spine-Leaf
 
 #                    High availability (HA)
+
+Configuration and verification of FHRP starts at line 2190.
+
 FHRP (VRRP, HSRP, GLBP):
-VRRP - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all devices.
+VRRP (Virtual Router Redundancy Protocol) - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all devices.
     "Master" and "Backup" routers
     VRRP exchanges hello messages over the timers (defaults are 3sec for HELLO, 10sec for HOLD)
     Can use one of physical router IPs as virtual. In that case, the router with that IP is an Active by default.
@@ -54,7 +57,7 @@ VRRP - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all 
     MulticastIP = 224.0.0.18
     VRRP on Nexus with VPC (in DC) acts same as HSRP
 
-HSRP - Cisco proprietary VRRP implementation. 2+ gateways
+HSRP (Hot Standby Router Protocol) - Cisco proprietary VRRP implementation. 2+ gateways
     "Active" and "Standby" routers. "Listen" as well
     HSRP exchanges hello messages over the timers (defaults are 3sec for HELLO, 10sec for HOLD)
     HSRP authentication is recommended (MD5)
@@ -81,7 +84,7 @@ FHRP object tracking helps to change the VIP holder to another device in case of
     Prefix reachability;
     IP SLA.
 
-GLBP - Load balancing mechanism (Cisco proprietary). Similar to HSRP, but supports no less than 4 gateways
+GLBP (Gateway Load Balance Protocol) - Load balancing mechanism (Cisco proprietary). Similar to HSRP, but supports no less than 4 gateways
     "Active Virtual Gateway" (AVG) and "Active Virtual Forwarder" (AVF) states of router
     Traffic from connected endpoints is being sent to one of AVFs (AVG is also an AVF) and by that, gets load-balanced
     AVG is choosed based on priority
@@ -2181,9 +2184,9 @@ NAT terminology
     Outside Local - internal IP of external device after DNAT
 
 
+#                FHRP Configuration and Verification
 
-
-
+HA and FHRP specifically theory is available starting line 43
 
 
 
