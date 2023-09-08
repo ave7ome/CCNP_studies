@@ -92,6 +92,7 @@ GLBP (Gateway Load Balance Protocol) - Load balancing mechanism (Cisco proprieta
         Round-robin
         Weighted
         Host-dependent (based on which host is sending the traffic)
+    Whenever Endpoint is trying to reach it's gateway, it sends an ARP request (dst-mac FF:FF:FF:FF:FF:FF) to it's IP-address and in GLBP based on LB method, AVG responds with the MAC (for round-robin it sends a next MAC of available forwarders for each new request)
     Timers and authentication are present as well
     VMAC = 0007.B40x.xxyy (x.xx is a Group ID, limited by 1024 different ones, since first "x" is 4 bits; yy is an AVF identifier which is "01-04", can be checkes by show glbp commands)
     MulticastIP = 224.0.0.102 (like HSRPv2)
