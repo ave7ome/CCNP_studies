@@ -42,8 +42,6 @@ DC new cool topology:
 
 #                    High availability (HA)
 
-Configuration and verification of FHRP starts at line 2190.
-
 FHRP (VRRP, HSRP, GLBP):
 VRRP (Virtual Router Redundancy Protocol) - virtual gateway protocol. 2+ gateways. Can't load balance. Common on all devices.
     "Master" and "Backup" routers
@@ -2185,10 +2183,30 @@ NAT terminology
     Outside Local - internal IP of external device after DNAT
 
 
-#                FHRP Configuration and Verification
+#                Multicast Routing
 
-HA and FHRP specifically theory is available starting line 43
+Multicast - a way of delivering traffic from single host to a certain group of chosen hosts
 
+Whenever device wants the receive traffic destined to certain Multicast group (e.g. 224.1.1.1), it sends a request to it's router using IGMP protocol "i want to receive traffic for 224.1.1.1".
+Router received that IGMP request, looks for destination to RP (in shared tree topology) and directs the request (the "JOIN REQUEST") from device to RP using the PIM protocol. Further routes do the same until it reaches the root.
+
+IGMP (Internet Group Management Protocol) - a way for devices to say that they want to be a part of Multicast group
+
+There are following traffic delivery options:
+    Shared Tree - as in literal "Tree", there is a Trunk device. It is called "Rendezvous Point" (RP) and it serves as the root device in the Shared tree Multicast topology
+        Whenever RP received the PIM request to add some device to certain Multicast-group, it does it and from now on, traffic with dst-ip of 224.1.1.1 (or any other specified IP) will also be forwarded to that new device that sent IGMP request
+        Once the traffic to 224.1.1.1 is sent to some other router it send the request to RP, RP answers "yes, give me that traffic" and then initial router sends it forward
+
+      Basically SHARED TREE is when traffic to MCAST group is moving to RP first and then it directs it further to required devices
+
+    Shortest Path Tree (SPT) - there can be moments, when traffic can be easily forwarded with 1 or 2 hops directly to the receiving devices of the mcast group but due to shared tree topology, packets have to first make additional 5 hops before going to destination, that is suboptimal
+        SPT serves as a mode to build a path without using RP, a more direct path from source to destination of mcast group.
+        Whenever device sends IGMP request to a router and then that router receives a traffic from some device to a multicast-IP 224.1.1.1, it can send a PIM "JOIN REQUEST" to built a path from itself to router of traffic originating Source-IP
+
+In Multicast, there is a notation (S , G) - S means Source IP, G means destination MCAST group
+For example (10.1.0.10 , 224.1.1.1)
+
+Sometimes S can still be unknown therefore it'll be (* , G)
 
 
 
