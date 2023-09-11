@@ -2090,7 +2090,7 @@ Wireless troubleshooting
     Troubleshooting Client performance issues
         There can be issues with clients successfully connected to wireless network but it is slow or performing poorly
             Issue can be on physical layer.
-            Distance to AP is too big -> low received signal (RSSI) -> lower bandwidth
+            Distance to AP is too big -> good received signal (RSSI) but device is not so powerful therefore transmits too weak -> lower bandwidth
             AP antenna can be too low power or directed in the wrong direction
             Issues like signal absorbtion / reflection
 
@@ -2115,12 +2115,46 @@ Wireless network components (APs, WLC, client host) communication to wired netwo
         If WLC Proxy is disabled, client's DHCP requests are broadcasted to DHCP server in this network. Either it is located in L2 reach or using DHCP-relay on the L3 device on the way
         If WLC Proxy is enabled, client's DHCP requests are directed to specified IP-address set up in Proxying feature. WLC can direct DHCP requests to itself serving as a DHCP server
 
+Extensible Authentication Protocol (EAP) - also known as authentication process
+    1. Whenever new host connects to SSID, it either sends an "EAP Start" message itself to a WLC (WLC will send the "EAP Request/Identity" back for host to start Authentication process) 
+    2. Or WLC notices new host on the network and sends the "EAP Request/Identity" itself to initiate the authentication
+    3. Anyways upon receival of "EAP Request/Identity" by host, it'll start the process by sending the "EAP-Response/Identity" message (saying "i want to authenticate)
+    4. "EAP Response/Identity" will be translated by WLC into a RADIUS message "RADIUS Access-Request" and sent straight to Authentication (AAA) server (Cisco ISE for example)
+    5. Cisco ISE will answer WLC by providing the required challenge host have to pass to authenticate "RADIUS Access-Challenge" which will be received by WLC and translated to host as "EAP-Request"
+    6. Host will have to pass the challenge (e.g. enter the correct password) and will then answer to WLC with "EAP-Response" which will be translated by controller into "RADIUS Access-Request" and sent to Cisco ISE
+    7. If challenge was successfully passed, Cisco ISE will sent a "RADIUS Access-Accept" to WLC which will be sent to Host as "EAP-Success"
+
+Configure EAP:
+    1. login to WLC
+    2. goto Security tab
+    3. Expand "AAA" on the left -> "Radius" -> "Authentication"
+    4. Create new server, fill in IP-address, fill in shared secret password, server status have to enabled.
+        There is "Key wrap" option - key will be protected by AES encryption
+    5. To use created Radius server by WLAN, goto "WLAN" tab, navigate to created WLAN, "Security" tab
+    6. goto "AAA servers", enable "authentication servers", choose created one from the list
+
+Can also create local EAP profile under "Security" -> "Local EAP" -> "profile". And attach it to WLAN (see p.6 from configuring EAP), below authentication servers there's "Local EAP Authentication" area.
+Local EAP is to use WLC local database to authenticate to the WLAN. In addition to written 1 line above, also have to create that local database:
+    1. Goto "Security" -> "AAA" -> "Local Net Users" -> create user there
+    2. Now can authenticate to WLAN with created local user (using local EAP)
+
+There are different types of EAP.
+Most popular and secure now is an EAP method being inside the secure outer method (like TLS). Basically EAP is encapsulated into a TLS tunnel
+That's a EAP tunnel type.
+
+Eap Tunnels:
+    PEAP
+    EAP-FAST
+
+EAP Authentication:
+    EAP-TLS
+    EAP-MSCHAPv2
+    EAP-GTC
+
 
 https://kwtrain.com/pt
 https://bit.ly/ptconfig
 https://bit.ly/wlcdownload
-https://www.youtube.com/watch?v=s_-OJebBiBc&list=PLDmbik4NbmjLbdXIgjiYoZVdGRU7gzEEF&index=2
-02:11:00
 
 
 #                NTP (udp/123)
