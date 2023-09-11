@@ -2242,6 +2242,24 @@ For example (10.1.0.10 , 224.1.1.1)
 
 Sometimes S can still be unknown therefore it'll be (* , G)
 
+Multicast Modes
+    Dense Mode - a mode that allows all multicast traffic received by the certain router (gateway) to just be forwarded to all other routers and, in their turn, forwarded to local links and further to other routers.
+        All the routers which directly connected networks don't have any devices in the received multicast groups can send out "Prune request"
+        Prune request - router request that asks adjacent routers not to send packets destined to certain Multicast group (when router don't have any hosts that are part of it)
+        Dense mode does not get used nowadays since it brings too low control and not really great to use
+    Sparse Mode - a mode that introduces Rendezvous point (RP) which serves as the ROOT of multicast topology and all multicast requests first go to RP and then forwarded further.
+        In Sparse Mode, hosts that want to participate in some Multicast group send out IGMP (Membership report) request which, upon receival by Router, is sent to RP as "Join Request" through all routers on the way (sent to every router on the way to RP and translated further by each router until it reaches RP)
+        Membership report - IGMP request from host to it's gateway to be included in Multicast for certain (specified) group
+        Join request - PIM join request used to add host to Multicast group
+        Whenever some other router receives the request with dst-ip as multicast (e.g. 224.1.1.1), it notifies RP about such request, then RP tells it back that "i want that, send it to me".
+        Initial router then sends the request to RP which distributes it further to all routers that initiated join request for some of it's hosts that looks like this - (* , 224.1.1.1)
+        Whenever traffic has already been exchanged, there might be more efficient path, without going to RP.
+        In that way, based on that, SPT (Shortest Path Tree) is built between routers for their more direct path between each other.
+        
+        All of that is for traffic when dst hosts don't know the source IP-address of sender, they just send out membership report as (* , 224.1.1.1). "*" means that source is unknown and it receives traffic from all sources
+    SSM (Source-Specific Multicast) - membership report from hosts are transferred with known source (10.1.0.10 , 224.1.1.1) therefore no need in RP or something else
+        Join request can basically go straight up to the source-ip host
+
 
 
 
