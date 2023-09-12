@@ -2219,12 +2219,16 @@ NAT terminology
 
 #                Multicast Routing
 
+Multicast addresses from 224.0.0.X/24 - link-local multicast subnet (have a ttl of 1)
+
 Multicast - a way of delivering traffic from single host to a certain group of chosen hosts
 
 Whenever device wants the receive traffic destined to certain Multicast group (e.g. 224.1.1.1), it sends a request to it's router using IGMP protocol "i want to receive traffic for 224.1.1.1".
 Router received that IGMP request, looks for destination to RP (in shared tree topology) and directs the request (the "JOIN REQUEST") from device to RP using the PIM protocol. Further routes do the same until it reaches the root.
 
 IGMP (Internet Group Management Protocol) - a way for devices to say that they want to be a part of Multicast group
+PIM (Protocol Independent Multicast) - a way for routers to notify RP about endpoints willing to join the Multicast group
+    Multicast-IP is 224.0.0.13
 
 There are following traffic delivery options:
     Shared Tree - as in literal "Tree", there is a Trunk device. It is called "Rendezvous Point" (RP) and it serves as the root device in the Shared tree Multicast topology
@@ -2237,20 +2241,23 @@ There are following traffic delivery options:
         SPT serves as a mode to build a path without using RP, a more direct path from source to destination of mcast group.
         Whenever device sends IGMP request to a router and then that router receives a traffic from some device to a multicast-IP 224.1.1.1, it can send a PIM "JOIN REQUEST" to built a path from itself to router of traffic originating Source-IP
 
-In Multicast, there is a notation (S , G) - S means Source IP, G means destination MCAST group
+In Multicast, there is a notation (S , G) - S means Source IP, G means destination Multicast group
 For example (10.1.0.10 , 224.1.1.1)
+    "10.1.0.10" - IP-address of host that sent a Multicast packet
+    "224.1.1.1" - IP-address of Multicast group that are to receive the packet 
 
 Sometimes S can still be unknown therefore it'll be (* , G)
 
 Multicast Modes
     Dense Mode - a mode that allows all multicast traffic received by the certain router (gateway) to just be forwarded to all other routers and, in their turn, forwarded to local links and further to other routers.
-        All the routers which directly connected networks don't have any devices in the received multicast groups can send out "Prune request"
-        Prune request - router request that asks adjacent routers not to send packets destined to certain Multicast group (when router don't have any hosts that are part of it)
+        All the routers whose directly connected networks don't have any devices in the received multicast groups can send out "Prune request"
+            Prune request - router request that asks adjacent routers not to send packets destined to certain Multicast group (when router don't have any hosts that are part of it)
         Dense mode does not get used nowadays since it brings too low control and not really great to use
+
     Sparse Mode - a mode that introduces Rendezvous point (RP) which serves as the ROOT of multicast topology and all multicast requests first go to RP and then forwarded further.
-        In Sparse Mode, hosts that want to participate in some Multicast group send out IGMP (Membership report) request which, upon receival by Router, is sent to RP as "Join Request" through all routers on the way (sent to every router on the way to RP and translated further by each router until it reaches RP)
-        Membership report - IGMP request from host to it's gateway to be included in Multicast for certain (specified) group
-        Join request - PIM join request used to add host to Multicast group
+        In Sparse Mode, hosts that want to participate in some Multicast group send out IGMP ("Membership report") request which, upon receival by Router, is sent to RP as "Join Request" through all routers on the way (sent to every router on the way to RP and translated further by each router until it reaches RP)
+            Membership report - IGMP request from Endpoint to it's gateway to be included in Multicast for certain (specified) group
+            Join request - PIM join request used to add host to Multicast group
         Whenever some other router receives the request with dst-ip as multicast (e.g. 224.1.1.1), it notifies RP about such request, then RP tells it back that "i want that, send it to me".
         Initial router then sends the request to RP which distributes it further to all routers that initiated join request for some of it's hosts that looks like this - (* , 224.1.1.1)
         Whenever traffic has already been exchanged, there might be more efficient path, without going to RP.
@@ -2260,7 +2267,13 @@ Multicast Modes
     SSM (Source-Specific Multicast) - membership report from hosts are transferred with known source (10.1.0.10 , 224.1.1.1) therefore no need in RP or something else
         Join request can basically go straight up to the source-ip host
 
+Multicast Control Protocol
+    
 
+Multicast configuration
+    Before configuring multicast routing, all the network have to be reachable by any other means (like dynamic routing protocols or static routes)
+    That's why PIM is called Protocol INDEPENDENT Multicast. It doesn't care how every network is known
+    Then to global configuration - #ip multicast-routing
 
 
 
