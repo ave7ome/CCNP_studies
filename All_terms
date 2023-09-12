@@ -2273,7 +2273,9 @@ Multicast Control Protocol
 Multicast configuration
     Before configuring multicast routing, all the network have to be reachable by any other means (like dynamic routing protocols or static routes)
     That's why PIM is called Protocol INDEPENDENT Multicast. It doesn't care how every network is known
-    Then to global configuration - #ip multicast-routing
+    1. Then to global configuration - #ip multicast-routing
+    2. Configure ip pim sparse-mode under interface config
+    3. Configure ip pim rp-address under global configuration
 
 
 
