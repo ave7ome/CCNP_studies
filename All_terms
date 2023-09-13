@@ -2219,7 +2219,24 @@ NAT terminology
 
 #                Multicast Routing
 
-Multicast addresses from 224.0.0.X/24 - link-local multicast subnet (have a ttl of 1)
+224.0.0.0/24 is reserved for link-local addresses
+224.0.1.0 - 238.255.255.255 is globally scoped addresses
+232.0.0.0/8 - Source-Specific Multicast addresses
+233.0.0.0/8 - GLOP addresses (GLOP-globally unique multicast based on AS number), 
+    For example: AS number is 65000, Multicast-IP is 233.253.232.0/24
+    Because 65000 in decimal equals to FDE8 in hexadecimal. FDE8 is split in two parts: FD-E8 and FD in hex is 253 in Decimal, E8 in hex is 232 in decimal therefore: 233.253.232.0/24.
+239.0.0.0/8 - Limited Scope addresses
+
+Multicast-MAC calculation based on the Multicast-IP
+    1. Take 224.1.10.10 as IP
+    2. Pick 3 last octets and translate them into groups of 4bit binary values:
+        1.10.10 = 00000001.00001010.00001010 = 0000.0001.0000.1010.0000.1010
+    3. Convert LEFT-MOST bit into 0 and translate that into hex
+        0000.0001.0000.1010.0000.1010 = 01:0A:0A
+    4. Prepend 01:00:5e
+        01:00:5e:01:0a:0a
+
+    Have to keep in mind that due to p.3 on left-most bit, 224.129.10.10 will have SAME MAC - have to keep it considered not to dup the MAC.
 
 Multicast - a way of delivering traffic from single host to a certain group of chosen hosts
 
@@ -2227,7 +2244,7 @@ Whenever device wants the receive traffic destined to certain Multicast group (e
 Router received that IGMP request, looks for destination to RP (in shared tree topology) and directs the request (the "JOIN REQUEST") from device to RP using the PIM protocol. Further routes do the same until it reaches the root.
 
 Multicast Control protocols
-    IGMP (Internet Group Management Protocol) - a way for devices to say that they want to be a part of Multicast group
+    IGMP (Internet Group Management Protocol) - a way for devices to say that they want to be a part of Multicast group. There are IGMP versions 1, 2 and 3
     PIM (Protocol Independent Multicast) - a way for routers to notify RP about endpoints willing to join the Multicast group
         PIM link-local Multicast-IP is 224.0.0.13
 
@@ -2256,13 +2273,14 @@ Multicast Modes
         Dense mode does not get used nowadays since it brings too low control and not really great to use
 
     Sparse Mode - a mode that introduces Rendezvous point (RP) which serves as the ROOT of multicast topology and all multicast requests first go to RP and then forwarded further.
-        In Sparse Mode, hosts that want to participate in some Multicast group send out IGMP ("Membership report") request which, upon receival by Router, is sent to RP as "Join Request" through all routers on the way (sent to every router on the way to RP and translated further by each router until it reaches RP)
+        In Sparse Mode, hosts that want to participate in some Multicast group send out IGMP ("Membership report") request which, upon receival by Router, is sent to RP as "Join Request" (as a (* , G) since source is unknown yet) through all routers on the way (sent to every router on the way to RP and translated further by each router until it reaches RP)
             Membership report - IGMP request from Endpoint to it's gateway to be included in Multicast for certain (specified) group
             Join request - PIM join request used to add host to Multicast group
         Whenever some other router receives the request with dst-ip as multicast (e.g. 224.1.1.1), it notifies RP about such request, then RP tells it back that "i want that, send it to me".
         Initial router then sends the request to RP which distributes it further to all routers that initiated join request for some of it's hosts that looks like this - (* , 224.1.1.1)
         Whenever traffic has already been exchanged, there might be more efficient path, without going to RP. Receiving router may have received multicast traffic from some source, it'll see that routing table entry for that host is not from where the traffic is coming
-        Based on that, router will initiate the PIM Join Request in accordance to existing route to the host and like that, SPT (Shortest Path Tree) is built between routers (of Source endpoint and Destination Endpoint) for their more direct path between each other.
+        Based on that, router will initiate the PIM Join Request (this time it'll be (S , G) meaning that source is now known) in accordance to existing route to the host and like that, SPT (Shortest Path Tree) is built between routers (of Source endpoint and Destination Endpoint) for their more direct path between each other
+            After that traffic will flow both over built SPT and through the RP, therefore upon receival of that same traffic from RP, Router will send prune message back to it to stop using RP route
         
         All of that is for traffic when dst hosts don't know the source IP-address of sender, they just send out membership report as (* , 224.1.1.1). "*" means that source is unknown and it receives traffic from all sources
     SSM (Source-Specific Multicast) - membership report from hosts are transferred with known source (10.1.0.10 , 224.1.1.1) therefore no need in RP or something else
@@ -2285,6 +2303,33 @@ Short summary of Multicast traffic initiation in sparse-mode
     3. RP builds a SPT to the SEPs Gateway to receive the Multicast traffic
     4. Traffic is sent to RP who distributes it to every Destination-Endpoint (DEP) he knows have requested for such data
 
+SSM - Source Specific Multicast
+    Multicast mode when there's a known souce and multicast IP-address join request therefore no need to have RP or other centralized device, everything is build directly between routers with specified Endpoints on them
+    Can be set up directly on a router interface instead of waiting for client to conduct the Membership Report: navigate to interface -> #ip igmp join-group <Multicast_IP> source <Source_IP>
+    232.0.0.0/8 is generally used for SSM
+
+IGMP Snooping - technique used by network switches that allows them to know interfaces with EPs that are part of certain Multicast-group. That is to be able to effectively send traffic exactly to them
+ 
+Router asks EPs if they would like to still receive the traffic for certain Multicast-IP every 60sec.
+
+Router listens to IGMP messages sent out by hosts on the network to get the idea if there are EPs that don't want to receive the traffic destined to some Multicast-IP (even if they previously requested to join that Multicast Group)
+
+RPF (Reverse Path Forwarding) - when there's a multicast loop, and router receive same packet from two interfaces, it checks src-ip of packet, looks at own routing table and only accepts traffic over the interface that is used to reach that src-ip of EP.
+    Can see RPF resolution in "show ip mroute", there's RPF neighbor value to see how can source be most effectively reached
+
+There is a way to auto-negotiate the RP IP-address in the network
+    For that, a mapping server exist which listens to all the announcement "i want to be RP" and resolves it to a single device
+    Listens on Multicast-IP 224.0.1.39 (or 224.0.1.40?)
+    But before devices can run Multicast in sparse mode (with RP), they have to negotiate the RP through the multicast... 
+    Well, for that, there's a mode called "Sparse-Dense". Basically Routers work in dense until RP is set up, then it's just usual Sparse mode
+
+    Configure auto-negotiation
+        1. Set pim mode for all interfaces to "Sparse-dense"
+        2. Choose RP and configure it to "ip pim send-rp-announce <interface> scope <TTL>" (to make it RP) and "ip pim send-rp-discovery scope <TTL>" (to make it mapping server)
+        3. Verify in "show ip mroute" and "show ip pim rp"
+    
+
+# 
 
 
 Understand Wildcard masks
