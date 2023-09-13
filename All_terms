@@ -2226,9 +2226,10 @@ Multicast - a way of delivering traffic from single host to a certain group of c
 Whenever device wants the receive traffic destined to certain Multicast group (e.g. 224.1.1.1), it sends a request to it's router using IGMP protocol "i want to receive traffic for 224.1.1.1".
 Router received that IGMP request, looks for destination to RP (in shared tree topology) and directs the request (the "JOIN REQUEST") from device to RP using the PIM protocol. Further routes do the same until it reaches the root.
 
-IGMP (Internet Group Management Protocol) - a way for devices to say that they want to be a part of Multicast group
-PIM (Protocol Independent Multicast) - a way for routers to notify RP about endpoints willing to join the Multicast group
-    Multicast-IP is 224.0.0.13
+Multicast Control protocols
+    IGMP (Internet Group Management Protocol) - a way for devices to say that they want to be a part of Multicast group
+    PIM (Protocol Independent Multicast) - a way for routers to notify RP about endpoints willing to join the Multicast group
+        PIM link-local Multicast-IP is 224.0.0.13
 
 There are following traffic delivery options:
     Shared Tree - as in literal "Tree", there is a Trunk device. It is called "Rendezvous Point" (RP) and it serves as the root device in the Shared tree Multicast topology
@@ -2260,23 +2261,29 @@ Multicast Modes
             Join request - PIM join request used to add host to Multicast group
         Whenever some other router receives the request with dst-ip as multicast (e.g. 224.1.1.1), it notifies RP about such request, then RP tells it back that "i want that, send it to me".
         Initial router then sends the request to RP which distributes it further to all routers that initiated join request for some of it's hosts that looks like this - (* , 224.1.1.1)
-        Whenever traffic has already been exchanged, there might be more efficient path, without going to RP.
-        In that way, based on that, SPT (Shortest Path Tree) is built between routers for their more direct path between each other.
+        Whenever traffic has already been exchanged, there might be more efficient path, without going to RP. Receiving router may have received multicast traffic from some source, it'll see that routing table entry for that host is not from where the traffic is coming
+        Based on that, router will initiate the PIM Join Request in accordance to existing route to the host and like that, SPT (Shortest Path Tree) is built between routers (of Source endpoint and Destination Endpoint) for their more direct path between each other.
         
         All of that is for traffic when dst hosts don't know the source IP-address of sender, they just send out membership report as (* , 224.1.1.1). "*" means that source is unknown and it receives traffic from all sources
     SSM (Source-Specific Multicast) - membership report from hosts are transferred with known source (10.1.0.10 , 224.1.1.1) therefore no need in RP or something else
         Join request can basically go straight up to the source-ip host
 
-Multicast Control Protocol
-    
-
-Multicast configuration
+Multicast configuration/verification
     Before configuring multicast routing, all the network have to be reachable by any other means (like dynamic routing protocols or static routes)
     That's why PIM is called Protocol INDEPENDENT Multicast. It doesn't care how every network is known
     1. Then to global configuration - #ip multicast-routing
     2. Configure ip pim sparse-mode under interface config
     3. Configure ip pim rp-address under global configuration
+    4. Configure ip igmp on interfaces that participate in Multicast
 
+    To verify, "show ip mroute" can be used - that shows all the Multicast-IPs that have been requested and used with ingress listening interface and egress interface for such traffic. All specified in a form of (* , 224.1.1.1) where "224.1.1.1" is random example of Multicast IP
+        Once there is an actual traffic, there will be entries with Source-IP defined, like (10.0.1.1 , 224.1.1.1)
+
+Short summary of Multicast traffic initiation in sparse-mode
+    1. Source-Endpoint (SEP) initiates Multicast traffic to some Multicast IP (e.g. 224.1.1.1)
+    2. SEPs Gateway sees the traffic and notifies RP about it
+    3. RP builds a SPT to the SEPs Gateway to receive the Multicast traffic
+    4. Traffic is sent to RP who distributes it to every Destination-Endpoint (DEP) he knows have requested for such data
 
 
 
