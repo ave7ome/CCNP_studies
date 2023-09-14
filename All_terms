@@ -2329,7 +2329,14 @@ There is a way to auto-negotiate the RP IP-address in the network
         3. Verify in "show ip mroute" and "show ip pim rp"
     
 
-# 
+#                SNMP
+
+SNMP (Simple Network Monitoring Protocol) - protocol that is used to be able to monitor the status of devices, available resources, interface status, configuration changes etc.
+
+Every sensor in the device has it's own OID (Object Identifier). So to retrieve average CPU usage for 1 minute in Cisco device, OID is 1.3.6.1.4.1.9.2.1.57.0 (may be wrong)
+The collection of OID for certain vendor is called MIB (Management Information Base)
+
+
 
 
 Understand Wildcard masks
