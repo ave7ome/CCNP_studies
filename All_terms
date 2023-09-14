@@ -2336,6 +2336,18 @@ SNMP (Simple Network Monitoring Protocol) - protocol that is used to be able to 
 Every sensor in the device has it's own OID (Object Identifier). So to retrieve average CPU usage for 1 minute in Cisco device, OID is 1.3.6.1.4.1.9.2.1.57.0 (may be wrong)
 The collection of OID for certain vendor is called MIB (Management Information Base)
 
+SNMP versions
+    SNMPv1 - initial implementation of protocol. Was too simple and couldn't transfer too much data therefore mostly not used now 
+    SNMPv2 - Most common implementation that is used now, can transfer all the required data and has Community as an authentication part (like PSK). Not secure as it's in plain text
+    SNMPv3 - Modern implementation build to introduce Encryption and Proper Usernam Authentication to SNMP
+
+SNMP works with the usage of 5 different commands for managing the device (retrieve or change some data)
+    GET (RO) - Get the information for specific OID (1.3.6.1.11.22.5 for example)
+    GET-Next (RO) - Get the information for next OID in line (for 1.3.6.1.11.22 it'll get .1, then .2, then .3 and so on)
+    GET-Bulk (RO) - Get all the OIDs in a OID group (for 1.3.6.1.11.22 it'll be all the OIDs in it in one request - .1,.2,.3,.4,.5,.6, previous command gets only single OID at a time)
+    SET (RW) - Changes the data that consist in specific OID (if 1.2.3.4.5.6 is an IP of some interface, SET can change it's IP)
+    TRAP (X) - A notification issues by monitored device about some event on it (configuration changed, interface down). Point is that trap is issues by monitorED device, not the monitoring server
+
 
 
 
