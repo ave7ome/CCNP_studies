@@ -2349,6 +2349,26 @@ SNMP works with the usage of 5 different commands for managing the device (retri
     TRAP (X) - A notification issues by monitored device about some event on it (configuration changed, interface down). Point is that trap is issues by monitorED device, not the monitoring server
 
 
+#                NetFlow
+
+Netflow in general is used to capture the traffic flows in the network to know exactly what's consuming the traffic
+    Traffic flow - a specific subset of src-ip, dst-ip, src-port and dst-port (of same protocol whether it's TCP or UDP). A lot of packet of such interaction creates a traffic flow
+
+There are two components:
+    Netflow collector - captures the flows and saves on the capturing device (e.g. Router with netflow) in form of tables
+    Netflow exporter - exports the saved tables to external monitoring systems
+
+Since export to monitoring systems is available, graphs can be created to reflect all the information in a nice-to-read way
+
+When configuring exporter, a UDP port number has to be assigned in conjunction with the monitoring server IP-address
+    Here, a UDP port number have to differ from router to router since if it'll be the same for many devices, many traffic flows will collide into one table and it'll be difficult to determine the sources
+
+Netflow basic configuration:
+    1. Set a direction of traffic on interfaces (ip flow egress/ingress).
+    That's it :)
+
+    (optionally) set up ip flow-export server
+
 
 
 Understand Wildcard masks
