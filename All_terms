@@ -2352,7 +2352,7 @@ SNMP works with the usage of 5 different commands for managing the device (retri
 #                NetFlow
 
 Netflow in general is used to capture the traffic flows in the network to know exactly what's consuming the traffic
-    Traffic flow - a specific subset of src-ip, dst-ip, src-port and dst-port (of same protocol whether it's TCP or UDP). A lot of packet of such interaction creates a traffic flow
+    Traffic flow - normally, it's a specific subset of src-ip, dst-ip, src-port and dst-port (of same protocol whether it's TCP or UDP). A lot of packet of such interaction creates a traffic flow
 
 There are two components:
     Netflow collector - captures the flows and saves on the capturing device (e.g. Router with netflow) in form of tables
@@ -2367,7 +2367,30 @@ Netflow basic configuration:
     1. Set a direction of traffic on interfaces (ip flow egress/ingress).
     That's it :)
 
-    (optionally) set up ip flow-export server
+    (optionally) set up ip flow-export server to a specific IP and specific UDP port to use
+
+#show ip cache flow (shows the cache of netflow-collected flows)
+
+Flexible Netflow
+
+FLOW RECORD
+    Can reconfigure the definition of a flow flexibly.
+    For example, it can only be based on a source IP-address so every new source ip-address will become a new flow and all the traffic with source 10.10.1.1 to ANY dst-ip with ANY src-port and ANY dst-port will all count as the same set of bytes
+    Above option is called "match" in a flow record
+    Based on created "match", there can be configured a "collect" to collect specific data based on the configured flow
+
+Flexible Netflow configuration:
+    1. Create flow record and set it up with match and collect (flow record -> match ... -> collect ...)
+    2. Create flow exporter with monitoring server IP and UDP port (flow exporter -> ip ... -> transport UDP ...)
+    3. Create flow monitor, link it to created exporter and created record (flow monitor -> record ... -> exporter ...)
+    4. Apply flow monitor to necessary interfaces (ip flow monitor input / output)
+
+
+
+
+
+
+
 
 
 
