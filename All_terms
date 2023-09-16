@@ -2386,6 +2386,40 @@ Flexible Netflow configuration:
     4. Apply flow monitor to necessary interfaces (ip flow monitor input / output)
 
 
+#                SPAN
+
+SPAN (SwitchPort ANalyzer) - a technology that allows mirroring of the traffic from some switch interfaces to a certain interface (connectiones can then be wireshark'd to check the packets)
+
+SPAN - mirroring within the same network switch
+RSPAN - mirroring to another network switch (through the dedicated VLAN over trunk usually)
+ERSPAN - mirroring to another network through the L3 interface (from one VLANs to another VLAN)
+
+SPAN configuration
+    1. Choose interfaces that need to be monitored
+    2. Configure "monitor session <#> source interface <interfaces>" - source of the traffic, everything on the interface will be mirrored to destination
+    3. "monitor session <#> destination interface <interface>" - destination of the traffic, where will it be mirrored
+
+RSPAN configuration
+    1. Choose interfaces that need to be monitored
+    Since the RSPAN works over the VLAN (data sent through the trunk), configure on traffic source switch:
+    2. Configure vlan. "vlan <vlan_#>" -> "remote-span" (makes switch understand vlan is for RSPAN)
+    3. "monitor session <#> source interface <interface>" -> "monitor session <#> destination remote vlan 99"
+    On destination switch
+    4. Configure vlan. "vlan <vlan_#>" -> "remote-span"
+    5. "monitor session <#> source remote vlan 99" -> "monitor session <#> source interface <interface>"
+
+    If there's a switch inbetween first two switches, no "monitor session" configuration is required, but "vlan <vlan_#>" -> "remote-span" IS + add VLAN to trunk allowed
+        That's because traffic will naturally flow over the VLAN interfaces
+
+ERSPAN configuration
+    "monitor session <#> type erspan-source source interface <interface>"
+        "no shutdown"
+        "destination"
+         "ip address <IP_OF_WIRESHARK_DEVICE_REMOTE>"
+         "erspan-id <ID#>"
+         "origin ip <SWITCH_IP_ADDRESS_OF_TRAFFIC_ORIGINATION>"
+
+
 
 
 
