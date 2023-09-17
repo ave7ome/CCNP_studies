@@ -2420,6 +2420,34 @@ ERSPAN configuration
          "origin ip <SWITCH_IP_ADDRESS_OF_TRAFFIC_ORIGINATION>"
 
 
+#                IP SLA
+
+SLA - Service Level Agreement
+
+IP SLA - feature that allows on-router monitoring of certain resource (ICMP, TCP, most of else)
+    Can reside only on router to have idea of service accessibility
+    Can be used to provide information through the monitoring system (IP SLA status etc.)
+    Can be used to make certain decisions like shutting down the static route and moving the traffic to another route (overall - routing decisions)
+
+IP SLA configuration
+    Ping
+    1. Create IP SLA Instance
+    ip sla <IPSLA_#>
+     icmp-echo <DST_IP> source-interface <SRC_INTERFACE>
+      Here configured different stuff like frequency of echoes, timeout, tag, ToS, VRF
+    2. Schedule the IP SLA to run
+    ip sla schedule <IPSLA_#> life <seconds>/forever start-time <SET_TIME>/now
+
+Useful show commands. #show ip sla ...:
+    configuration
+    statistics
+    
+IP SLA static routing manipulation configuration
+    1. Create IP SLA Instance. "ip sla <#>" -> "icmp-echo <DST_IP> source-interface <SOURCE_INTERFACE>" -> "frequency/timeout/etc..."
+    2. Schedule the IP SLA to run it. "ip sla schedule <#> life forever start-time now"
+    3. Create the track object that tracks IP SLA status. "track <TRACK_NUMBER_#> (can be anything, ip sla number or not) ip sla <#> reachability"
+    4. Use track object in the primary static route for it to be automatically removed from RIB if track is down. "ip route <DST_IP> <DST_MASK> <NEXT_HOP_IP> track <#>"
+     Also need to add another static route to same next-hop but with no track # and higher AD (anything higher than 1)
 
 
 
