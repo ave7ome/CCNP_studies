@@ -1697,11 +1697,11 @@ BGP Neighbor formation and States
                  After that routers will try to establish a TCP connection. Transition to CONNECT state
                  If router stays in IDLE - probably there's no TCP connectivity between it and neighbor
     Connect state - At this state, the TCP 3-way handshake is attempting to happen. SYN> -> <SYN,ACK -> ACK> . CONENCT state is really brief state usually (since TCP connection is usually quickly happenning)
-                    After successfully establishing connectivity, transition to ACTIVE state
+                    After successfully establishing connectivity, transition to OPEN SENT state after sending an OPEN message
     Active state - There's a TCP session established and routers are actively trying to establish the BGP neighborship. Then router sends a request for a BGP adjacency (message "Open sent" is sent). Transition to OPEN SENT state
-    Open Sent state - Other router recognizes the "Open Sent" message from another router and transitions to OPEN STATE as well. Sends a confirmaion "Open Confirm" and transitions to OPEN CONFIRM state
-    Open Confirm state - Initial router receives "Open Confirm" and then routers transition to ESTABLISHED state
-    Established state - router in ESTABLISHED state if number of received prefixes can be seen in "sh ip bgp sum"
+    Open Sent state - Other router recognizes the "Open Sent" message from another router and transitions to OPEN STATE while sending Open reply message and checks both messages for errors. If no errors found, BGP moves to OPEN CONFIRM message and sends KEEPALIVE packet to the peer
+    Open Confirm state - Once both routers receive KEEPALIVE from each other, both are transitioned to ESTABLISHED state
+    Established state - router in ESTABLISHED state if number of received prefixes can be seen in "sh ip bgp sum" using UPDATE messages
 
 To establish neighborship, following parameters (sent in OPEN message) have to:
     - BGP versions must match
