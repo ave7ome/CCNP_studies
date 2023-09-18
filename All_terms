@@ -2450,6 +2450,57 @@ IP SLA static routing manipulation configuration
      Also need to add another static route to same next-hop but with no track # and higher AD (anything higher than 1)
 
 
+#                DNA Center
+
+DNA - Digital Network Architecture
+
+DNA Center allows simple management, deployment and monitoring of the network.
+
+DNA Center is an SDN controller that provides means to manage the enterprise Fabric network through the API (such as RESTCONF or NETCONF).
+Fabric network in general is an Overlay (e.g. VXLAN) running over Underlay (e.g. IS-IS, OSPF, BGP)
+
+SD-Access is when DNA Center is used to manage the Fabric network.
+
+Logically "Above" the DNA Center there's a layer that allows DNA Center management over API.
+
+Running an SD-Access implementation in production is linked to deployment of 4 workflows
+DNA Center workflows overview:
+    1. Design
+        A geographical distribution of networks split into hierarchy, e.g. Asia -> Japan -> Tokyo
+                                                                                   China -> Beijing
+                                                                                   Thailand -> Bangkok
+                                                                           Europe -> Germany -> Frankfurt -> Bahnhofsviertel
+                                                                                     France -> Chamonix
+        People that belong to some network managed by DNA Center, can be present at, for example, Tokyo campus and they'll get access to network everywhere in it.
+
+    2. Policy
+        Policy workflow is linked to Cisco ISE (Network Access Control) solution which is used (usually in conjunction with AD) to allow/deny certain access to network resources
+
+    3. Provision
+        It is related to providing network (underlay / overlay) to the end users.
+        E.G. provision of WLC allows users from Policy workflow to access their stuff over WiFi
+
+    4. Assurance
+        It is a monitoring of the infrastructure, events, traffic, bandwidth and everything related to SD-Access network.
+
+DNA Center GUI overview of workflows:
+1. Design
+    Here you can see: 
+    All the sites, expand them to check the names of locations and see the heatmap of Wireless devics with dBm levels
+    Network configuration globally or exclusive to the sites (DNS IP-address, DHCP IP-address)
+    Wireless SSIDs and profiles (also appoint WiFi profiles to sites with specific SSIDs)
+    Credentials that you can set to discover and gain access to devices (over SSH, username+password)
+    etc.
+    
+2. Policy
+    Can create Virtual Networks to group different usergroups together for them to be able to access each other from everywhere over the SD-Access network (no matter where they connect to)
+
+3. Provision
+    Provisioning of devices to take part in the SD-Access network. For clients to use it
+
+4. 
+
+
 
 
 
