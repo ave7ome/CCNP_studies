@@ -2502,8 +2502,18 @@ DNA Center GUI overview of workflows:
     Monitoring of SD-Access network
 
 
+#                NETCONF & RESTCONF
 
+NETCONF - a protocol responsible for management of network devices (configuration, showing details, returning information)
+    Works in close collaboration with YANG
+    YANG - modelling language that can describe what should be configured over NETCONF (or what should be returned)
 
+To begin with NETCONF, device have to be able to be accessed over SSH with some user available.
+Generally NETCONF uses tcp/830 (even though SSH connectivity is established, it's over tcp/830)
+
+RESTCONF - same as NETCONF and generally speaking RESTCONF works over NETCONF daemons on the device itself.
+    But in case of RESTCONF, management is initiated over HTTP methods (GET, POST, PUT, UPDATE, DELETE) instead of SSH connectivity.
+    Requests are done to WEB-server of the device (returned are results of SHOW commands, configuration changes).
 
 
 
