@@ -2516,6 +2516,27 @@ RESTCONF - same as NETCONF and generally speaking RESTCONF works over NETCONF da
     Requests are done to WEB-server of the device (returned are results of SHOW commands, configuration changes).
 
 
+#                Device Access Control (DAC)
+
+This section is all about understanding and configuring the secure access to the network switches/routers over Telnet/SSH including user management (AAA, AD integration)
+
+AAA methodology
+    Authentication - identification of a person trying to reach some resources (whether it's router itself or some subnet/server behind the router)
+    Authorization - a subset of what authenticated user can do to which resources (e.g. reach router over SSH, access server over RDP)
+    Accounting - what user did (data, statistics)
+
+To enforce AAA, Cisco has two "methods" (protocols in reality):
+    TACACS+ - Cisco proprietary remote authentication protocol. Made so that Authentication and Authorization are divided meaning that whenever user is authenticated to router and inputs ANY command, router requests TACACS+ server for responce if that command is allowed to that user
+        Used in conjunction with Cisco ISE (previously Cisco ACS)
+    RADIUS - Common protocol. Authentication and Authorization are done at the same time, whenever user authenticates, RADIUS server send subset of commands allowed to the user
+
+In both protocols, whenever user contacts device, request is sent further to TACACS+ or RADIUS server. Server responds with the challenge (username/password; certificate; RSA-token)
+User will have to enter the data before going further.
+
+
+
+
+
 
 
 Understand Wildcard masks
