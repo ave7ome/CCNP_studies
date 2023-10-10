@@ -2533,6 +2533,15 @@ To enforce AAA, Cisco has two "methods" (protocols in reality):
 In both protocols, whenever user contacts device, request is sent further to TACACS+ or RADIUS server. Server responds with the challenge (username/password; certificate; RSA-token)
 User will have to enter the data before going further.
 
+Configuration step-by-step:
+    1. Make sure router has interface configured (that will be interconnect with the RADIUS server)
+    2. Configure RADIUS Server on the Windows/Linux machine. Make sure user is created to access the router
+    3. Configure AAA Authentication on the router, create a radius server, add it to AAA group
+    4. Create custom AAA Authentication method, in method all the attempts are specified one by one:
+        aaa authentication... ACS local (ACS is auth over RADIUS server first and if it there's no connectivity to server, login over router LOCAL username)
+
+Authorization is basically "create a user with privilege less than 15" or "create a user with priv level 15 and create parses view to restrict available commands to that user"
+
 
 
 
