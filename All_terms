@@ -2543,6 +2543,31 @@ Configuration step-by-step:
 Authorization is basically "create a user with privilege less than 15" or "create a user with priv level 15 and create parses view to restrict available commands to that user"
 
 
+#                ACLs
+
+ACL - Access Control List
+
+Can be used to:
+    filtering the access from one subnet to another (or hosts, or networks);
+    filter routes;
+    set up QoS rules;
+    NATting;
+
+Used in:
+    NAT;
+    Qos;
+    Class-map;
+    Route-map
+
+ACL can be:
+    Standard (match source addresses). ACL #1-99, #1300-1999
+    Extended (match source/destination/ports/protocols). ACL #100-199, #2000-2699
+
+(!)Outbound ACL on a router does not filter self-originated traffic.
+
+
+
+
 
 
 
