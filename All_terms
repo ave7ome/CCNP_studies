@@ -2566,6 +2566,29 @@ ACL can be:
 (!)Outbound ACL on a router does not filter self-originated traffic.
 
 
+#                Control Plane Policing (CoPP)
+
+Control plane policing is about filtering the Contol Plane traffic
+    Management connections
+    Routing updates
+    ICMP
+    IPsec
+
+Have to be controlled not to overload the router.
+
+MQC (Modular Quality of Service Command line interface, Modular QoS CLI) - a mechanism to implement CoPP
+    1. Identify the traffic that should be matched from Control Plane (CLASS-MAP & ACL combo)
+    2. Decide what should be done to that traffic, e.g. police it to allow only certain amount of bits/s (POLICY-MAP)
+    3. Decide where to apply the policy-map, e.g. to construct called CONTROL-PLANE -> SERVICE-POLICY. Or to interface
+
+MQC configuration
+    1. Configure ACLs with the traffic needed to be matched and controlled
+    2. Configure Class-maps and match created ACLs to be included in them
+    3. Configure Policy-map with matches to created Class-Maps and setting up a desired action for any of them (actions like limit the bandwidth to Xbits/sec, and actions when matched or exceeded)
+    4. Configure "Control-plane" -> "Service-Policy" to use created policy-map to a control plane entity on the router.
+
+
+
 
 
 
