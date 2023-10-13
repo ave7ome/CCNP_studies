@@ -2588,6 +2588,30 @@ MQC configuration
     4. Configure "Control-plane" -> "Service-Policy" to use created policy-map to a control plane entity on the router.
 
 
+#                    REST API (Representational State Transfer API)
+
+API (Application Programmable Interface) - a method for two application to "talk" to each other
+    e.g. some APPlication can exchange data with Google Maps API to use the Google Maps functionality directly inside the APP
+    e.g. you can tell Alexa to turn on/off some lamp which API is exposed and reachable for Alexa and can be used by it
+
+There are four actions that can be performed by an application:
+
+CRUD
+Create - create some new instances or variables and data structures and set values
+Read - read values of variables on the server
+Update - update existing values of variables
+Delete - delete data from server
+
+Following HTTP methods are linked to above actions:
+POST - Create
+GET - Read
+PATCH, PUT - Update (PATCH is used to modify the existing data, PUT is used to just replace the existing data)
+DELETE - Delete
+
+Below APIs exist on most of Controllers in Software Defined networks
+Northbound API - communication with other APPs like IPS systems, IDS systems over APIs
+Southbound API - SNMP,Netflow etc., API contacting network devices to get some information and status from them
+
 
 
 
