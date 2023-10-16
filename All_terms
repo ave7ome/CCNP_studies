@@ -2115,6 +2115,11 @@ Wireless network components (APs, WLC, client host) communication to wired netwo
         If WLC Proxy is disabled, client's DHCP requests are broadcasted to DHCP server in this network. Either it is located in L2 reach or using DHCP-relay on the L3 device on the way
         If WLC Proxy is enabled, client's DHCP requests are directed to specified IP-address set up in Proxying feature. WLC can direct DHCP requests to itself serving as a DHCP server
 
+Authentication options
+    PSK (pre-shared key) - a predefined password everybody can connect to SSID with / doesn't track who's connecting / difficult to change the password since everyone should change it manually
+    EAP (extensible authentication protocol) - a dedicated protocol allowing integration with RADIUS server to authenticate user on domain account or some other user enterprise account / difficult to configure / difficult in terms of access logistics with external partners
+    WebAuth - authentication after getting access to SSID. You connect to SSID and have to authenticate on web-portal (generally used in trains, airports, hotels)
+
 Extensible Authentication Protocol (EAP) - also known as authentication process
     1. Whenever new host connects to SSID, it either sends an "EAP Start" message itself to a WLC (WLC will send the "EAP Request/Identity" back for host to start Authentication process) 
     2. Or WLC notices new host on the network and sends the "EAP Request/Identity" itself to initiate the authentication
