@@ -2632,6 +2632,28 @@ REST API authentication:
     token authentication
 
 
+#                    Designing secure network
+
+Network access control (NAC) - access to network
+    802.1x - works with wireless and wired connections from clients. Device (supplicant) accesses the network and is prompted to enter the credentials, upon doing so, creds are sent to authenticator (network switch for example) and it'll send it to auth server (RADIUS/TACACS+)
+    MAB - if 802.1x won't work (printers, IP phones for example), it's possible to incorporate MAB (MAC authentication bypass). It allows device with specified MAC-address to be authenticated (if it's MAC is in the whitelist explicitly)
+    WebAuth - same as in wireless
+
+Endpoint Security - limiting the rights of authenticated user
+    AMP (advanced malware protection)
+    Sandboxing
+    Email security
+    Web security
+
+NGFW/IPS - (next-gen firewall / intrusion prevention system)
+    can inspect application layer traffic to check for malicious activities
+    can enforse web access policies
+    can inspect traffic against cyber attack patterns (IPS)
+
+TrustSec (part of ISE) - technology that allows splitting devices into groups, setting certain tags to them and like that, whenever devices move over the network, tag remains and policies can be applied to traffic between groups
+    network devices have to support TrustSec categorization (SGTs) and filtering
+
+MACSec - technology that provides encryption to traffic between devices and network devices or just between network devices. SGTs are encrypted to prevent mitm attacks
 
 
 
