@@ -2602,6 +2602,11 @@ API (Application Programming Interface) - a method for two application to "talk"
 REST API is defined by following principles:
     Uniform interface (simple and easily understandable but still should be protected by encrypting the traffic)
     Stateless (server doesn't store any session info, all is stored on a client)
+    Client-Server (Network device is a server, client is you)
+    Cacheable (must have mechanisms to cache certain data)
+
+    Layered
+    Code-on-demand
 
 
 There are four actions that can be performed by an application:
@@ -2618,6 +2623,13 @@ GET - Read
 PATCH, PUT - Update (PATCH is used to modify the existing data, PUT is used to just replace the existing data)
 DELETE - Delete
 
+When using API requests, following URL describes possibilities:
+https://www.potterapi.com/v1/characters?bloodStatus=half-blood
+https - protocol
+www.potterapi.com - server
+/v1/characters - resources
+?bloodStatus=half-blood - Parameters
+
 Below APIs exist on most of Controllers in Software Defined networks
 Northbound API - communication with other APPs like IPS systems, IDS systems over APIs
 Southbound API - SNMP,Netflow etc., API contacting network devices to get some information and status from them
@@ -2630,6 +2642,13 @@ REST API Security measures:
 REST API authentication:
     basic Username-Password
     token authentication
+
+Data Serialization Languages
+    XML (eXtensible Markup Language)
+    JSON (Javascript Object Notation) - generally used in REST APIs since it's more human-readable than XML
+        JSON Object = Python Dictionary {"key": "value"}
+        JSON Array = Python List ["data1", "data2", "data3"]
+    YAML (Ain't Markup Language) - mostly used with Ansible ("Yansible"), very much human-readable
 
 
 #                    Designing secure network
