@@ -2675,6 +2675,33 @@ TrustSec (part of ISE) - technology that allows splitting devices into groups, s
 MACSec - technology that provides encryption to traffic between devices and network devices or just between network devices. SGTs are encrypted to prevent mitm attacks
 
 
+#                    Data Models
+
+Whenever there is a communication between Network device and computer, they have to agree on the following:
+    1. Protocol: Netconf(XML), Restconf(JSON), NX-API, AXL-API
+    2. Data Format: XML, JSON, YAML
+    3. Data Model: that is the hierarchy of how data should be presented
+        Example: it can either be {"face": {"eyecolor": "blue"}}
+                               or {"face": {"eyes": { ["left": {"color": "blue"},"right": {"color": "blue"}] } } }
+        Hierarchy is different and if system expects first option but client provides second option - system won't understand it.
+
+YANG (Data Model) - a representive common structure of how certain data should be composed and returned if requested by some systems
+    It defines how should Cisco Switch, Juniper Switch and Arista Switch all return, for example, interface status information (e.g. through API-request) and what data should be contained in the output and how must it be structured
+    There is a website called YANGCATALOG, where different structures can be found for them to be used for data modelling for absolutely different cases (interfaces, bandwidth, routing etc.)
+
+On the device itself, usually there are NATIVE (for cisco it's cisco), OpenConf and IETF structures of YANG
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
