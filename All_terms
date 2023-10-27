@@ -238,7 +238,7 @@ Users (when spinning up an application) are going to cloud broker, Like Cisco Cl
 #                    SD-WAN
 SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
 Additionally SDN have an underlay and an overlay. And usually tunnels is used to make sure overlay works as intended
-SD-WAN  is an SDN applied to devices related to WAN (edge router for example)
+SD-WAN  is an SDN applied to devices related to WAN (edge router for example) which is generally branch connectivity as well as other locations integration into a common network
 
 SD-WAN  is separated into 4 planes (Orchestration, Management, Control and Data)
 In usual network, Control and Data plane are both living on same device.
@@ -256,9 +256,10 @@ Cisco solution was initially iWAN (intelligent WAN) but that failed and they mad
 Currect solution is "Cisco SD-WAN". Also they have a Meraki SD-WAN solution
 
 Cisco SD-WAN components:
-    vManage - User logs in to it and configures all the settings required to be run on devices. Centralized management and monitoring happens here. Can be configured using REST API.
+    vManage - User logs in to it and configures all the settings required to be run on devices. Centralized management and monitoring happens here. Changes are pushed to vSmart Controller first then vSmart pushes them to devices
         DEMO: https://sandbox-sdwan-2.cisco.com/ (devnetuser/RG!_Yw919_83)
         Templates are used to push the predefined configuration to devices.
+        Can be configured using REST API over "vManage API"
     vSmart - A controller, CAN ONLY BE VIRTUAL (public/private cloud or on-prem). It sends out the configuration (that has been configured on vManage) to routers. Config like Security/QoS/VPNs
     vEdge - Basically a Router. It is interconnected with other routers via IPsec tunnel. So underlay is a Provider network. Overlay is tunnels
         vEdge can be deployed in a Cloud therefore be virtual.
@@ -302,6 +303,8 @@ Cisco SD-WAN hardware
     vEdge-1000 (1Gig connectivity throughput)
     vEdge-2000 (10Gig connectivity throughput)
     vEdge-5000 (20Gig connectivity throughput)
+
+
 
 
 #                    SD-Access
