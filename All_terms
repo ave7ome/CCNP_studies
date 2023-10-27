@@ -2506,6 +2506,24 @@ DNA Center GUI overview of workflows:
 4. Assurance
     Monitoring of SD-Access network
 
+DNA Center Platform
+    SD-Access solution can be logically split into 3 "layers":
+    1. Lowest one represents all the physical (or virtualized) components of SD-Access fabric like switches and routers
+    2. Next is DNA center itself
+    3. Then goes the DNA center Platform - it's basically the logic (brains) of operation, how everything should be done/can be done/will be done. Automation, Orchestration is here. APIs are here as well.
+
+    DNA center platform API component can be split in 4 different vectors (INTENT API)
+    Northbound API - all the requests to push policies to operation, basically done on controller
+    Southbound API - requests pushed to devices themselves, also supports multivendor SDKs for different nodes
+    Eastbound API - interaction with other logging platforms, logs can be sent to Slack, Microsoft Teams and other analogues
+    Westbound API - integration with other platforms like IPAM, AD
+
+Can lab the DNA Center on devnetsandbox.cisco.com
+
+To use DNA center API:
+    1. Retreive a token from DNA center
+    2. Send API requests using retrieved token
+
 
 #                NETCONF & RESTCONF
 
