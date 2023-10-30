@@ -2727,6 +2727,31 @@ YANG (Data Model) - a representive common structure of how certain data should b
 On the device itself, usually there are NATIVE (for cisco it's cisco), OpenConf and IETF structures of YANG
 
 
+#                    EEM (Extended Event Manager)
+
+EEM is a mechanism that allow to run certain set of commands either in response to an event or in some other way.
+
+There are following possibillities for EEM applets to be run (they can monitor certain counters/statistics/command executions etc.):
+    Recurrence - execute once per N minutes/hours of other time frame
+    Counters - run applet based on the counters on some interface 
+    CLI input - certain commands can be blocked from running for example (somebody writes "shutdown" on certain interfaces and applet can block that)
+    Syslog meesages - run a set of commands based on certain syslog message
+    SNMP - run when SNMP is triggered
+
+Available actions within applet:
+    Reboot router
+    Write message to terminal
+    Send an E-mail
+    Issue commands
+    Create SNMP trap
+
+Applet structure
+    event manager applet "NAME"
+    event <case-scenario>
+    action 1.0 <command1>
+    action 1.5 <command2>
+    action 2.0 <command3>
+    etc...
 
 
 
@@ -2740,7 +2765,9 @@ On the device itself, usually there are NATIVE (for cisco it's cisco), OpenConf 
 
 
 
-Understand Wildcard masks
+
+Understand 
+Wildcard masks
 Understand subnetting
 
 
