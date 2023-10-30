@@ -2541,6 +2541,20 @@ RESTCONF - same as NETCONF and generally speaking RESTCONF works over NETCONF da
     But in case of RESTCONF, management is initiated over HTTP methods (GET, POST, PUT, UPDATE, DELETE) instead of SSH connectivity.
     Requests are done to WEB-server of the device (returned are results of SHOW commands, configuration changes).
 
+RESTCONF structure is as following:
+
+https://IP:PORT/root/datastore/ietf-interfaces:interfaces/gigabitEthernet=1
+
+IP - IP-address of device
+PORT - connectivity port
+root - "restconf" or "api" generally
+datastore - running-config or startup-config
+ietf-interfaces:interfaces - a YANG containter defined within YANG data model
+gigabitethernet - an object in container
+
+Depending on the chosen data model, REST-API response can differ (YANG, Native)
+But the industry standart is YANG models and for all network devices these will return same information.
+
 
 #                Device Access Control (DAC)
 
