@@ -2754,12 +2754,85 @@ Applet structure
     etc...
 
 
+#                    Automatization and programmability
 
+-----Ansible
+Configuration management tool
+- Agentless (connects over SSH to push commands)
+- SSH
+- Python-based
+- YAML (data-serialization language) "YANSIBLE"
+- PUSH-model (control station is responsible for pushing the configuration to devices, they aren't pulling anything by themselves)
+    It's FREE
+    Linux
+    MAC
 
+  How to use Ansible
+    1. Install
+    2. Configure devices you want to manage under Ansible directory "hosts" file
+    3. Use the configured devices to fullfill the commands like "ping" or different show commands
 
+Ansible includes thinkgs like:
+    Tasks - a single command to network device (or linux or else) run within the play, command like "create vlan and assign to interface"
+    Plays - a subset of tasks happenning within one certain group of devices or within some certain theme
+    Playbooks - a subset of plays
 
+Basically Playbook -> consist of Plays -> which consist of Tasks
 
+-----Puppet
+Configuration management tool
+- Config MGMT (more DevOps-y)
+- There's Pupper Master ("controller") and Puppet Agents
+- PULL-model (config is pulled by Pupper agents from Puppet masters PuppetDB)
+- Agent-based (there is a PuppetBolt agentless solution for network devices)
+    It's FREE but up to a certain point (? which point)
+    Supports more than 1 Master node
+    There's MoM (Master of Masters)
+- Ruby-based
 
+Puppet wants it's agents to be in a certain configuration states, that's why devices are reaching to Puppet Master(-s) to PULL the configuration.
+    All the configuration for different device types are stored in the MANIFEST (ultimate rulebook to follow for agents) 
+    Which consist of classes (different device types) 
+    And classes consist of resources (exact commands and rules to follow, for example "loopback7 have to be created on each device"
+
+    Puppet Manifest file extension is ".pp"
+
+-----Chef
+Configuration management tool
+- Ruby-based
+- Strictly Agent-based (can be installed on Nexus)
+- Centrallized node is called "Central server"
+- PULL-model
+
+Configuration in Chef is called "Recipe" like Resource in Puppet, Task in Ansible (not really applicable to Ansible though since it's PUSH model)
+Recipes are stored in Cookbooks. 
+To upload cookbooks to Central server, a tool called KNIFE is used
+Cookbooks on Central server are stored in BOOKSHELVES
+
+-----SaltStack
+Configuration management tool
+- Python-based
+- Remote code execution
+- Has "MASTER" (same as Puppet)
+- Controls "MINIONS"
+- Agent-based
+    Has agentless solution (SaltProxy)
+- YAML
+- Event-driven
+
+Since it's event-driven, for Master and Minions there are terms "BEACON" and "REACTOR"
+Beacon exist on minions and whenever some change is made on a minion, beacon sends a signal to the Reactor which is located on a Master
+Reactor receives the signal and makes minion to change it's config back to move it to the config state specified in the config files or "PILLARS" (".sls" file)
+Pillars are assigned to devices.
+There's a term "GRAIN" and this is the thing that collects all the system-level information from the Minions. That helps with command execution as grain data can be specified.
+    Like run the certain command only to NXOS devices
+
+Salt commands have the following structure:
+salt DEVICES COMMAND
+DEVICES - devices to which command should be applied
+COMMAND - command to apply whether it's ping or some remote code execution (like "show ip int br")
+
+Ex.: salt "csr7" test.ping
 
 
 
