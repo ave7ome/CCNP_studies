@@ -2816,7 +2816,7 @@ Configuration management tool
 - Has "MASTER" (same as Puppet)
 - Controls "MINIONS"
 - Agent-based
-    Has agentless solution (SaltProxy)
+    Has agentless solution (SaltProxy), acts exactly as proxy - there's a minion, all commands are sent to it and then redirected from it to devices with no agent.
 - YAML
 - Event-driven
 
