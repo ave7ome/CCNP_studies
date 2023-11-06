@@ -235,9 +235,26 @@ Users (when spinning up an application) are going to cloud broker, Like Cisco Cl
     Public cloud (GCP).
 
 
-#                    SD-WAN
+#                    SDN
+
 SDN (Software-Defined Network) - network that is managed in a centralized way (though a controller or using scripts)
 Additionally SDN have an underlay and an overlay. And usually tunnels is used to make sure overlay works as intended
+
+Each SDN consists of 3 layers:
+
+    Application layer (all the applications in the network, Network Management, Analytics)
+                /\
+                 | Northbound API
+                \/
+    Controller layer (the centrallized controller itself)
+                /\
+                 | Southbound API
+                \/
+    Infrastructure layer (Switches, Routers, Network Devices etc.)
+
+
+#                    SD-WAN
+
 SD-WAN  is an SDN applied to devices related to WAN (edge router for example) which is generally branch connectivity as well as other locations integration into a common network
 
 SD-WAN  is separated into 4 planes (Orchestration, Management, Control and Data)
