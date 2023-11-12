@@ -282,6 +282,7 @@ Cisco SD-WAN components:
         Templates are used to push the predefined configuration to devices.
         Can be configured using REST API over "vManage API"
     vSmart - A controller, CAN ONLY BE VIRTUAL (public/private cloud or on-prem). It sends out the configuration (that has been configured on vManage) to routers. Config like Security/QoS/VPNs
+        Also responsible for fabric discovery.
     vEdge - Basically a Router. It is interconnected with other routers via IPsec tunnel. So underlay is a Provider network. Overlay is tunnels
         vEdge can be deployed in a Cloud therefore be virtual.
         Also there's a cEdge - Cisco ISRs with Viptela code running on them. Used to be able to support T1, E1 (Voice, serial) lines, or some security features
@@ -353,6 +354,7 @@ There are following deployment options:
     vEdge cloud (AWS, Google Cloud, Microsoft Azure)
     vEdge hardware (ISR 1k, ISR 4k, ASR 1k)
     ENCS (Cisco virtualization servers) 5100, 5404
+    Viptela plain device (one section above are hardwares for that)
 
 Minimum configurations:
     vManage - Network connectivity, System IP, Site ID, Organizational name, vBond IP
