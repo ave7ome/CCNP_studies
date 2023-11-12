@@ -257,7 +257,11 @@ Each SDN consists of 3 layers:
 
 SD-WAN  is an SDN applied to devices related to WAN (edge router for example) which is generally branch connectivity as well as other locations integration into a common network
 
-SD-WAN  is separated into 4 planes (Orchestration, Management, Control and Data)
+SD-WAN  is separated into 4 planes
+    Orchestration plane (onboarding SD-WAN router into the SD-WAN);
+    Management plane (centralized configuration of the SD-WAN);
+    Control plane (decides on how the traffic flows inc. routing protocolcs and maintains network topology);
+    Data plane (responsible for forwarding packets and traversing them over network, all based on decisions made by control plane).
 In usual network, Control and Data plane are both living on same device.
 In case of SD-WAN (and SDN), controller is responsible for Control Plane (brain of network). Edge devices are responsible for Data plane (legs of network).
 
@@ -287,7 +291,31 @@ Cisco SD-WAN components:
         Whenever new vEdge device join SD-WAN, it goes to vBond which sends out the info to vManage. Then Administrator can approve or reject adding the vEdge to SD-WAN
         Can help for two vEdges to build an IPsec tunnel if both of them are behind NAT - that is called NAT traversal
         Example: it sends out a packet to two vEdges which open the certain ports. Devices then use that ports to build a tunnel. Or it can orchestrate so those devices exchange packets themselves.
-                
+        Full Cone NAT used for that - NAT type when all communication from single device to outside is NATted to a specifit IP:port combination which allows ANY external device to connect to that combination to reach the initial device
+                Usually all communication from single device to outside creates NAT translation that is available only for the endpoint traffic has been sent to (stateful basically), but with full cone NAT, NAT translation is available to all external endpoints even though they haven't received data from initial device 
+        Restricted Cone NAT - same as full cone NAT above but the same IP:port combination becomes available to another host only after initial host initiates connectivity first
+        Port restricted Cone NAT - same as above but both source and destination ports have to match both ways
+        Symmetric NAT - like Restricted Cone NAT but all requests from initial hosts are mapped to unique IP:port combos when reaching out to different endpoints
+
+vSmart, vManage and vBond are usually managed together either by Cisco, MSP or by the company itself. Generally located all 3 in cloud
+
+SD-WAN fabirc initialization process:
+    1. vManage is booted up
+    2. vSmart is booted up. It gets authenticated to vManage
+    3. vBond is booted up. It gets authenticated to vSmart and to vManage
+    4. vManage will distribute configurations to vSmart and vBond
+    5. vEdges are booted up.
+    6. vEdges authenticate to vBond (vBond has to have a whitelist specifying that exact vEdge can be authenticated)
+    7. vEdges authenticates to vManage and to vSmart
+    8. vManage sends a config to vEdges (through vSmart)
+
+Authentication process:
+vBond sends out it's certificate to vSmart to be authenticated with the vSmart. If the contents of certificate are good (including that it was indeed signed by local root CA), vSmart authenticates vBond and consideris it a part of fabric
+
+SD-WAN protocols:
+    OMP - communication of vEdge to vSmart
+    DTLS - communication of vBond to vSmart
+
 Cisco SD-WAN topologies:
     Full mesh (requires license)
     Partial mesh (requires license)
@@ -321,7 +349,16 @@ Cisco SD-WAN hardware
     vEdge-2000 (10Gig connectivity throughput)
     vEdge-5000 (20Gig connectivity throughput)
 
+There are following deployment options:
+    vEdge cloud (AWS, Google Cloud, Microsoft Azure)
+    vEdge hardware (ISR 1k, ISR 4k, ASR 1k)
+    ENCS (Cisco virtualization servers) 5100, 5404
 
+Minimum configurations:
+    vManage - Network connectivity, System IP, Site ID, Organizational name, vBond IP
+    vBond - Network connectivity, System IP, Site ID, Organizational name, vBond IP (local)
+    vSmart - Network connectivity, System IP, Site ID, Organizational name, vBond IP (local)
+    Also certificates are required as minumum.
 
 
 #                    SD-Access
