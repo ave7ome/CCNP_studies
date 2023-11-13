@@ -609,9 +609,19 @@ TCAM - located in RAM (high-speed memory for quick lookup). Contains IP-addresse
 ***(get to know more on CAM & TCAM)
 RP (route processor)
 
-Centralized and Distributed switching architectures
-Centralized - Packets that has been received by interface on Line card are forwarded to Supervisor before switching decision (CAM & FIB lookup)
-Distributed - Packet received on Line Card is forwarded firectly out of line card through corresponding interface (CAM & FIB tables are stored on LC but populated by Supervisor). Control traffic (like OSPF) still happens on Supervisor
+Shared memory and Distributed memory switching architectures
+Shared memory (Catalyst 3560, 45xx) - Packets that has been received by interface on Line card are forwarded to Supervisor before switching decision (CAM & FIB lookup)
+    1. Frame is received by interface (ultimately a set of bits)
+    2. Frame is places into a Switch-wide memory pool (input pool for interface it's been received at) while it's being checked over forwarder (dedicated ASIC) to make a decision on where should it be sent next (L2 header is checked)
+    3. Upon checking, the memory slot is reclassified into an output memory pool for the output interface
+    4. Frame is forwarded out
+Distributed memory (Cisco 6500) - Packet received on Line Card is forwarded firectly out of line card through corresponding interface (CAM & FIB tables are stored on LC but populated by Supervisor). Control traffic (like OSPF) still happens on Supervisor
+    Same as Shared memory, but every port has it's own ASIC and it's own memory pool
+    Frame is forwarded to forwarding engine ASIC over bus connection which makes a forwarding decision
+    Then frame is forwarded out of the interface that's been decided as output interface
+
+    Also there are cases where forwarding engine is on every ASIC on every interface - in that case, frame is moved into a transfer ring and output interface receives it
+    Ex.: Cisco 3750
 
 
 #                    Virtualization
