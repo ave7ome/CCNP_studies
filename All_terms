@@ -609,6 +609,8 @@ TCAM - located in RAM (high-speed memory for quick lookup). Contains IP-addresse
 ***(get to know more on CAM & TCAM)
 RP (route processor)
 
+    Network Device interfaces has a Direct Memory Access (DMA) to the device's memory pool
+
 Shared memory and Distributed memory switching architectures
 Shared memory (Catalyst 3560, 45xx) - Packets that has been received by interface on Line card are forwarded to Supervisor before switching decision (CAM & FIB lookup)
     1. Frame is received by interface (ultimately a set of bits)
