@@ -513,7 +513,12 @@ QoS tools:
 3. Shaping - used on egress interface to create queues (queueing) which allows traffic that exceeds the configured bandwidth to be sent later, whenever the circuit is less busy. 
 4. Queueing - used on egress interface to divide egress queue on sub-queues
 5. Scheduling - used to empty the sub-queues in a certain way.
- 
+
+CIR = Bc / Tc 
+    CIR (Commited Information Rate) - AVERAGE speed over the period of a second
+    Bc (Commited Burst) - Number of bits (for shaping) or bytes (for policing) that are deposited in the token bucket during a timing interval
+    Tc (Timing interval) - The interval at which tokens are deposited in the token bucket
+
 Marking:
 On layer 1: based on physical port or interface (subinterface/SVI)
 On layer 2: based on MAC-address and on COS (class of service) bits (802.1P)
@@ -596,7 +601,7 @@ Queuing
 It is a best practice to move "Trust boundary" as close to Endpoints as possible (wherever this can be safely applied, like IP phones).
 Trust boundary is the point where marking can happen - it loads up resources.
 
-37:38
+01:15:38
 https://www.youtube.com/watch?v=AoOAb2RQVyM
 
 #                    Network device architecture
