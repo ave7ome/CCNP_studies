@@ -498,16 +498,26 @@ Wireless
 #                    QoS (Quality of service)
 QoS - allows the manipulation of traffic (packets) in a way to prioritize some important data to be transfered with better confidions (sometimes be transferred at all - in case bandwidth of an interface is lower that the amount of traffic)
 
+Router do QoS in Software
+Switch do QoS in Hardware
+    Switches are more difficult because every different model of Switch supports QoS differently 
+
 Mechanics:
 1. Traffic is classified
     3 bit number in a frame (in 802.1Q field) that immediately tells Network Device (like a mark on an Amazon package) what is that traffic
 2. Traffic is marked
     8 bit ToS field in a packet. Before IPP (IP Precedense) was used with 3 bit. Now it's DSCP (Differentiated services code point) with 6 bit
+    7th and 8th bytes are ECN (Explicit Congestion Notification) bytes 
+    there might be 4 values: 
+        "00 - Not ECN-Capable Transport, Not-ECT"
+        "01 – ECN Capable Transport(1), ECT(1)"
+        "10 – ECN Capable Transport(0), ECT(0)"
+        "11 – Congestion Experienced, CE"
 (*)1 and 2 doesn't do anything by itself, these are just numbers in traffic. If device doesn't have any rules about how to handle such traffic - they're useless
 3. Traffic is threated based on 1 and 2
 
 QoS tools:
-1. Classification & Marking  sa- used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. 
+1. Classification & Marking - used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. 
     NBAR (Network-Based Application Recognition) exists which lets the classification to happen with more details (based on word, phrase or URL for example)
 2. Policing - used on ingress interface (provide edge interface facing customer edge device) to drop all the traffic that exceeds the configured policing bandwidth. Can be configured for different types of traffic (TCP, UDP, DNS, other apps.)
 3. Shaping - used on egress interface to create queues (queueing) which allows traffic that exceeds the configured bandwidth to be sent later, whenever the circuit is less busy. 
@@ -518,6 +528,11 @@ CIR = Bc / Tc
     CIR (Commited Information Rate) - AVERAGE speed over the period of a second
     Bc (Commited Burst) - Number of bits (for shaping) or bytes (for policing) that are deposited in the token bucket during a timing interval
     Tc (Timing interval) - The interval at which tokens are deposited in the token bucket
+
+Example:
+Link speed is 128kbps.
+Every Tc (timing interval) is 0.125sec, every timing interface 8000bits is taken and processes, even though the size is 16000bit.
+Like this, only half of link speed is utilized which is 128/2 = 64kbps. That is traffic shaping (?)
 
 Marking:
 On layer 1: based on physical port or interface (subinterface/SVI)
@@ -542,7 +557,7 @@ QoS Policies
 Before all QoS settings had to be applied to interfaces.
 Now QoS settings are applied globally. Interfaces are used to display the direction of traffic for QoS to be applied.
 
-MQS (Modular QoS Command-Line):
+MQS (Modular QoS Command-Line) - configuring QoS globally on device (it was interface-linked before)
 QoS applied globally.
 Allows for different QoS tools to be applied to different interfaces.
 3 components:
