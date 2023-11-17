@@ -624,7 +624,7 @@ Queuing
 It is a best practice to move "Trust boundary" as close to Endpoints as possible (wherever this can be safely applied, like IP phones).
 Trust boundary is the point where marking can happen - it loads up resources.
 
-01:15:38
+01:40:06
 https://www.youtube.com/watch?v=AoOAb2RQVyM
 
 #                    Network device architecture
