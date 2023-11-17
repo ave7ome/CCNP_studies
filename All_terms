@@ -520,7 +520,7 @@ QoS tools:
 1. Classification & Marking - used for ingress traffic. Packets get classified (by source, destination IP, protocol, ports) and marked on ingress interface with certain priority for egress interface to understand how it should be forwarded. 
     NBAR (Network-Based Application Recognition) exists which lets the classification to happen with more details (based on word, phrase or URL for example)
 2. Policing - used on ingress interface (provide edge interface facing customer edge device) to drop all the traffic that exceeds the configured policing bandwidth. Can be configured for different types of traffic (TCP, UDP, DNS, other apps.)
-3. Shaping - used on egress interface to create queues (queueing) which allows traffic that exceeds the configured bandwidth to be sent later, whenever the circuit is less busy. 
+3. Shaping - used on egress interface to create queues (queueing) which allows traffic that exceeds the configured bandwidth to be sent later, whenever the circuit is less busy (Actually uses full line speed but limits the number of bits sent)
 4. Queueing - used on egress interface to divide egress queue on sub-queues
 5. Scheduling - used to empty the sub-queues in a certain way.
 
@@ -529,10 +529,18 @@ CIR = Bc / Tc
     Bc (Commited Burst) - Number of bits (for shaping) or bytes (for policing) that are deposited in the token bucket during a timing interval
     Tc (Timing interval) - The interval at which tokens are deposited in the token bucket
 
-Example:
-Link speed is 128kbps.
-Every Tc (timing interval) is 0.125sec, every timing interface 8000bits is taken and processes, even though the size is 16000bit.
-Like this, only half of link speed is utilized which is 128/2 = 64kbps. That is traffic shaping (?)
+Example of shaping:
+Line speed is 128kbps.
+Every Tc (timing interval) is 0.125sec, every timing interval, 8000bits is dumped into the token bucket (to fill it) and then transfered further at line rate, then wait for next timing interval to start to send another burst
+In that example, 8000bits is sent each Tc therefore CIR = 8000 / 0.125 = 64000 bps = 64kbps
+Like this, only half of link speed is utilized. That is traffic shaping (?)
+
+Actions:
+Normally token bucket has a capacity of Bc, and it's getting filled every timing interval (Tc, 0.125sec)
+    Conforming - Token bucket is getting filled as usual every timing interval and dumped on a line rate further on
+    Exceed - Token bucket capacity is still Bc, but on a certain Tc, less bits were transfered, that allowed for more capacity for next Tc Be = (Bc+(Bc-transfered_bits))
+             Policing allows to specify certain actions for that exceeded traffic
+    
 
 Marking:
 On layer 1: based on physical port or interface (subinterface/SVI)
