@@ -501,6 +501,14 @@ QoS - allows the manipulation of traffic (packets) in a way to prioritize some i
 Router do QoS in Software
 Switch do QoS in Hardware
     Switches are more difficult because every different model of Switch supports QoS differently 
+    CPU doesn't see the packet therefore not much QoS features on switches
+    "mls qos" command is generally required for switch to be able to run QoS
+
+    Once entered above command, switch logically splits receive and transfer memory queue in few parts (with different priorities)
+    Since Switches are L2 devices, whenever Packet is received by device, configured QoS inside switch makes an INTERNAL DSCP MARKING (that is remained only within the switch) just to make a output queue decision
+    After "mls qos" command, interfaces transition to "untrusted" QoS-wise and strip all the DSCP value to 0 on received traffic (phones generally mark it to 10111000 - EF)
+        Have to make sure it's not done because if so - voice traffic will be really bad and not prioritized as it was before
+        "mls qos trust dscp" on interface
 
 Mechanics:
 1. Traffic is classified
@@ -541,7 +549,6 @@ Normally token bucket has a capacity of Bc, and it's getting filled every timing
     Exceed - Token bucket capacity is still Bc, but on a certain Tc, less bits were transfered, that allowed for more capacity for next Tc Be = (Bc+(Bc-transfered_bits))
              Policing allows to specify certain actions for that exceeded traffic
     
-
 Marking:
 On layer 1: based on physical port or interface (subinterface/SVI)
 On layer 2: based on MAC-address and on COS (class of service) bits (802.1P)
@@ -591,6 +598,11 @@ Layer 3
                               CS (Class selecter) is just a usage of first 3 bits which is a class. Drop preference is 0 - not used.
                               EF (Expedited Forwarding) - usually used for Voice. Class 5 and Drop preference value is higher (11)
 
+ToS header - 1,2,3 bytes are for IP Precendce, basically a CLASS
+             4,5 bytes are for drop preference (lower value equals lower chance of being dropped)
+             6 byte can be used as well (have to specify decimal number for that)
+             7, 8 bytes are ECN bytes - 
+    
 Very useful "QoS Values Calculator":
 https://i.pinimg.com/originals/34/a7/57/34a75767cda2db32f3aca013b65d91af.jpg
 (if link is unreachable, can be GOOGLED by "qos values calculator v3")
@@ -658,15 +670,15 @@ RP (route processor)
 Shared memory and Distributed memory switching architectures
 Shared memory (Catalyst 3560, 45xx) - Packets that has been received by interface on Line card are forwarded to Supervisor before switching decision (CAM & FIB lookup)
     1. Frame is received by interface (ultimately a set of bits)
-    2. Frame is places into a Switch-wide memory pool (input pool for interface it's been received at) while it's being checked over forwarder (dedicated ASIC) to make a decision on where should it be sent next (L2 header is checked)
+    2. Frame is placed into a Switch-wide memory pool (input pool for interface it's been received at) while it's being checked over forwarder (dedicated ASIC) to make a decision on where should it be sent next (L2 header is checked)
     3. Upon checking, the memory slot is reclassified into an output memory pool for the output interface
     4. Frame is forwarded out
 Distributed memory (Cisco 6500) - Packet received on Line Card is forwarded firectly out of line card through corresponding interface (CAM & FIB tables are stored on LC but populated by Supervisor). Control traffic (like OSPF) still happens on Supervisor
-    Same as Shared memory, but every port has it's own ASIC and it's own memory pool
+    Same as Shared memory, but every port has it's own ASIC and it's own memory pools (Receive and Transfer)
     Frame is forwarded to forwarding engine ASIC over bus connection which makes a forwarding decision
     Then frame is forwarded out of the interface that's been decided as output interface
 
-    Also there are cases where forwarding engine is on every ASIC on every interface - in that case, frame is moved into a transfer ring and output interface receives it
+    Also there are cases where forwarding engine is on every ASIC on every interface - in that case, frame is moved into a transfer ring and output interface receives it to send it out
     Ex.: Cisco 3750
 
 
