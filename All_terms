@@ -636,8 +636,19 @@ Queuing
 It is a best practice to move "Trust boundary" as close to Endpoints as possible (wherever this can be safely applied, like IP phones).
 Trust boundary is the point where marking can happen - it loads up resources.
 
-01:40:06
-https://www.youtube.com/watch?v=AoOAb2RQVyM
+Wireless QoS
+CSMA/CA (Carrier Sense Multiple Access with Collision Avoidance) - AP can receive only one stream of data only from one device.
+    When device #1 is sending data, if another one (#2) tries to send, #2 will stop and wait for random amount of time before attempting to send again.
+    If traffic has higher priority, it'll attempt to send again much sooner than for lower priority.
+
+    Wireless QoS is about assiging priority to packets and allowing them to wait less time depending on priority.
+
+802.1P marking - kind of same as 802.1Q tag but with VLANID bits (12 in the end of header) as 0. Only first 3 bits (CoS) are utilized to mark the frame
+    6 or 7 in 802.1P - Voice traffic
+    4 or 5 in 802.1P - Video traffic
+    0 or 3 in 802.1P - Best Effor traffic
+    1 or 2 in 802.1P - Background traffic
+
 
 #                    Network device architecture
 Process Switching - old intra-device frame/packet switching mechanism. Every frame/packet received by device is forwarded to CPU for it to lookup the MAC / Routing table and decide where Data unit should be egressed.
