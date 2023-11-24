@@ -651,18 +651,46 @@ CSMA/CA (Carrier Sense Multiple Access with Collision Avoidance) - AP can receiv
 
 
 #                    Network device architecture
+
 Process Switching - old intra-device frame/packet switching mechanism. Every frame/packet received by device is forwarded to CPU for it to lookup the MAC / Routing table and decide where Data unit should be egressed.
-Fast Switching - attempt to remove CPU from the process as much as possible. Cache is introduced. Destination is stored in Cache after single packet has been "process switched"
+    "IP Input" CPU process has been invoked every time a packet was received.
+
+Fast Switching - attempt to remove CPU from the process as much as possible. Cache is introduced. Each packet arriving on interface is checked for it's destination and CPU populates the cache with information on how to reach it. After that packets to that destinations won't interrupt CPU.    
+    Destination is stored in Cache after single packet has been "process switched". But Cache can time out.
     can be enabled by command on interface "ip route-cache". Fast Switching happens REACTIVELY
 
-RIB - a "Database" of all the information about learned routes on the device. Routing Table includes a formatted data taken from RIB.
+RIB - a "Database" of all the information about ALL learned routes on the device. 
+    ROUTING TABLE includes a formatted data taken from RIB and only includes best routes for destinations.
     RIB entry contain: "Letter of used routing protocol" - "AD" - "METRIC" - "IP-address" - "Subnet Mask" - "Next-hop IP" - "outbound interface"
+
 CEF (Cisco Express Forwarding) - Cisco proprietary mechanism for DataUnit switching. It allows for switching decisions to be made PROACTIVELY.
     Before packet with unknown destination arrived, a FIB table is populated from the RIB. FIB table contain Network, Egress interface and Next-hop address (MAC)
     In recent CEF implementations, all the FIB data is collected beforehand from RIB.
 
 FIB - a copy of RIB (network+egress interface+nexthop) + ARP lookup for destination(nexthop) MAC-address. Used for switching decisions in CEF.
-Adjacency table - an L2 information with MAC-addresses for packet to be reincapsulated into a new frame (with new source and destination MACs) while forwarding.
+
+Adjacency table - Mostly filled from ARP-table and ARP-requests. An L2 information with MAC-addresses for packet to be reincapsulated into a new frame (with new source and destination MACs) while forwarding.
+Adjacancy types - adjacencies stored in adjacency table have it's own types:
+    Glean - adjacent host have to be processed through the CPU (ARP-request or etc.)
+    Null - adjacency is dropped since it's reachable through the NULL0 route
+    Drop - packet is dropped since there's no route to host
+    Discard - packet is discarded over ACL rules
+    Punt - also to be processed in the CPU (multicast traffic in routing protocols)
+
+CEF works:
+    Whenever two devices are directly connected and have some IP-address (like 10.0.0.1/24 - R1 and 10.0.0.2/24 - R2), RIB tables for them have a Directly connected route 10.0.0.0/24 through the interface between them
+    This data is included into a FIB as well to make forwarding decisions.
+    By default, host routes are not added (10.0.0.1 - R1 and 10.0.0.2 - R2 are in neither FIB by default). Whenever traffic from 10.0.0.1 starts to 10.0.0.2, ARP-request is sent over interface and ARP reply received.
+    Once ARP arrives back, traffic is free to be initiated since FIB has been populated with the destination host value.
+    At the same time, Adjacenty table of R1 is populated with the value for 10.0.0.2
+    Upon traffic receival on R2, FIB and Adjacency tables are populated for 10.0.0.1
+
+Non-CEF-switched packets:
+    - ARP Requests
+    - Packets requiring responce from router CPU (received TTL 1 packets - responce is "expired in transit"; fragmetntation packets; any IP options packets)
+    - Routing Protocol Traffic
+    - CDP packets
+    - Packets needing encryptions
 
 https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
 
@@ -673,8 +701,17 @@ TCAM - located in RAM (high-speed memory for quick lookup). Contains IP-addresse
     A request to TCAM is made by providing IP address and Mask and getting a result (next hop IP, permit/deny responce) in answer.
     Lookup is made in following format: V,M,R (V-Value(IP),M-Mask,R-Result(allow/deny,nexthop))
     TCAM is ternary - there is a possibility to specify that something is 0, 1 or X (whatever). That allows for Mask to be stored (for example 27 mask would be 11111111.11111111.11111111.111XXXXX)
-***(get to know more on CAM & TCAM)
-RP (route processor)
+
+Basically Switch/Router works:
+    There is a CPU, which is used for all routing processing and ARPs (and other processes but it's not related here) 
+    CPU automatically fills the IP routing table with Routing information and ARP-table with ARP information.
+    CEF includes FIB and Adjacency table and allows for FIB to be automatically filled with information from Routing table and Adjacency table MOSTLY with information from ARP-table
+    After that, FIB automatically fills in the L3/L4 part of TCAM with it's information and Adjacency table automatically fills the information of L2 TCAM
+    Stored information is automatically updated all the time
+
+    So when packet arrives on switch, it gets to ASIC (Forwarding Engine) designed to lookup info from packets, it checks data over TCAM table/tables and allows for forwarding decision to be done.
+
+RP (route processor) - basically a CPU since it's best to deal with routing info.
 
     Network Device interfaces has a Direct Memory Access (DMA) to the device's memory pool
 
