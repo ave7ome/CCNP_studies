@@ -738,10 +738,10 @@ Hardware server is called "HOST"
 Virtual server is called "GUEST"
 
 Type 1 hypervisor - a hypervisor that is installed directly on Hardware (HW --- Hypervisor --- VMs)
-Type 2 hypervisor - a hypervisor that is installed on some OS like Microsoft Windows (HW --- OS --- Hypervisor --- VMS)
+Type 2 hypervisor - a hypervisor that is installed on some OS like Microsoft Windows (HW --- OS --- Hypervisor --- VMs)
 
-Usually Type 1 HV is used in Production networks (in DC), Type 2 is used for LABs and not recommended for PROD deployments.
-VMs basically is a data, it's all files that are used and manipulated by Hypervisors. That allows to store them on external "Storage arrays". Which allows VMs to be access not just by a single HV but by many others.
+Usually Type 1 HV is used in Production networks (in DC), Type 2 is used for LABs and not recommended for PROD deployments since hosted VM requests for resources take more time on type 2.
+VMs basically is a data, it's all files that are used and manipulated by Hypervisors. That allows to store them on external "Storage arrays". Which allows VMs to be accessed not just by a single HV but by many others.
 So if some HOST goes down, another HOST can overtake the VM and spin it up on itself
 Also VMs can be moved between HOSTS (VM migration)
     Cold migration - VM is turned down and spin up on another HOST. Both HOSTs should be able to access storage with VM files
@@ -751,8 +751,8 @@ Additionaly there's a feature called FT (Fault Tolerance) which is basically the
     If there's a VM on a HOST 1, a copy of it is run on HOST 2 which has FT configured with HOST 1. If HOST 1 is down, VM is getting up on HOST 2 with little to no downtime.
 
 Virtual Switch (vSwitch) - literally a virtual switch inside HOST that connects it's virtual interfaces (ports) to VNICs distributed to running VMs. 
-vSwitch can distiribute certain connected devices to their own broadcast domains ("VLANs"), this function is represented by port-groups.
-Virtual Switches exist on type1 Hypervisors by default (ESXi vSwitch, Microsoft Hyper-V)
+vSwitch can distiribute certain connected devices to their own broadcast domains (VLANs), this function is represented by PORT-GROUPs.
+Virtual Switches exist on type1 Hypervisors by default (ESXi vSwitch, Microsoft Hyper-V) and there's a vSwitch instance by default. Whenever VM vNIC is added to port-group, it automatically gets connected to vSwitch 
 Broadcasts received by vSwitch are forwarded only to VMs living on the vSwitch. 
 Supported features: VLANs, CDP, SPAN, Trunk
 Traffic flow mechanism PINNING is used to prevent vSwitches from learning upstream MACs
