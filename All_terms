@@ -377,7 +377,7 @@ SD-Access is Campus Fabric with DNA center as a controller for the network.
 
 Campus Fabric is:
     VXLAN used to build tunnels as overlay mechanism
-    Location Identifier Separation Protocol
+    Location Identifier Separation Protocol (LISP)
     CTS (ISE basically) - Cisco TrustSec
 
 DNA Center is a physical appliance only(!)
@@ -777,7 +777,7 @@ Usually used in ISP networks therefore requires ISP network technologies (MPLS, 
 
 Routing protocols while used with VRF work a bit different - share the routes with RD parameter.
 
-***(VRF-Lite - an Enterprise solution that allows routing to be done through common routing protocols (OSPF, EIGRP). No extra VPN protocols required.
+VRF-Lite - an Enterprise solution that just allows routing to be done through common routing protocols without any MPLS. No extra VPN protocols required.
 
 VRF Configuration:
     vrf definition <vrf_name>
@@ -914,10 +914,20 @@ PxTR does not add upstream subnets to the MR DB.
 
 #                    VXLAN (as an independent protocol)
 VXLAN allows L2 packets to be successfully traversed over the L3 network.
+Switches can be a VXLAN L2 Gateway (bridging) or a VXLAN L3 Gateway (routing). Should check if exact switch is capable of L3 beforehand
+
+VXLAN L3 Gateway is basically an Anycast solution through the Asymetric/Symetric Routing&Bridging
+
+VXLAN allows for ethernet-over-IP traffic.
+Allows to control the broadcast traffic and CAM tables so that MAC-addresses are written only for local on-switch devices and not for every device in VLAN (broadcast domain)
+
+VLAN ID and IP-addresses are only locally significant as VLAN 10 on one switch and VLAN 20 on another switch can be mapped to the same VNID making it the same "Bridge domain" therefore same broadcast domain
+
+NVE - Network Vitrualization Edge (basically a tunnel interface for VXLAN). Logical representation of VXLAN
 
 Usual Frames (with ETHERNET header included) are being encapsulated and following are being added to them:
     1. VXLAN header (8 Byte)
-    2. UDP header (8 Byte)
+    2. UDP header (8 Byte) --- UDP because it is hardware accelerated on every device already (?) (UDP offload engine)
     3. IP header (20 Byte)
 
     Above is called "MAC-IN-IP/UDP" 
@@ -932,6 +942,7 @@ VXLAN virtual identifier (VNID) allows up to 16 million diffrent values.
 VLAN only allows 4096.
 
 While LISP has ITR and ETR, in VXLAN, routers are called VTEP.
+    But in Fact, VTEP is used to map actual networks (VLANs) to corresponding VNIs (VXLAN numbers) - basically a VXLAN encapsulation/decapsulation
 
 VXLAN is Data Plane protocol only, by itself it cannot move packets in the network since it doesn't know where to move them.
 Control Plane protocol is required: 
