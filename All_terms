@@ -951,6 +951,26 @@ Control Plane protocol is required:
     - SDA uses LISP
     - EVPN
 
+VXLAN can operate as follows:
+    Flood-And-Learn - Packets received by one leaf and broadcasted to all other leaves to share the information (ARP requests, ARP replies)
+    BGP EVPN - 
+
+VXLAN configuration requirements and "guide":
+    - Set switching mode to "store-and-forward" (?)
+    - Establish IP unicast reachability between VTEPs
+    - Establish PIM Bidirectional reachability between VTEPs
+        Spines can be phantom RPs for redundancy
+    - Enable features
+        nv overlay
+        vn-segment-vlan-based
+    - Map VLAN to VXLAN
+    - Create NVE interface
+    - Specify VTEP interface (source interface for NVE)
+    - Specify VNI membership (member VNI ...)
+    - Specify Multicast group for BUM replication (under member VNI)
+    
+
+
 #                    STP (Spanning-tree protocol) 
 
   !#####!   BPDUs IN A CONVERGED TOPOLOGY ARE INITIATED BY ROOT BRIDGE BY DEFAULT. IF NON-ROOT BRIDGES DOESN'T RECEIVE BPDU FROM ROOT, THEY WON'T SEND THEIR OWN BPDUs.
