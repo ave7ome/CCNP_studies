@@ -921,7 +921,9 @@ VXLAN L3 Gateway is basically an Anycast solution through the Asymetric/Symetric
 VXLAN allows for ethernet-over-IP traffic.
 Allows to control the broadcast traffic and CAM tables so that MAC-addresses are written only for local on-switch devices and not for every device in VLAN (broadcast domain)
 
-VLAN ID and IP-addresses are only locally significant as VLAN 10 on one switch and VLAN 20 on another switch can be mapped to the same VNID making it the same "Bridge domain" therefore same broadcast domain
+(!) VLAN ID and IP-addresses are only locally significant:
+        VLAN 10 on one switch and VLAN 20 on another switch can be mapped to the same VNID (ex. 100010) making it the same "Bridge domain" therefore same broadcast domain
+        Like NAT. VLAN is inside local IP, VXLAN is inside global
 
 NVE - Network Vitrualization Edge (basically a tunnel interface for VXLAN). Logical representation of VXLAN
 
@@ -1003,6 +1005,10 @@ VXLAN configuration requirements and sequence:
                 route-target export auto
             (in control plane, RT decides where update came from)
             (in data plane, VNID decides where update came from)
+
+PIM BIDIR is established for BUM traffic (like ARP) 
+    BIDIR is used to have (*,G) group and no (S,G) groups to make sure everything is reachable at any time
+
 
 
 #                    STP (Spanning-tree protocol) 
