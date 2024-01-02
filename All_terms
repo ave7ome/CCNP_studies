@@ -955,7 +955,9 @@ VXLAN can operate as follows:
     Flood-And-Learn - Packets received by one leaf and broadcasted to all other leaves to share the information (ARP requests, ARP replies)
     BGP EVPN - 
 
-VXLAN configuration requirements and "guide":
+
+VXLAN configuration requirements and sequence:
+  (FLOOD-AND-LEARN)
     - Set switching mode to "store-and-forward" (?)
     - Establish IP unicast reachability between VTEPs
     - Establish PIM Bidirectional reachability between VTEPs
@@ -968,7 +970,39 @@ VXLAN configuration requirements and "guide":
     - Specify VTEP interface (source interface for NVE)
     - Specify VNI membership (member VNI ...)
     - Specify Multicast group for BUM replication (under member VNI)
-    
+------------
+  (BGP EVPN)
+    - Set switching mode to "store-and-forward" (?)
+    - Establish IP unicast reachability between VTEPs
+    - Establish PIM Bidirectional reachability between VTEPs
+        Spines can be phantom RPs for redundancy
+    - Enable features
+        install feature-set virtualization
+        install feature-set fabric
+        feature-set fabric (allow anycast gateway)
+        feature fabric forwarding (allow anycast gateway)
+        nv overlay evpn (enable EVPN address-family for MP-BGP)
+        feature nv overlay 
+        feature vn-segment-vlan-based (allow VLAN to VNI mapping)
+    - Map VLAN to VXLAN
+    - Create NVE interface
+    - Specify VTEP interface (source interface for NVE)
+    - Specify VNI membership (member VNI ...)
+    - Specify Multicast group for BUM replication (under member VNI)
+    - Specify BPG as control plane protocol
+        host-reachability protocol bgp (under NVE configuration)
+    - Establich BGP EVPN peerings
+        address-family l2vpn evpn
+        (extended communitied required because RT value is encoded as extended community) 
+        (spines are route-reflectors if iBGP is used) 
+    - Generate BGP advertisement (MAC-ADDRESS over BGP)
+        evpn
+            vni l2 <#>
+                rd auto (RD is generated automatically as VTEP_IP:?)
+                route-target import auto (RT is generated as AS_NUMBER:VNI_ID)
+                route-target export auto
+            (in control plane, RT decides where update came from)
+            (in data plane, VNID decides where update came from)
 
 
 #                    STP (Spanning-tree protocol) 
