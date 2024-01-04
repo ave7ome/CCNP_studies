@@ -959,7 +959,8 @@ VXLAN can operate as follows:
 
 
 VXLAN configuration requirements and sequence:
-  (FLOOD-AND-LEARN)
+  (FLOOD-AND-LEARN) --- mechanism that simply allows fabric to act like a single broadcast domain, all frames are sent out (in overlay) to all other ports as a broadcast, but brings lack of scalability, a lot of VLANs would create enormous amount of broadcast flood
+  #configuration can be found at github.com/ave7ome/random_guidelines/VXLAN
     - Set switching mode to "store-and-forward" (?)
     - Establish IP unicast reachability between VTEPs
     - Establish PIM Bidirectional reachability between VTEPs
@@ -973,7 +974,8 @@ VXLAN configuration requirements and sequence:
     - Specify VNI membership (member VNI ...)
     - Specify Multicast group for BUM replication (under member VNI)
 ------------
-  (BGP EVPN)
+  (BGP EVPN) - BGP EVPN as control plane allows granular sharing of MAC-addresses and IPs, configuration is more difficult but scalability is better
+  #configuration can be found at github.com/ave7ome/random_guidelines/VXLAN
     - Set switching mode to "store-and-forward" (?)
     - Establish IP unicast reachability between VTEPs
     - Establish PIM Bidirectional reachability between VTEPs
@@ -994,9 +996,11 @@ VXLAN configuration requirements and sequence:
     - Specify BPG as control plane protocol
         host-reachability protocol bgp (under NVE configuration)
     - Establich BGP EVPN peerings
-        address-family l2vpn evpn
-        (extended communitied required because RT value is encoded as extended community) 
-        (spines are route-reflectors if iBGP is used) 
+        router bgp XXXXX
+            neighbro X.X.X.X
+            address-family l2vpn evpn
+            (extended communitied required because RT value is encoded as extended community) 
+            (spines are route-reflectors if iBGP is used) 
     - Generate BGP advertisement (MAC-ADDRESS over BGP)
         evpn
             vni l2 <#>
@@ -1007,7 +1011,26 @@ VXLAN configuration requirements and sequence:
             (in data plane, VNID decides where update came from)
 
 PIM BIDIR is established for BUM traffic (like ARP) 
-    BIDIR is used to have (*,G) group and no (S,G) groups to make sure everything is reachable at any time
+    BIDIR is used to insert (*,G) group (as shown in "show ip mroute") and no (S,G) groups to make sure everything is reachable at any time
+
+Symmetric & Asymmetric IRB (IRB - Integrated Routing&Bridging)
+    Asymmetric IRB.
+        Ingress VTEP does L2 and L3 lookup
+        Egress VTEP does L2 lookup only
+        "Bridge - Route - Bridge" topology
+        Packet [SMac1 - DMac1 - SIP1 - DIP1] is sent from Server1 on Leaf1 to Server2 on Leaf2 (SIP1 = 10.0.1.1, SIP2 = 10.200.1.1)
+        SMac1 is Server1 MAC, DMac1 is MAC-address of SVI1 for SIP1 since SIP2 is in different subnet
+        Leaf1 receives Packet, changes SMac1 to SVI MAC-address, DMac1 to DIP1 SVI2 of Leaf2 (note from author: don't really know new DMac1)
+        Then Packet is moved from SVI1 on Leaf1 to SVI2 on Leaf2
+     (!)(for asymetric ARB to work, all SVIs have to be configured on all switches)
+        Leaf2 received Packet [SMac2 - DMac2 - SIP1 - DIP1]
+        then packet goes over SVI on Leaf2, received by Server2, then server2 sends it back
+    Symmetric IRB.
+        Ingress VTEP does L2 and L3 lookup
+        Egress VTEP does L3 and L2 lookup
+        "Bridge - Route - Route - Bridge" topology
+        Traffic is sent from Server1 (in VNI1) to Leaf1, there it gets transfered into L3VNI (VNI3), moved to Leaf2 (still in VNI3), transfered into VNI2 and sent to Server2 (from VNI2)
+
 
 
 
