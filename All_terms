@@ -955,7 +955,8 @@ Control Plane protocol is required:
 
 VXLAN can operate as follows:
     Flood-And-Learn - Packets received by one leaf and broadcasted to all other leaves to share the information (ARP requests, ARP replies)
-    BGP EVPN - 
+    BGP EVPN - Host routes (/32) are shared by leaves to other members of the fabric and therefore bring less flood to the infrastructure
+               Spines in that case are serve as Route-Reflectors and DO NOT INSTALL prefixes received by BGP into the routing table (since prefixes contain RTs)
 
 
 VXLAN configuration requirements and sequence:
@@ -1030,7 +1031,20 @@ Symmetric & Asymmetric IRB (IRB - Integrated Routing&Bridging)
         Egress VTEP does L3 and L2 lookup
         "Bridge - Route - Route - Bridge" topology
         Traffic is sent from Server1 (in VNI1) to Leaf1, there it gets transfered into L3VNI (VNI3), moved to Leaf2 (still in VNI3), transfered into VNI2 and sent to Server2 (from VNI2)
-
+        ---
+        New concept is called L3-VNI
+        Each tenant VRF is mapped to a unique L3-VNI (mapping must match on all VTEPs)
+        All VXLAN routed traffic is encapsulated with L3-VNI in VXLAN Header (Allows for single shared VNI amongall VTEPs)
+        L2-VNIs only need be configured where access ports exist (Result is savings of ARP and CAM table spaces)
+        Leaves don't have to have all ARP-entries in the fabric and only maintain their local entries, also have MAC-address entries only for created VNIs
+        Required IPs and MACs are shared over BGP as MAC-IP-LEAF prefixes
+        #see the configuration in github.com/ave7ome/datacenter_studies/VXLAN-EVPN (lines 224-235 or search for "L3VNI creation:")
+        ---
+        Upon configuration of anycast-gateway, routes are shared over the fabric as type 5 EVPN (MAC-IP routes)
+        But host-routes are shared only after server initiates request into the fabric.
+        So if /24 routes were directing traffic to go to wrong leaf, upon initial request, it'll be routed to that wrong leaf, then bridged to correct one (on destination VNI) and on the way back, correct host-route will be shared
+        Config is displayed in github.com/ave7ome/Random_guidelines/VXLAN
+            Configuration guide on Cisco website: https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9600/software/release/17-3/configuration_guide/vxlan/b_173_bgp_evpn_vxlan_9600_cg/configuring_evpn_vxlan_integrated_routing_and_bridging.html
 
 
 
