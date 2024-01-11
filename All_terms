@@ -1046,6 +1046,14 @@ Symmetric & Asymmetric IRB (IRB - Integrated Routing&Bridging)
         Config is displayed in github.com/ave7ome/Random_guidelines/VXLAN
             Configuration guide on Cisco website: https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9600/software/release/17-3/configuration_guide/vxlan/b_173_bgp_evpn_vxlan_9600_cg/configuring_evpn_vxlan_integrated_routing_and_bridging.html
 
+VXLAN VPC
+    In VXLAN VPC topology, servers connected to pair of switches configured with VPC are visible over the anycast loopback IP-address (configured as secondary in loopback)
+        For normal configuration (without secondary IP), traffic from external Server (not connected to VPC pair) will be routed through a single Leaf only
+        Through a single leaf because upon the traffic flow initiation, Server connected to VPC will reply to both Unknown Unicast requests therefore will be BGP EVPN shared from both Leaf1 and Leaf2 (VPC pair)
+        Spines will decide based on BGP path-attributes that only one of routes is preferred (ultimately based on the next-hop value, lower IP is better choice)
+    All VXLAN VLAN-VNI mappings have to be the same for VPC adjacency to form
+    SVIs also have to be the same
+       
 
 
 #                    STP (Spanning-tree protocol) 
