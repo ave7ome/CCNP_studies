@@ -1077,6 +1077,14 @@ VXLAN fabric underlay high availability
                 Then create loopbacks for spines with the subnets which include the set up RP IP-addresses (like 1.1.1.254/31 and 1.1.1.252/30) and share them into IGP
                 Like this, RP IP-address is reachable over both subnets, but 1.1.1.254/31 is a longer match therefore preferred for all PIM messages
 
+Fabric-to-External (L3OUT) connectivity
+    Naturally, fabric is divided from the rest of the network since all the traffic there is L3 moved in it's own VRFs. Only underlay does not belong to specific VRFs
+    Therefore some additional entity is required to interconnect all the fabric to external networks
+    L3OUT is carried out through the introduction of logical entity called "Bordef Leaf"
+    Border leaf is basically a leaf that has some additional configuration. That configuration is:
+        Multi-protocol BGP to have L2VPN EVPN for fabric routes and eBGP (or iBGP) for fabric redistribution into the network
+        To prevent all /32 routes from being advertised, summarization must occur on the devices
+        
 
 
 #                    BFD (Bidirectional Forwarding Detection)
