@@ -1086,7 +1086,6 @@ Fabric-to-External (L3OUT) connectivity
         To prevent all /32 routes from being advertised, summarization must occur on the devices
         
 
-
 #                    BFD (Bidirectional Forwarding Detection)
 
 BFD - Bidirectional Forwarding Detection. A protocol used to monitor the status of a neighbor.
