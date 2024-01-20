@@ -867,22 +867,40 @@ VPN types
 
 
 #                    LISP (as an independent protocol)
+
+LIST is an IP in UDP Tunnel.
+
 Was designed to help with the growing amount of routes on the edge Routers (940K+ routes at the moment of writing).
 Instead of having all routers have all the prefixes existing in the internet, LISP allows to have a router domain where packet destined to certain IP, have to be transfered just to the router that has this IP-address on itself.
 All the routers on the way form an Underlay network and doesn't have to know the location of end subnet because packet is encapsulated with additional LISP, UDP (4341) and IP headers. They forward packet to end router.
 That removes the load of knowing all prefixes from many routers.
 
+LISP definitions:
+
+EID - Endpoint ID (e.g. A server's IP-address)
+RLOC - Router Locator (e.g. A Router's link IP-address available to external subnet). In Internet, RLOC should be a global IP-address and available to be routed globally.
+M-DB - Mapping Database (Association between EID and RLOC)
+MS - Map Server (holds all EID-to-RLOC mappings), analogous to DNS-server. The one that xTRs register with
+MR - Map Resolver (responds to MAP-REQUEST messages). The one, xTR ask what's the mappings for others
+MS/MR - Combined MS+MR roles
+iTR - Ingress tunnel router. A router in local network that is used to determine where does the remote endpoint is located, asks Map Resolver for EID to RLOC mapping to forward traffic
+      It encapsulates packet in UDP (LISP)
+eTR - Egress tunnel router. A router in remote network. Decapsulates LISP packet and forwards it to the destination. Registers EID/RLOC mapping to Map Server
+xTR - Combines iTR and eTR together. Basically that is usually the case. 
+
+PiTR, PeTR, PxTR - Proxy routers used to interconnect LISP location to Non-LISP location
+    
+
 There are Control plane and Data plane available:
     Control Plane (LISP) - Where should the packet be forwarded. Mapping server helps to understand where should packet be forwarded.
                            Mapping Server has access to all the routers on "as-needed" basis as opposed to "have-all-prefixes-at-the-same-time" of usual Routers.
-    Data Plane (LISP) - How should packet traverse the network to reach the destionation. 
+    Data Plane (LISP) - How should packet traverse the network to reach the destination. 
                          Answer is - TUNNELING. Router that first receive the packet is ITR (Ingress tunneling router), last router that receive the packet - ETR (Egress tunneling router). These are relative so sometimes named xTR.
-                         A usual IP packet in encapsulated on entering the tunnel.
-                         LISP header is added to it with INSTANCE ID information (helpes to identify VRFs as VNID in VXLAN)
-                         UDP header is added. UDP port that is used - 4341. Source port is dynamically that optimized Load Balancing in the environment ***(OPTIMIZE?)
+                         A usual IP packet is encapsulated on entering the tunnel.
+                         LISP header is added to it with INSTANCE ID information (helps to identify VRFs as VNID in VXLAN)
+                         UDP header is added. UDP port that is used - udp/4341. Source port is dynamic - that optimized Load Balancing in the environment
                          IP header is added. With tunnel IP addresses for packet to be able to reach the destination (RLOC of remote router).
                          
-LISP is used to separate Location and Identity.
 In LIPS, each router has it's own Locator = RLOC. And each router has a subset of EIDs (endpoint IDs) which are usually subnets.
 
 There are Map Resolver (MR) and Map Server (MS). Usually these are routers. And usually MR and MS are combined in one device.
@@ -902,14 +920,27 @@ Whenever another router (router 2) wants to send a packet to subnet A on Router 
     1. Router 2 sens a "MAP REQUEST" message to MR.
     2. MR checks the table and sends "MAP REQUEST" further to Router 1 since the subnet is there.
     3. Router 1 then sends a "MAP REPLY" message back to Router 2.
-    4. Then the LISP tunnel is getting formes to send traffic directly between routers. Packet's IP header includes source IP of Router 2 and Destination of Router 1. Real packet IPs are not known to devices on the way.
+    4. Then the LISP tunnel is getting formed to send traffic directly between routers. Packet's IP header includes source IP of Router 2 and Destination of Router 1. Real packet IPs are not known to devices on the way.
 
 Whenever the packet is destined to some subnet that does not exist in the LISP domain (located externally):
     1. Router 2 sends out a  "MAP REQUEST" with subnet Z to MR.
-    2. Since there's no subnet Z on MR, it replies with "NEGATIVE MAP REPLY" - subnet not found in DB message. That means that subnet must be outside on LISP domain.
-    3. After that Router 2 sends out the packet to PxTR device to handle. 
-        
+    2. Since there's no subnet Z on MR, it replies with "FORWARD NATIVELY" - subnet not found in DB message. That means that subnet must be outside on LISP domain.
+    3. After that Router 2 sends out the packet over default route to PxTR device to handle. 
+
+LISP iTR initiates the request to MS whenever it has either no route to destination or if it's through default gateway (0.0.0.0)
+
 PxTR does not add upstream subnets to the MR DB.
+
+LISP configuration
+    1. Configure Map Server/Map Resolver (under router lisp)
+        Configure router as MS/MR
+        Set up AREAs for every location mapping (with passwords, should be unique to area)
+        Set up EIDs to receive from the area (allowed EIDs), can specify a big subnet (/16) and set it to also accept lower prefixes (/17,/18,/24 etc.)
+    2. Configure xTRs by setting up the RLOC-EID mapping (like a route)
+        Priority can be configured (if more than 1 router navigate to EID) and weight (load balancing of traffic, equal/unequal Cost MultiPath)
+        Configure xTRs as eTR and iTR
+            configure eTR to map-server mapping (so that MS would transfer requests to the eTR)
+            configure iTR to map-resolver mapping (so that iTR would transfer unknown requests to MR)
 
 
 #                    VXLAN (as an independent protocol)
