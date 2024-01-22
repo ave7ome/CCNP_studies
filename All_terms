@@ -812,25 +812,42 @@ IPsec can have two different packet headers:
             TRANSPORT Mode - When original IP packet with payload arrives to router, ESP header is added between Payload an previous IP headers. After that GRE header will add up in front(?)
             TUNNEL Mode - When original IP packet with payload arrives to router, ESP header is added in front of whole packet. another IP header is added in from of ESP header after that.
 
-Both Transform sets have to match between devices.
-Transform sets include Hashing algorithm of choice, encryption algorithm as well.
-Transform sets are initially exchanged through IKE (Internet Key Exchange) tunnel.
+Transform sets have to match between devices on both sides.
+    Transform sets include Hashing algorithm of choice, encryption algorithm as well.
+    Transform sets are initially exchanged through IKE (Internet Key Exchange) tunnel.
 
 Before establishing an IPsec tunnel between routers, they have to exchange the security settings that should be used (encryption keys as well etc.)
 For that, IKE is used to build a Control plane tunnel (also called SA - security association).
 IKE is an implementation os ISAKMP (Internet Security Association Key Management Protocol).
+    ISAKMP is the set of rules (how to encrypt and authenticate)
+    IKE is "the game" itself - rules being used and utilized.
+    
 IKE:
     IKEv1. Consists of two phases of communication:
-        Phase 1. Control plane tunnel is build with no encryption (def lifetime is 24hours, reestablished after). Following information is negotiated:
-            Acronym to remember is HAGLE
-            HASH 
-            AUTHENTICATION METHOD
-            GROUP (Diffie-Helman) - used to securely encrypt keys for encryption and decryption of traffic
-            LIFETIME of a tunnel
-            ENCRYPTION algorithm
-       Phase 2. An IPsec tunnel (def lifetime is 12hours, reestablished after) itself can be established after phase 1 is completed 
+        Phase 1 (ISAKMP SA). Control plane tunnel is build with no encryption (def lifetime is 24hours, reestablished after). 
+            IKE initiator (IKEI) initiates a connection to IKE responder (IKER) with it's set of parameters (see below). IKER checks and matched the first ones it has in common. No SA gets established in case of no match.
+        Following information is negotiated:
+            # Acronym to remember is HAGLE
+            H - HASH  
+            A - AUTHENTICATION METHOD (how end devices can be sure who's on another end, PSK(key)/PSK(certificate))
+            G - GROUP (Diffie-Helman) (used to securely exchange keys for encryption and decryption of traffic - the more group number, the more stronger value can be chosen, at the expense of CPU)
+                Result of DH group exchange is what Encryption algorithm use to encrypt the data
+            L - LIFETIME of a tunnel
+            E - ENCRYPTION algorithm (used to protect the traffic)
+            In Phase 1, no data plane traffic is encrypted
+       Phase 2 (IPSEC SA). An IPsec tunnel (def lifetime is 12hours, reestablished after) itself can be established after phase 1 is completed
+       Following is negotiated in Phase 2:
+            Encryption of Data Plane (different than in Phase 1)
+            Hashing of Data Plane (different than in Phase 1)
+            Encapsulation mode (TUNNEL or TRANSPORT)
+            Security Protocol - AH or ESP
+         Phase 2 negotiation parameters are called IPSEC TRANSFORM SET.
             PFS - used to force use of different session keys other than ones that were used during phase 1.
+            In Phase 2, data plane traffic is exchanged and encrypted
+    
     IKEv2. Phases are collapsed and less messages have to be exchanged before tunnels are established.
+            Improved Authentication (EAP methods - authentication doesn't have to match, can be PSK on one end and PKI on another end)
+    
     Both devices have to use same IKE version.
 
 IPsec configuration steps:
@@ -847,13 +864,18 @@ IPsec configuration steps:
         b. Specify HASH and ENCRYPTION
         c. If ESP: Tunnel or Transport mode (//mode <tunnel-or-transport>)
     2. Configure IPsec Profile (prev. Crypto-map). Create a link to transform-set in IPsec profile. (//crypto ipsec profile <PROFILE_NAME> -> //set transform-set <TS_NAME>)
-    3. Apply IPsec Profile to Tunnel interface.
+    3. Apply IPsec Profile to Tunnel interface (GRE over IPSEC).
         *under tunnel configuration* //tunnel mode ipsec ivp4
         //tunnel protection ipsec <PROFILE_NAME>
 
 But before configuring IPsec, IKE (ISAKMP) have to be configured:
     crypto isakmp policy (HAGLE)
     (if PSK)crypto isakmp key <key_value> address <IP_address_destination>
+
+There might be implementations with no GRE involved. Crypto-map is created and applied to an interface
+    Crypto-map is basically a filter in a Data Plane - whenever traffic is sent that matches some ACL, it gets IPSec encrypted and considered as part of an IPSec tunnel.
+    Then Interface IP-address of used interfaces is used as tunnel source (real sIP and dIP are inside the packet)
+
 
 Tshoot:
     show crypto isakmp sa
