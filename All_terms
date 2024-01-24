@@ -893,6 +893,16 @@ VPN types
     FlexVPN - A "DMVPN+". It utilizes IKEv2 (can only use version 2 while other VPNs MAY use v1 OR v2) to make DMVPN better but is a different VPN solution
     GET VPN - a VPN for WAN over MPLS networks. Allows to keep the original IP header (with QoSes and other stuff).    
 
+GRE & IPSEC together
+
+GRE over IPSEC (considered good design) - IPSEC is the transport (ESP, AH ESP over UDP etc.)
+    Traffic gets GRE encapsulated first and IPSEC encrypted after that
+    Proxy-ACL has to have only line to permit gre (permit gre host A host B)
+
+IPSEC over GRE (considered bad design) - GRE is the transport (GRE)
+    Traffic gets IPSEC encrypted and GRE encapsulated then
+    Proxy-ACL has to have all the host/subnet entries in it
+
 
 #                    LISP (as an independent protocol)
 
