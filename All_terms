@@ -819,8 +819,8 @@ Transform sets have to match between devices on both sides.
 Before establishing an IPsec tunnel between routers, they have to exchange the security settings that should be used (encryption keys as well etc.)
 For that, IKE is used to build a Control plane tunnel (also called SA - security association).
 IKE is an implementation os ISAKMP (Internet Security Association Key Management Protocol).
-    ISAKMP is the set of rules (how to encrypt and authenticate)
-    IKE is "the game" itself - rules being used and utilized.
+    ISAKMP is the abstract definition (how to encrypt and authenticate)
+    IKE is the set of rules that are being used and utilized.
     
 IKE:
     IKEv1. Consists of two phases of communication:
