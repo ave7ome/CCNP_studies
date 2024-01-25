@@ -798,7 +798,7 @@ GRE configuration:
     tunnel destination
     ip address
     keepalive <interval> <retries_until_down> (keepalive is unidirectional - the packet that is originated on the router is destined to ITSELF; GRE header is added to packet, routed to tunnel destination, GRE header is stripped on the other side and uncovered IP packet is destined to the original router)
-
+ 
 IPsec - a framework (set of tools) that allows a construction of secure tunnel from one destination to another
     Key features that IPsec provide are data...:
         AUTHENTICATION - packet exchange is happening between certain devices and they make sure it's actually them
