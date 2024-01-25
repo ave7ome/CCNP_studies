@@ -765,6 +765,14 @@ Cisco ENCS 5000.
     Allows for virtualization of network devices (CSR - CloudServicesRouter, ISRv, vWLC, ASAv, vEdge/cEdge)
 Also can be virtualized on other server hardware.
 
+#        MTU
+
+IP MTU - Maximum available non-fragmented bytes for an initial IP packet (IP Header, TCP header, Data). 
+Normally set to 1500 (20 bytes IP packet, 20 bytes TCP packet, rest for Data)
+    L2 information (SMAC, DMAC, Ethertype, FCS, dot1q) is not included in IP MTU (additional 18 or 22 bytes)
+
+
+
 
 #        DATA PATH VIRTUALIZATION
 VRF - A technology that allows router (or Multilayer device) to logically be divided into few other routers (which basically means into few independent Routing tables)
