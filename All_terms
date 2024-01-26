@@ -818,6 +818,7 @@ IPsec can have two different packet headers:
     ESP (Encapsulation Security Payload) - IP protocol 50. Can do all data features of IPsec. Also can do NAT traversal. 
         ESP can work in two modes:
             TRANSPORT Mode - When original IP packet with payload arrives to router, ESP header is added between Payload an previous IP headers. After that GRE header will add up in front(?)
+                In case of GRE over IPSEC, can only take effect if Proxy-ACL has entries with exact IPs of routers on both sides of a tunnel ("permit gre any any" won't work! only "permit gre host x.x.x.x host y.y.y.y")
             TUNNEL Mode - When original IP packet with payload arrives to router, ESP header is added in front of whole packet. another IP header is added in from of ESP header after that.
 
 Transform sets have to match between devices on both sides.
@@ -910,6 +911,29 @@ GRE over IPSEC (considered good design) - IPSEC is the transport (ESP, AH ESP ov
 IPSEC over GRE (considered bad design) - GRE is the transport (GRE)
     Traffic gets IPSEC encrypted and GRE encapsulated then
     Proxy-ACL has to have all the host/subnet entries in it
+
+Usual packet consists of IP header (20byte), TCP header (20byte) + Packet Data
+GRE packet has GRE information added in front of IP header and outer IP header (tunnel SIP, DIP) added which sums up to additional 24bytes
+GRE packet structure:
+    [Tunnel_IP_Header][GRE_Header][Inner_IP_Header][Inner_TCP_Header][DATA]
+          20bytes        4bytes        20bytes           20bytes     1500-64
+
+In IPSEC ESP Transport mode, Tunnel IP Header is not added and GRE+original packet information get encrypted.
+IPSEC ESP Transport Mode packet structure:
+    [Outer_IP_Header][ESP_Header][GRE_Header][Inner_IP_Header][Inner_TCP_Header][DATA][ESP_Trailer][ESP_Auth]
+
+In IPSEC ESP Tunnel mode, Tunnel IP Header is  added and Tunnel_IP_header+GRE+original packet information get encrypted.
+IPSEC ESP Tunnel Mode packet structure:
+    [Outer_IP_Header][ESP_Header][Tunnel_IP_Header][GRE_Header][Inner_IP_Header][Inner_TCP_Header][DATA][ESP_Trailer][ESP_Auth]
+[Outer_IP_Header] = [Tunnel_IP_Header]
+
+Transport to Tunnel difference is just about additional IP header and the overhead is not high. 
+    But the issue is that DF-bit does not get copied between headers and PMTUD is broken, fragmentation must occur (which drasically drops the throughput)
+    Setting MTU (generally 1400 is good value for GRE over IPSEC ESP Tunnel mode) is important as since don't fragment bit isn't transfered, fragmentation will occur
+
+If endhosts do not support PMTUD (auto MTU discovery by sending packets with df-bit and adjusting MTU if "must fragment" received back), MSS adjustment on tunnel interface might help.
+MSS is TCP window Size, usually a "Packet size minus 40" (20 for IP header and 20 for TCP header)
+Adjust MSS allows for Router to serve as "TCP-proxy" and setting it's own MSS size to packets if endpoints attempt to aggree on value higher than it is set.
 
 
 #                    LISP (as an independent protocol)
