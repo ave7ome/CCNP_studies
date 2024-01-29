@@ -935,6 +935,76 @@ If endhosts do not support PMTUD (auto MTU discovery by sending packets with df-
 MSS is TCP window Size, usually a "Packet size minus 40" (20 for IP header and 20 for TCP header)
 Adjust MSS allows for Router to serve as "TCP-proxy" and setting it's own MSS size to packets if endpoints attempt to aggree on value higher than it is set.
 
+IPSec VTI (Virtual Tunnel Interface) 
+
+VTI - a tunnel interface similar to GRE but without GRE overhead (GRE header)
+    VTI is native tunnel encapsulation to IPSEC (instead of GRE which can be used out of IPSec)
+    VTI line status depends on the status of IPSec phase 2 negotiation (DOWN if not negotiated)
+    GRE line status depends on routing to tunnel destination (if there is routing, tunnel will be UP which may lead to traffic BLACKHOLING if no KEEPALIVE of IPSLA configured)
+
+VTI and GRE difference is about VTI being simpler (no IPv6 in IPv4, only IPv4 in IPv4, OSPFv3 over IPv4 tunnel won't work) and lighter protocol (less overhead)
+When configuring VTI, no need to specify peer or what traffic is allowed, only transform set is required.
+
+IPSec over DMVPN
+
+Configuration and principle are same as in GRE over IPSec configures with IPSec profile attached to Tunnel interface
+But different for Spoke-to-Spoke tunnels
+
+IPSec is first in DMVPN order of operations and if it doesn't work, DMVPN won't work either.
+
+DMVPN Hub always has IPSec SAs to Spokes
+
+For PSK authentication methon, either all keys have to manually specified in the configuration or a WILDCARD key should be configured.
+    Usually PKI (certificates) is used in rea-life implementations.
+
+21:40
+
+#                    DMVPN
+
+Point-to-Multipoint tunnel (one-to-many)
+There are concepts of HUB and SPOKE
+    HUB - central point to tunneling, connected to all SPOKES
+    SPOKE - edge points in tunneling, connected directly only to a HUB
+
+DMVPN key components:
+    Multihop GRE tunnels (mGRE) - virtual connectivity to HUB/SPOKES with no tunnel destination specified
+    NHRP - to understand the required tunnel destination needed for the communication
+    Underlay routing (whether it's OSPF, EIGRP, BGP) - for traffic to be able
+
+    Also IPSec crypto profiles if IPSec is configured - usual case as in 99% IPSec is being run in DMVPN setup
+
+DMVPN has 3 phases in terms of forming a Spoke-to-Spoke tunnel. Before any of Phases being active, tunnel from Spokes to Hub is a MUST (have to be established).
+Phases define how Hub help Spokes to establish a tunnel to another Spoke.
+    P1: Spoke-to-Spoke tunnels established as point-to-point tunnels
+    P2: When Spokes want to form a tunnel with another Spoke, Hub does an IP resolution for them
+    P3: When Spokes want to form a tunnel with another Spoke, Hub does an NHRP redirection 
+
+Spoke-to-Spoke tunnels are on demand for DMVPN Phases 2 and 3. Tunnels are MUST in case of DMVPN Phase 1.
+    Meaning IPSec SAs are established on demand for P2 and P3. Are MUST for P1.
+
+DMVPN order of operation:
+    1. Crypto.
+    2. NHRP.
+    3. Routing.
+
+HUB in DMVPN is generally a NHRP NHS (NHRP Next-Hop Server)
+    Meaning Spokes have to register with NHS before resolution to other Spokes can happen.
+
+NHRP configuration:
+    Devices have to have an NBMA IP-address (global routable underlay IPs) configured on them as an Underlay for them to be used in DMVPN establishment operation (NBMA addressed of DMVPN nodes are IKAKMP peers etc.)
+    HUB
+        Must have a tunnel configured with "ip nhrp network-id #" (ID have to match between DMVPN nodes)
+        Must also have an authentication password configured which match on nodes
+        "tunnel key #" which have to also match between DMVPN nodes
+        "tunnel mode gre multipoint" (that makes configuration either a P2 or P3)
+    SPOKES
+        NHRP NHS is specified under tunnel interface as "ip nhrp nhs *IP-ADDRESS*"
+        Mapping between inner IP-address of a tunnel to NBMA (non-broadcast multipoint access) - "ip nhrp map *inner-IP* *NBMA-IP-of-HUB*" - basically something like static ARP would do (but for ARP it's L2 to L3)
+        Must have a tunnel configured with "ip nhrp network-id #" (ID have to match between DMVPN nodes)
+        Must also have an authentication password configured which match on nodes
+        "tunnel key #" which have to also match between DMVPN nodes
+        "tunnel mode gre multipoint" (that makes configuration either a P2 or P3)
+
 
 #                    LISP (as an independent protocol)
 
