@@ -900,7 +900,11 @@ VPN types
     Site-To-Site - Basic tunnel between two sites. Tunnel can be established between Cisco and other 3rd party device. Lacks Routing, Multicast, Scalability.
     DMVPN - A hub-and-spoke VPN topology. Many sites establish VPN to the main site. With that it's not required to create a lot of tunnels. NHRP protocol is utilized. Routing is configurable. 
     FlexVPN - A "DMVPN+". It utilizes IKEv2 (can only use version 2 while other VPNs MAY use v1 OR v2) to make DMVPN better but is a different VPN solution
-    GET VPN - a VPN for WAN over MPLS networks. Allows to keep the original IP header (with QoSes and other stuff).    
+    GET VPN - a VPN for WAN over MPLS networks. Allows to keep the original IP header (with QoSes and other stuff).   
+        Helps if there are issues with IPSec scalability (too many spokes -> too many re-keying which is too CPU intensive)
+        Allows having the Group encryption & group decryption keys (re-keying happen only for single key) - IPSec state does not grow as the number of members grow which provides additional scalability to DMVPN with IPSec
+        Cannot do Tunnel encryption therefore can only be run over MPLS and such (can't do it over public Internet space)
+        
 
 GRE & IPSEC together
 
@@ -955,9 +959,13 @@ IPSec is first in DMVPN order of operations and if it doesn't work, DMVPN won't 
 DMVPN Hub always has IPSec SAs to Spokes
 
 For PSK authentication methon, either all keys have to manually specified in the configuration or a WILDCARD key should be configured.
-    Usually PKI (certificates) is used in rea-life implementations.
+    Usually PKI (certificates) is used in real-life implementations.
 
-21:40
+Transport mode is used in real-life implementations because you already have a GRE header
+
+In the end, every spoke always has an IPSec SA to the hub and only on DMVPN P2 or P3, Spokes have an ON-DEMAND IPSec SAs to other Spokes
+    Whenever Hub-to-Spoke tunnel is good, you can initiate traffic from Spoke subnets to another Spoke subnets and it'll establish an IPSec tunnel then forward the packet
+
 
 #                    DMVPN
 
