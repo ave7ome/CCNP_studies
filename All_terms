@@ -1453,7 +1453,10 @@ Also there's MST instances data, it's root bridge ID.
 #                    Trunking protocols (802.1Q, VTP, DTP)
 
 802.1Q - the true trunking protocol. Allows to exchange tagged packets between switches (of ANY vendors)
+
 VTP (VLAN trunking protocol) - Allows switches to exchange VLAN DB data between each other. If VLAN is created on some switch, other switch connected to it creates same VLAN automatically
+    
+
 DTP (Dynamic Trunking Protocol) - Allows switches to form TRUNK links automatically if two switches are connected between each other and configured accordingly:
     "Auto" mode - "i'll be trunk if you want to". Only receives packets. Trunk will be formed only if other side is "Desirable" mode or Hardcoded TRUNK (switchport mode trunk). 
     "Desirable" mode - "i want to be a trunk, do you want to?". Switch sends out packets to form a trunk between switches. Trunk will be formes if other device is configured with "desirable" mode or "auto" mode or hardcoded trunk.
@@ -1463,6 +1466,7 @@ DTP (Dynamic Trunking Protocol) - Allows switches to form TRUNK links automatica
     
 
 #                    EtherChannels (troubleshoot,configure) - basic, LACP, PAgP(ciscoProprietary)
+
 Usual Etherchannel - just turn on the port-channel on both sides
     When in usual mode, "show etherchannel" won't show that EC is down.
 LACP (Link Aggregation Control Protocol) - two modes of EC (passive - enable LACP only if LACP device is detected) (active - enable LACP unconditionally)
