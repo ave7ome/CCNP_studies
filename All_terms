@@ -806,7 +806,10 @@ GRE configuration:
     tunnel destination
     ip address
     keepalive <interval> <retries_until_down> (keepalive is unidirectional - the packet that is originated on the router is destined to ITSELF; GRE header is added to packet, routed to tunnel destination, GRE header is stripped on the other side and uncovered IP packet is destined to the original router)
- 
+
+
+#        IPsec
+
 IPsec - a framework (set of tools) that allows a construction of secure tunnel from one destination to another
     Key features that IPsec provide are data...:
         AUTHENTICATION - packet exchange is happening between certain devices and they make sure it's actually them
@@ -946,8 +949,8 @@ VTI - a tunnel interface similar to GRE but without GRE overhead (GRE header)
     VTI line status depends on the status of IPSec phase 2 negotiation (DOWN if not negotiated)
     GRE line status depends on routing to tunnel destination (if there is routing, tunnel will be UP which may lead to traffic BLACKHOLING if no KEEPALIVE of IPSLA configured)
 
-VTI and GRE difference is about VTI being simpler (no IPv6 in IPv4, only IPv4 in IPv4, OSPFv3 over IPv4 tunnel won't work) and lighter protocol (less overhead)
-When configuring VTI, no need to specify peer or what traffic is allowed, only transform set is required.
+VTI and GRE difference is about VTI being simpler (BAD - no IPv6 in IPv4, only IPv4 in IPv4, OSPFv3 over IPv4 tunnel won't work) and lighter protocol (GOOD - less overhead)
+When configuring VTI, no need to specify peer (peer is tunnel destination) or what traffic is allowed, only transform set is required.
 
 IPSec over DMVPN
 
