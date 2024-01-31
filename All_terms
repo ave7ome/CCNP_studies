@@ -1454,8 +1454,43 @@ Also there's MST instances data, it's root bridge ID.
 
 802.1Q - the true trunking protocol. Allows to exchange tagged packets between switches (of ANY vendors)
 
+VLAN Ranges:
+    Standard (numbers 1-1005)
+    Extended (numbers 1006-4094)
+    Local use - Switches have VLANs for internal usage (usually starting 4094 descending), about 100-150 of them.
+            For example used for ports with "no switchport" command - in that case, port is silently moved to access type and SVI is created for some VLAN with IP assigned to routed port
+            Also in switches with few line cards, internal VLANs are used to switch packets between the cards
+
+Interface types
+    Access
+    Trunk
+    Tunnel - data received on the interface will be placed into some other tag additionally
+
+Native VLAN - VLAN that remains untagged on the switch (1 by defaul in Cisco switches)
+    If 2 switches are interconnected and have different Native VLANs on trunk between them, it's theoretically possible to transfer traffic between two hosts in different VLANs (if subnetting allows that) 
+
 VTP (VLAN trunking protocol) - Allows switches to exchange VLAN DB data between each other. If VLAN is created on some switch, other switch connected to it creates same VLAN automatically
-    
+    Version 1
+    Version 2
+    Version 3
+
+VTP switch roles
+    Server - VLANs can be added, deleted or edited. Sends out advertisement upon the related change
+    Client - cannot add, delete or edit VLANs. VLAN data changes upon receival of advertisement from Server
+    Transparent - doesn't react to VTP-related changes from Server but sends them further to connected devices. Doesn't participate in VTP Domain
+    Off - not in the VTP domain. VTP messages aren't forwarded further
+
+VTP messages
+    Summary advertisement - sent out every 300 seconds, include revision number
+        Basically a keepalive message. If new switch node sees Summary message with revision number higher than it's own, it'll initiate the Subset request to get missing VLAN data
+    Subset advertisement - sent out upon VLAN changes
+    Subset request advertisement - requon to receive a Subset advertisement
+    VTP Join Message - request to receive BUM-traffic in each of VLANs (for VTP pruning)
+
+VTP Pruning
+    Have to be manually turned on
+    By default, all VLANs are pruned on the switch if pruning is turned on
+    VLAN will be removed from pruning by initiating a VTP Join for each VLAN. VTP Join for VLAN is initiated if there is an UP interface for the VLAN
 
 DTP (Dynamic Trunking Protocol) - Allows switches to form TRUNK links automatically if two switches are connected between each other and configured accordingly:
     "Auto" mode - "i'll be trunk if you want to". Only receives packets. Trunk will be formed only if other side is "Desirable" mode or Hardcoded TRUNK (switchport mode trunk). 
