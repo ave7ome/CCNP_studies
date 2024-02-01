@@ -1052,7 +1052,7 @@ There are Control plane and Data plane available:
                          UDP header is added. UDP port that is used - udp/4341. Source port is dynamic - that optimized Load Balancing in the environment
                          IP header is added. With tunnel IP addresses for packet to be able to reach the destination (RLOC of remote router).
                          
-In LIPS, each router has it's own Locator = RLOC. And each router has a subset of EIDs (endpoint IDs) which are usually subnets.
+In LISP, each router has it's own Locator = RLOC. And each router has a subset of EIDs (endpoint IDs) which are usually subnets.
 
 There are Map Resolver (MR) and Map Server (MS). Usually these are routers. And usually MR and MS are combined in one device.
 Whenever new EID is added to RLOC, it is reported to Map Server. 
@@ -1470,9 +1470,10 @@ Native VLAN - VLAN that remains untagged on the switch (1 by defaul in Cisco swi
     If 2 switches are interconnected and have different Native VLANs on trunk between them, it's theoretically possible to transfer traffic between two hosts in different VLANs (if subnetting allows that) 
 
 VTP (VLAN trunking protocol) - Allows switches to exchange VLAN DB data between each other. If VLAN is created on some switch, other switch connected to it creates same VLAN automatically
-    Version 1
-    Version 2
-    Version 3
+    Version 1 - VLANs 1-1001
+    Version 2 - VLANs 1-1001
+    Version 3 - VLANs 1-4094, Server switches also have to have role "primary" to be able to change VLANs, can send MST settings
+                Backwards compatible to VTPv2, whenever VTPv2(2S) switches are connected to VTPv3 switch(3S), 3S will send 2 VTP packets (1 for VTPv2 and 1 for VTPv3)
 
 VTP switch roles
     Server - VLANs can be added, deleted or edited. Sends out advertisement upon the related change
