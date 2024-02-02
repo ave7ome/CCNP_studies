@@ -1489,9 +1489,10 @@ VTP messages
     VTP Join Message - request to receive BUM-traffic in each of VLANs (for VTP pruning)
 
 VTP Pruning
-    Have to be manually turned on
-    By default, all VLANs are pruned on the switch if pruning is turned on
+    Have to be manually turned on (only works for Client or Server)
+    By default, all VLANs are pruned on the switch if pruning is turned on - meaning any VLAN can be blocked from distribution on switch if there is no active members of VLAN
     VLAN will be removed from pruning by initiating a VTP Join for each VLAN. VTP Join for VLAN is initiated if there is an UP interface for the VLAN
+    VLAN 1 cannot be pruned
 
 DTP (Dynamic Trunking Protocol) - Allows switches to form TRUNK links automatically if two switches are connected between each other and configured accordingly:
     "Auto" mode - "i'll be trunk if you want to". Only receives packets. Trunk will be formed only if other side is "Desirable" mode or Hardcoded TRUNK (switchport mode trunk). 
