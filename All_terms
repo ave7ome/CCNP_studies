@@ -1473,7 +1473,7 @@ VTP (VLAN trunking protocol) - Allows switches to exchange VLAN DB data between 
     Version 1 - VLANs 1-1001
     Version 2 - VLANs 1-1001
     Version 3 - VLANs 1-4094, Server switches also have to have role "primary" to be able to change VLANs, can send MST settings
-                Backwards compatible to VTPv2, whenever VTPv2(2S) switches are connected to VTPv3 switch(3S), 3S will send 2 VTP packets (1 for VTPv2 and 1 for VTPv3)
+                Backwards compatible to VTPv2 (v2 only), whenever VTPv2(2S) switches are connected to VTPv3 switch(3S), 3S will send 2 VTP packets (1 for VTPv2 and 1 for VTPv3)
 
 VTP switch roles
     Server - VLANs can be added, deleted or edited. Sends out advertisement upon the related change
@@ -1502,13 +1502,32 @@ DTP (Dynamic Trunking Protocol) - Allows switches to form TRUNK links automatica
     DTP is not recommended due to "VLAN HOPPING ATTACK". Trunk should be hardcoded manually.
 
 VTPv3
+    Can be configured to share MST Instances (instances contain managed VLANs)
+    Now Server Switch can be "PRIMARY" - helps to not break VTP with another VTP Server added to network by mistake (with higher revision number)
+    Can now turn VTP completely off
+
 
 #                    EtherChannels (troubleshoot,configure) - basic, LACP, PAgP(ciscoProprietary)
 
 Usual Etherchannel - just turn on the port-channel on both sides
-    When in usual mode, "show etherchannel" won't show that EC is down.
+    Downside is there's no uplink state control and if one of Usual portchannel interfaces is degraded or down (but link up on devices), it won't be detected, LACP/PAgP use hello messages to watch that
 LACP (Link Aggregation Control Protocol) - two modes of EC (passive - enable LACP only if LACP device is detected) (active - enable LACP unconditionally)
-PAgP (Port Aggregation Protocol) - two modes of EC (auto - enable PAgP only if PAgP device is detected) (desirable - Enable PAgP unconditionally)
+PAgP (Port Aggregation Protocol, Cisco proprietary) - two modes of EC (auto - enable PAgP only if PAgP device is detected) (desirable - Enable PAgP unconditionally)
+
+PortChannel is established if packet over all PC links from another device is received with the same "system-id" parameter - that way local device can be sure they're from the same device
+
+(!)How Link Aggregation really works in network devices:
+        Whenever PC (port-channel10) is created (for example with 4 ports aggregated, gi0/0-3), a "virtual Load-balancer" (LB) is created inside device, which groups the interfaces
+        When some packet arrives that should go out of Port-channel10, it'll be redirected to the LB which will redirect it to one of the port-channel10 member
+        To determine which interface of port-channel10 should packet go to, a mathematical HASH function is used - F(x)
+        In F(x), "x" value can be chosen and it means based on what should traffic be load-balanced
+            Can be sIP, dIP, sMAC, dMAC, sPort, dPort and any combination involving any number of specified metrics
+        In the end, hash function calculates the result and has it's value presented in bits. Load-balancing in aggregated link is happening based on last bits in that function, last 2 bits in case of 4 aggregated interfaces, 2^2=4
+        So for 4 interfaces in port-channel10, each of them has LB value, gi0/0 = 00, gi0/1 = 01, gi0/2 = 10, gi0/3 = 11 and like this, whenever hash function result ends with 01, packet will go to gi0/1 and so on
+        ------
+        On link down events, remaining links might change their values if rehashed into something else (00 can become 10, 01 -> 00, 10 -> 01 for example). on Port-UP event, full rehashing will be done again.
+        Consistent hashing allow to keep values, and the value of downed link will return on port-UP event.
+50:50
 
 TSHOOT:
     "show interfaces port-channel" - check port-channel interface (members, speed)
@@ -1522,7 +1541,7 @@ Advanced LACP features:
     "port-channel max-bundle" - Set a maximum links available in PC. If there are 2 IFs in PC, you configure maximum to 1, then one interface will got to "Hot-Standby" mode.
     "show lacp sys-id / lacp system-priority" - Check / Specify LACP priority for the switch. Used if MIN or MAX links are configured. Switch LACP priority allows for device to specify which interface is chosen as an active and which one as HOT-STANDBY.
     "lacp port priority" - Specify PORT priority opposed to whole Switch priority. Also used to manually specify which interface should be turned to Hot-standby
-    CHOICE GOES TO THE LEAST PRIORITY!
+    PRIORITY CHOICE GOES TO THE LEAST PRIORITY!
 
 
 #                    IPv6
