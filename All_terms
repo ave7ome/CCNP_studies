@@ -1500,7 +1500,8 @@ DTP (Dynamic Trunking Protocol) - Allows switches to form TRUNK links automatica
     Hardcoded trunk is a one, that is configured by entering "Switchport mode trunk"
     
     DTP is not recommended due to "VLAN HOPPING ATTACK". Trunk should be hardcoded manually.
-    
+
+VTPv3
 
 #                    EtherChannels (troubleshoot,configure) - basic, LACP, PAgP(ciscoProprietary)
 
