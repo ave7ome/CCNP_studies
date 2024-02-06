@@ -1527,7 +1527,10 @@ PortChannel is established if packet over all PC links from another device is re
         ------
         On link down events, remaining links might change their values if rehashed into something else (00 can become 10, 01 -> 00, 10 -> 01 for example). on Port-UP event, full rehashing will be done again.
         Consistent hashing allow to keep values, and the value of downed link will return on port-UP event.
-50:50
+
+Logic behind building PC:
+    Whenever two switches get interconnected between each other with two interfaces (let's say gi0/0 - gi0/0 and gi0/1 - gi0/1), and LACP configured, both devices send out LACP hello from these interfaces.
+    These LACP hellos contain "system-id" parameter in them. Whenever another switch receives hellos on two interfaces, in checks for "system-id" and if it matches for both hellos, PC is build successfully - that means it is in face single device reachable through two interfaces.
 
 TSHOOT:
     "show interfaces port-channel" - check port-channel interface (members, speed)
@@ -1537,6 +1540,8 @@ TSHOOT:
 
 Advanced LACP features:
     "lacp rate fast" - Enable Fast LACPDUs (Slow ones are transmitted once in 30 seconds, fast ones are once every second). Have to be configured on both sides
+        Better use fast for simple network devices
+        In modular devices, it's better to use slow as for example during ISSU (upgrade without reboot), LACP in fast mode can be broken
     "port-channel min-links" - Set a minimum links at which the port-channel will be a port-channel. If there are 4, minimum is 4 and one link fails - port-channel is destroyed to usual links
     "port-channel max-bundle" - Set a maximum links available in PC. If there are 2 IFs in PC, you configure maximum to 1, then one interface will got to "Hot-Standby" mode.
     "show lacp sys-id / lacp system-priority" - Check / Specify LACP priority for the switch. Used if MIN or MAX links are configured. Switch LACP priority allows for device to specify which interface is chosen as an active and which one as HOT-STANDBY.
