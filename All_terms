@@ -1311,6 +1311,7 @@ BPDU - Bridge Protocol Data Unit. Some of BPDU information that is exchanged bet
 There are 2 types of BPDU:
     Configuration BPDUs - is sent out initially during first negotiation and STP domain establishement
     Notification BPDUs (TCN topology change notification) - is sent out when configuration change (or failure) happens. TCN then is being forwarded up to ROOT, then root sends out the BPDU with confirmed topology change.
+        Upon receival of BPDU with TCN flag set, switches set the MAC-table entries life to 15 seconds and flush every entry that won't be used in that 15 seconds
 
 Elect Root Bridge ID:
     Each switch at the beginning sends out BPDUs saying "I AM ROOT BRIDGE". 
@@ -1386,6 +1387,9 @@ UDLD (UniDirectional Link Detection) - a feature that allows to watch the physic
 
 
 RAPID SPANNING TREE
+Understanding RSTP by cisco
+https://www.cisco.com/c/en/us/support/docs/lan-switching/spanning-tree-protocol/24062-146.html
+
 RSTP (802.1W) - faster, younger, cooler version of STP with some additions comparing to initial protocol.
     RSPT MAIN POINTS:
     Enabled globally "spanning-tree mode rapid-pvst" (on Cisco)
@@ -1393,7 +1397,10 @@ RSTP (802.1W) - faster, younger, cooler version of STP with some additions compa
     If case of Topology Change (TCN), switch that detected the change sends out the topology change BPDU instead of forwarding it to ROOT first
     Usually Max Age timer (when no BPDUs received for that time, link is considered as failed) is 20 seconds but in RSTP the issue is detected if no BPDUs are received for 6 seconds
 
-    !#####!  IN RSTP, BPDUs ARE SENT OUT EVERY *hello_timer* SECONDS AUTOMATICALLY. ROOT BRIDGE DOESN'T HAVE TO TRIGGER EVERYONE BY SENDING BPDU FIRST.
+    !#####!  IN RSTP, BPDUs ARE SENT OUT BY ALL SWITCHES EVERY *hello_timer* SECONDS AUTOMATICALLY. ROOT BRIDGE DOESN'T HAVE TO TRIGGER EVERYONE BY SENDING BPDU FIRST.
+
+RSTP uses Proposal-Aggreement mechanism - switches exchange BPDUs between each other without waiting for Root to "talk".
+    That makes RSTP not linked to STP timers (max age, forward delay etc.)
 
 What remained the same in 802.1w:
     Root ports
@@ -1403,11 +1410,14 @@ What changed:
     Blocked ports now divided into two different roles
         Alternate port (port is blocked but could be ROOT PORT) - it is allowed to transition to forwarding if root port fails. Basically it received 2nd best BPDU
         Backup port (port is blocked but could be DESIGNATED port) - it serves as backup to DESIGNATED port. Not seen often nowadays because it required few ports on one switch to be connected to shared medium (like hub)
+    New "Edge" ports are introduced - switching is enabled immediately there on UP event. Learning state is bypassed.
+        If BPDU is received on Edge port, it transitions to normal RSTP mode.
 
 RSTP Port states:
     (BLK)Discarding (combines Disabled, Blocking and Listening states from original STP) - receives BPDUs on the interface. Doesn't forward user data. Doesn't add MAC-addresses to MAC table
     (LRN)Learning - receives and sends out BPDUs. Adds MAC-address to MAC table for user data traffic but doesn't forward the data
     (FWD)Forwarding - Receives&sends out BPDUs, forwards user traffic
+
 
 
 #                    MST (Multiple Spanning Tree) (802.1S)
