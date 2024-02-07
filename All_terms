@@ -1418,7 +1418,7 @@ RSTP Port states:
     (LRN)Learning - receives and sends out BPDUs. Adds MAC-address to MAC table for user data traffic but doesn't forward the data
     (FWD)Forwarding - Receives&sends out BPDUs, forwards user traffic
 
-
+27:20
 
 #                    MST (Multiple Spanning Tree) (802.1S)
 
