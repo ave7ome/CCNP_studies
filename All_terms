@@ -1366,6 +1366,7 @@ Backbonefast - if switch gets cut out of it's root port (shutdown or failure on 
 Portfast - feature that allows to specify ports connected to single devices and bypass the LIS and LRN states when they come up. Port up/down events will not be considered as topology change (hence no TCN)
     Can be configured on port or globally (if globally, ACCESS interfaces are switched to portfast)
     Can be configured on trunk - "spanning-tree portfast edge trunk"
+    If "portfasted" port receives BPDU, it transitions to normal RSTP port (P2P)
 
 BPDU Filter (usually in combo with Portfast) - a feature that prohibits BPDUs from being sent or received on specified interface.
     Can be configured on port or globally (if globally, feature is applied to interfaces with PORTFAST)
@@ -1378,6 +1379,7 @@ BPDU Guard - a feature that is applied to the interface with PORTFAST configured
     Usually, portfast configured on ports towards the endpoint hence it will not send BPDUs. If by mistake some switch is connected to that port, interface will go down
     Can be configured on port or globally (if globally, feature is applied to interfaces with PORTFAST)
     Enabled on the interface - "spanning-tree bpduguard enable"
+    #err-disabled status won't be removed automatically unless "errdisable recovery" is configured in global config mode.
 
 Loop Guard - a feature that attempts to prevent any loops that could arise by forcing the blocked ports to transition into BROKEN state instead of LIS and LRN after not receiving BPDUs for the duration of Max Age (20 seconds)
     Can be configured on port or globally
@@ -1402,6 +1404,8 @@ RSTP (802.1W) - faster, younger, cooler version of STP with some additions compa
 RSTP uses Proposal-Aggreement mechanism - switches exchange BPDUs between each other without waiting for Root to "talk".
     That makes RSTP not linked to STP timers (max age, forward delay etc.)
 
+Upon receival of Proposal, switch blocks all other interfaces and recalculates the state for them.
+
 What remained the same in 802.1w:
     Root ports
     Designated ports
@@ -1418,7 +1422,6 @@ RSTP Port states:
     (LRN)Learning - receives and sends out BPDUs. Adds MAC-address to MAC table for user data traffic but doesn't forward the data
     (FWD)Forwarding - Receives&sends out BPDUs, forwards user traffic
 
-27:20
 
 #                    MST (Multiple Spanning Tree) (802.1S)
 
