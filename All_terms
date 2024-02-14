@@ -668,6 +668,7 @@ CEF (Cisco Express Forwarding) - Cisco proprietary mechanism for DataUnit switch
     In recent CEF implementations, all the FIB data is collected beforehand from RIB.
 
 FIB - a copy of RIB (network+egress interface+nexthop) + ARP lookup for destination(nexthop) MAC-address. Used for switching decisions in CEF.
+    Basically in Cisco IOS FIB = CEF
 
 Adjacency table - Mostly filled from ARP-table and ARP-requests. An L2 information with MAC-addresses for packet to be reincapsulated into a new frame (with new source and destination MACs) while forwarding.
 Adjacancy types - adjacencies stored in adjacency table have it's own types:
@@ -1737,6 +1738,12 @@ Distance Vector Routing protocols (RIP, EIGRP)
     EIGRP - an Advanced distance vector protocol
         EIGRP can work with just the update from the routers. Not all routes have to be advertised
         EIGRP establishes the neighborships (usually no neighborship in distance vector)
+
+Recursive lookup:
+    Whenever router has a route to 10.0.0.100 with next-hop of 10.0.255.2, it also has to check the route to 10.0.255.2 before sending traffic.
+    If 10.0.255.2 is not directly connected to the interface (or associated to it in other way), router will do another lookup to see the next-hop for 10.0.255.2
+    It'll determine that 10.0.255.2 is reachable with 172.16.3.3 as next-hop and it's directly connected to Gi0/1. Then it'll be able to send
+    Above behaviour calles recursive lookup (because route it being checked recursively)
 
 To determine the best route, routers check:
     1. Route mask (if there's a route to /25, it is always preferred over /24, /23 etc. route)
