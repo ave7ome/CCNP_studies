@@ -1423,10 +1423,11 @@ RSTP Port states:
     (FWD)Forwarding - Receives&sends out BPDUs, forwards user traffic
 
 
-#                    MST (Multiple Spanning Tree) (802.1S)
+#                    MST (Multiple Spanning Tree) (802.1S / 802.1q-2005)
 
-MST allows creation of STP instances and to include VLANs to that instances. That is next level to PVST since PVST creates a new STP instance for each VLAN. If there are many VLANs - huge resource load will be created.
-
+MST allows creation of STP instances and to include VLANs to that instances. That is next level to PVST since PVST creates a new STP instance for each VLAN. If there are many VLANs - huge resource load will be created due to BPDU being sent for each of them.
+MST originated since the Cisco's PVST was functionally not perfect (no real need to have a spanning tree for every VLAN)
+ 
 It can be used for load balancing - Create 2 instances for 2 different paths and use both to forward traffic for half VLANs through one path and other half through another.
 
     MST configuration:
