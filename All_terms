@@ -1526,6 +1526,7 @@ VTPv3
 
 Usual Etherchannel - just turn on the port-channel on both sides
     Downside is there's no uplink state control and if one of Usual portchannel interfaces is degraded or down (but link up on devices), it won't be detected, LACP/PAgP use hello messages to watch that
+    Also in case of misconfiguration (ON on one side and no config on other side), there might be STP issues - port with 2 ports instead of LAG sends BPDU on both and switch with LAG receives two BPDUs instead of one. Like that forwarding loop is formed :-(
 LACP (Link Aggregation Control Protocol) - two modes of EC (passive - enable LACP only if LACP device is detected) (active - enable LACP unconditionally)
 PAgP (Port Aggregation Protocol, Cisco proprietary) - two modes of EC (auto - enable PAgP only if PAgP device is detected) (desirable - Enable PAgP unconditionally)
 
