@@ -1354,7 +1354,9 @@ Timers in 802.1D:
     Forward Delay (def 15 sec) - how long does switch stay in LISTENING and LEARNING states after topology change
     Aging Time (def 300 sec) - how long does dynamically learned MAC-address is kept in the MAC-address table if there is no traffic received from it
         Timer is set to 15sec if topology has been changed (TCN sent/received)
-        
+
+    Timers are set only by Root Bridge in common STP.
+
 STP customization:
 
 Uplinkfast - if switch has more than one port in the direction of root, this feature allows it to transition that port from blocking directly to forwarding state if the active root port stops being operation (admin shutdown or anything else)
@@ -1385,9 +1387,11 @@ BPDU Guard - a feature that is applied to the interface with PORTFAST configured
 Loop Guard - a feature that attempts to prevent any loops that could arise by forcing the blocked ports to transition into BROKEN state instead of LIS and LRN after not receiving BPDUs for the duration of Max Age (20 seconds)
     Can be configured on port or globally
     Enabled on the interface - "spanning-tree guard loop"
+    Introduces new keepalives
+    A lot the same like UDLD (differences can be checked by googling "UDLD versus Loop Guard")
     
 UDLD (UniDirectional Link Detection) - a feature that allows to watch the physical state of links between switches since STP-wise everything can be fine but issues on the physics may break the link with no clear indication of that
-
+    UDLD keepalives allow that - they're being exchanged and break a connectivity if no reply is received
 
 RAPID SPANNING TREE
 Understanding RSTP by cisco
@@ -1547,6 +1551,8 @@ PortChannel is established if packet over all PC links from another device is re
 Logic behind building PC:
     Whenever two switches get interconnected between each other with two interfaces (let's say gi0/0 - gi0/0 and gi0/1 - gi0/1), and LACP configured, both devices send out LACP hello from these interfaces.
     These LACP hellos contain "system-id" parameter in them. Whenever another switch receives hellos on two interfaces, in checks for "system-id" and if it matches for both hellos, PC is build successfully - that means it is in face single device reachable through two interfaces.
+
+Whenever configuring Etherchannel (L2 or L3), order of operation really matters. There might be issues if some commands are issues in wrong order, always check before action
 
 TSHOOT:
     "show interfaces port-channel" - check port-channel interface (members, speed)
