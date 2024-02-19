@@ -686,12 +686,14 @@ CEF works:
     At the same time, Adjacenty table of R1 is populated with the value for 10.0.0.2
     Upon traffic receival on R2, FIB and Adjacency tables are populated for 10.0.0.1
 
-Non-CEF-switched packets:
+Non-CEF-switched packets:  
+    - Packets generated locally by the router
     - ARP Requests
-    - Packets requiring responce from router CPU (received TTL 1 packets - responce is "expired in transit"; fragmetntation packets; any IP options packets)
+    - Packets requiring responce from router CPU (received TTL 1 packets - responce is "expired in transit"; fragmentation packets; any IP options packets)
     - Routing Protocol Traffic
     - CDP packets
     - Packets needing encryptions
+    - Packets that are matched against ACL entry with "logging" setting
 
 https://linkmeup.ru/podcasts/959/ --- CEF, Process Switching deep dive
 
@@ -1758,6 +1760,19 @@ To determine the best route, routers check:
     3. Metric (lower is better)
     #If all 3 things above are identical, router will load-balance traffic to the subnet using ECMP (Equal Cost Multi-Path)
 
+PBR (policy-based routing / source-based routing)
+    PBR can make the traffic to be routed differently based on the sources that send the traffic
+    Pre-routing lookup is introduced
+        Occures before RIB / FIB lookup
+        "If src.IP = x.x.x.x, then set next-hop A.A.A.A"
+
+    Have to create traffic match policy - ACL for example
+    PBR doesn't increase the device load
+
+PBR configuration:
+    1. Define ACL for source IP and destination in PBR
+    2. Create Route-map for ACL matched traffic and set next-hop IP for PBR 
+    3. Apply Route-map to the internal interface (the one in which traffic get into the router) so that external interface would already forward PBR'ed traffic
 
 
 #                    OSPF 
