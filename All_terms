@@ -1760,6 +1760,9 @@ To determine the best route, routers check:
     3. Metric (lower is better)
     #If all 3 things above are identical, router will load-balance traffic to the subnet using ECMP (Equal Cost Multi-Path)
 
+Static route can be fully specified (with the outgoing interface)
+    It is best practice to do so since it's possible that if tracking is configured to float between two static routes using IP SLA, whenever one link goes down (which should lead to 2nd route becoming active), if there is default route, the next-hop will still be reachable over that default gateway, effectively making the floating static route useless.
+
 PBR (policy-based routing / source-based routing)
     PBR can make the traffic to be routed differently based on the sources that send the traffic
     Pre-routing lookup is introduced
@@ -1793,6 +1796,12 @@ Adjacency established if following matches for neighbors:
    +MTU
 ----Link network type DOESN'T have to match to establish the adjacency.
 
+OSPF uses Dijkstra algorithm to calculate the routes
+    All router interconnections are represented as a graph
+    Each graphs edge (edge is an interconnection between graph vertices) is a logic link between routers
+    Each edge has own weight (number)
+    Best path from one vertice to another is the one with lowest summary weight
+
 OSPF Tables
     Neighbor Table - a table of every directly connected router (participating in OSPF) 
     Topology Table - a table of everything that is known to OSPF (known networks, ALL routers in OSPF)
@@ -1807,9 +1816,9 @@ OSPF Packets
                     Used to discover other routers with OSPF. 
                     Multicast packets are local to a link segment, they are non-routable.
     Database Descriptor (DBD) - a packet with summary of LSAs in router's LSDB (Topology table). Usually LSDB contains all LSAs separately, DBD has it summarized
-    Link State Request (LSR) - a request for certain LSAs (unknown to receiving router) after received DBD with summarized LSAs from other router
-                         LSR - basically a request to router that provided DBD (with summarized LSAs) to expand some of LSAs to be able to insert them into the topology
-    Link State Update (LSU) - a reply with LSA requested through LSR
+    Link State Request (LSR)  - a request for certain LSAs (unknown to receiving router) after received DBD with summarized LSAs from other router
+    LSR                       - basically a request to router that provided DBD (with summarized LSAs) to expand some of LSAs to be able to insert them into the topology
+    Link State Update (LSU)   - a reply with LSA requested through LSR
                               OR a global OSPF update with newly discovered subnet
     L.S. Acknowledgement (LSAck) - confirmation packet for neighbor routers to make sure LSU have been received.
 
@@ -1917,6 +1926,9 @@ DR and BDR election metrics:
  (!)There is no Preempt for DR/BDR election in OSPF
 
     DR/BDR Election happens on 2-WAY state of neighborship.
+    Election only happens on BROADCAST link type
+
+ (!)It's a best practice to turn off DR/BDR election on point to point links (the one you're sure about) by moving the network type between them to P2P
 
     Topology of 4 routers. R1, R2, R3 and R4. Each has priority 1. RIDs are 1.1.1.1, 2.2.2.2, 3.3.3.3 and 4.4.4.4. All are disabled.
     1. R1 gets enabled first. Starts to send out Hello packets with own RID, priority, DR and BDR IPs. Since there's yet no DR/BDR, it's 0.0.0.0
@@ -2003,7 +2015,7 @@ OSPF LSA types deep dive:
         In LSA1, Router is identifying itself, it's OSPF attached links and it's costs. There are 4 different options each link can be connected to:
         1. "Point-to-Point to another router". Connection to another OSPF router on a P2P link.
         2. "Transit Network". DR for Multi-Access link with OSPF Neighbors
-        3. "Stub Network". Includes network ID, Masks and cost of directly connected network
+        3. "Stub Network". Includes network ID, Masks and cost of directly connected network (OSPF network cannot be established here=
         (not used or very rare) 4. "Virtual Link". Used to build a virtual connectivity between Area0 ABR and some ABR between two NON-0 areas connected together to form a virtual connectivity making Area 0 think that faraway ABR is actually connected to it.
         
         There can be 6 scenarios:
