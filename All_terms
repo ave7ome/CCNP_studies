@@ -1827,6 +1827,8 @@ OSPF Areas
     Areas in OSPF form a 2-tier hierarchy. 
     That means that there is a central "Area 0" (known as Backbone area).
     And also there can be other areas (number 1 to 2^32). Each non-Backbone area have to be connected to Area 0. And all communication between areas can only happen through Area 0.
+ (!)Summary LSA routes are not installed by non-0 areas if received from non-0 area (LSA3 from area1 won't be accepted directly by area2, but will be accepted if received via area0)
+        That mechanism is called "ABR Loop prevention"
 
     Each area has it's own LSDB (and therefore set of LSAs). That allows to exchange only relevant information between routers from different Areas.
     For example: R1 and R2 are connected to R3 which is connected to R4 and R5. R4 and R5 are interconnected. R4 has a 10.0.133.16/28 subnet on it.
@@ -2001,7 +2003,7 @@ OSPF LSA types (Only LSA5 is shared between areas, other types stay in the area)
         LSA type 4 (ASBR-Summary LSA) - ASBR-Summary LSA is exchanged with all the areas. Sent by ABR when ASBR is in foreign area. LSA4 allows all the routers in all the areas to know where to look for ASBR. ABR send out "to reach ASBR, go to myself".
     LSA type 7 (NSSA external LSA) - originated in NSSA ONLY - instead of LSA5 (LSA4 and LSA5 prohibited in NSSA or Stub Areas). Shared as LSA5 further out of the Area. Each LSA7 is shared for each Prefix received from other routing protocols
   Next are much less used LSAs. 
-    LSA type 6 (Multicast routing LSA) - Not implemented in Cisco. PIM is used for the cause.
+    LSA type 6 (Multicast routing LSA) - Not implemented in Cisco. PIM is used 
     LSA type 8 (External attribute for BGP)
   There also are Opaque LSAs - LSAs that carry non-OSPF information over OSPF domain (usually some attributes from other routing protocols shared via ASBRs)
   Usually Opaque LSAs are used to pass some routing attributes from ASBR in one area to ASBR in another area (since both these ASBRs have some external subnets available, these could be different BPG sessions)
@@ -2032,7 +2034,8 @@ OSPF LSA types deep dive:
         In routing table, routes received by LSA3 are displayed as "O IA" (OSPF Inter-area) 
         LSA3 are used to advertise the prefixes between OSPF areas. Both ways (to Area 0 and away from Area 0).
         Every prefix received from foreign area by area 0 is redistributed further to other areas. Added to LSDB with ABR Router-ID (ABR between area 0 and area which received the prefix)
-        ABR REgenerates an LSA3 from other LSA3's received from other areas.        
+        If the LSA3 received by some area (area 1) directly from another non-0 area (area 2), the ABR will accept it but won't forward further and will not install it into the RIB
+        ABR Regenerates an LSA3 from other LSA3's received from other areas.        
         
     LSA5 (External LSA) usually is originated with the LSA4 (ASBR summary LSA) 
         LSA4 & LSA5 are originated only if there is an ASBR in OSPF topology.
@@ -2053,10 +2056,10 @@ OSPF Network types
     Point-to-Multipoint non-broadcast - point-to-multipoint network with broadcast/multicast traffic prohibited
 
     P2P - Max 2 routers. Full mesh. No DR election. 10/40 timers. Auto neighbor discovery. Discovery, hellos, neighbor communication and LSAs are sent to 224.0.0.5 because there is no other routers and such packets won't reach any other OSPF router. Next-hop for prefixes is a peer
-    Broadcast - inf amount of routers. Full mesh. DR/BDR election. 10/40 timers. Auto neighbor discovery. Discovery and hellos sent to 224.0.0.5. Neighbor communication packets are sent as unicast by each router to every other router. LSAs are sent out to DR/BDR and as multicast further on. Next hop for prefix is originating router.
-    NBMA - inf amount of routers. Full mesh. DR/BDR election. 30/120 timers. Since multicast is prohibited, no neighbor discovery - every communication between routers is configured as unicast. Discovery and hellos sent to Neighbor IP. Neighbor communication packets are sent as unicast by each router to every other router. LSAs are sent out to DR/BDR as unicast and then DR/BDR imitates the multicast traffic - sends out all updates as unicast to every router. Next hop for prefix is originating router.
-    P2Multipeer - inf amount of routers. No full mesh, spokes only connect to hub, hub connects to all spokes. No DR/BDR election since hub is kind of considered as a DR at all times. 30/120 timers. Neighbors discovers automatically using 224.0.0.5. Discovery and hellos sent to 224.0.0.5. Neighbor communication is unicast router-to-router. LSAs are sent as unicast from hub to spokes and from spokes to hub. Next-hop IP for spokes reaching for other spoke subnet is an ip of a Hub.
-    P2Multipeer-NB - inf amount of routers. No full mesh, spokes only connect to hub, hub connects to all spokes. No DR/BDR election since hub is kind of considered as a DR at all times. 30/120 timers. Since multicast is prohibited, no neighbor discovery - every communication between routers is configured as unicast. Discovery and hellos sent to Neighbor IP. Neighbor communication packets are sent as unicast by each router to every other router. LSAs are sent as unicast.  Next-hop IP for spokes reaching for other spoke subnet is an ip of a Hub.
+    Broadcast - any number of routers. Full mesh. DR/BDR election. 10/40 timers. Auto neighbor discovery. Discovery and hellos sent to 224.0.0.5. Neighbor communication packets are sent as unicast by each router to every other router. LSAs are sent out to DR/BDR and as multicast further on. Next hop for prefix is originating router.
+    NBMA - any number of routers. Full mesh. DR/BDR election. 30/120 timers. Since multicast is prohibited, no neighbor discovery - every communication between routers is configured as unicast. Discovery and hellos sent to Neighbor IP. Neighbor communication packets are sent as unicast by each router to every other router. LSAs are sent out to DR/BDR as unicast and then DR/BDR imitates the multicast traffic - sends out all updates as unicast to every router. Next hop for prefix is originating router.
+    P2Multipeer - any number of routers. No full mesh, spokes only connect to hub, hub connects to all spokes. No DR/BDR election since hub is kind of considered as a DR at all times. 30/120 timers. Neighbors discovers automatically using 224.0.0.5. Discovery and hellos sent to 224.0.0.5. Neighbor communication is unicast router-to-router. LSAs are sent as unicast from hub to spokes and from spokes to hub. Next-hop IP for spokes reaching for other spoke subnet is an ip of a Hub.
+    P2Multipeer-NB - any number of routers. No full mesh, spokes only connect to hub, hub connects to all spokes. No DR/BDR election since hub is kind of considered as a DR at all times. 30/120 timers. Since multicast is prohibited, no neighbor discovery - every communication between routers is configured as unicast. Discovery and hellos sent to Neighbor IP. Neighbor communication packets are sent as unicast by each router to every other router. LSAs are sent as unicast.  Next-hop IP for spokes reaching for other spoke subnet is an ip of a Hub.
 
 OSPF Area Types
     There are 5 different area types. Their difference is based on the allowance or disallowance of certain types of LSA. Also some have default route via ABR
@@ -2064,12 +2067,13 @@ OSPF Area Types
         Normal area receives all LSA3 from other areas, all LSA5 as well.
     Stub Area - an area that allows only LSA1, LSA2 and LSA3. It receives all LSA3 from other Areas. Additionally in Stub Area, ABR distributes default route into the Area as an LSA3.
     Totally Stub Area - same as Stub, but LSA3 is prohibited apart from a single 0.0.0.0/0 LSA3 shared from it's ABR. 
-            to configure NSSA - "area * stub" on area's ABR ONLY
+            to configure Stub - "area * stub" on area's ABR ONLY
         Stub config options for ABR:
             "no-summary" (create Totally Stub) - ABR shares a 0/0 route into Stub Area as a LSA3 (other LSA3s are prohibited)
             "no-ext-capability" - opaque LSAs are prohibited
     NSSA (Not So Stubby Area) - NSSA is like a Stub Area but with ASBR which redistributes routes from other routing protocols. LSA1, LSA2 and LSA3 are allowed in an area. LSA4 and LSA5 are prohibited. 
         Routes from different routing protocols are shared within the Area as Type 7 LSAs (LSA7) - these are basically LSA5 but within NSSA. 
+            These prefixes are further shared by ABR to other zones as LSA5 (with ABR being the advertising router instead of ASBR as usual). "Forward address" within that LSA will forward to original ASBR
         Possible issue: Type 5 LSAs from other NSSAs are not shared into the area so external routes from other areas should be reachable by some other means.
         There's a setting "default-information-originate" which allows for ABR to share a default route as LSA7 into the NSSA area
     Totally NSSA - Same as NSSA but type 3 LSAs are also prohibited and ABR shares a single 0.0.0.0/0 LSA3 as a default route. That remediates the possible issue of NSSA.  
@@ -2085,6 +2089,8 @@ OSPF Route codes
     "O IA" - inter-area route (LSA3)
     "O E2/E1" - external route redistributed into OSPF (E2) with default ASBR to external routing protocol default metric, for (E1) metric is different from default and is summarized on the whole way to the external routing Autonomous System
     "O N2/N1" - external route redistributed into OSPF in NSSA Area (N2) with default ASBR to external routing protocol default metric, for (N1) metric is different from default and is summarized on the whole way to the external routing Autonomous System
+
+Route preference goes as (from most preferred to least): O -> O IA -> E1/N1 -> E2/N2 
 
 OSPF Passive interface
     Passive interface Feature is used to prevent OSPF Router from sending Hello packets off a certain interface
@@ -2141,8 +2147,10 @@ OSPF Filtering
         Filter-list - used in conjunction with prefix-list. First of all prefix-list have to be specified with "deny" prefixes for those that should not be shared (don't forget "0.0.0.0/0 le 32")
                       After that, filter-list with created prefix-list should be applied under router ospf either for prefixes not to be shared OUT of specified area or IN to the specified area
                       "area <#> filter-list prefix <prefix-list> <in/out>" (IN is for routes to to not be accepted in area, OUT is for router to not leave the area)
+                      Does not filter transit LSA3's from different zones
         Distribute-list - used to filter the routes from getting into the router's routing table. Route will still be in LSDB, router will know about it but won't input into the routing table.
-                          To do: under router ospf enter "distribute-list <ACL-number/prefix-list/route-map>". Have to specify the ACL or prefix-list or route-map before.
+                          To do: under router ospf enter "distribute-list <ACL-number/prefix-list/route-map> in/out". Have to specify the ACL or prefix-list or route-map before.
+                          Distribute-list OUT doesn't have effect in OSPF
         Also routes distributed by ASBR can be filtered out from being spread in OSPF process.
         That can be done by redistributing the routes on ASBR with the route-map specified.
         First route-map sequence have to be created with some matching clauses and deny action - that will deny matched prefixes from redistribution.
