@@ -2230,7 +2230,6 @@ Adjacency will be established if following matches:
     -K-number values
     -Authentication configuration
     
-
 EIGRP Tables:
     Neighbor Table - Table of available neighbors. "show ip eigrp neighbors" to display on device (+detail to see details like if the neighbor is STUB router)
     Interface Table - 
@@ -2271,7 +2270,7 @@ EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like Me")
     (!)Simple metric formula with just defaults: Metric = 256 * (10,000,000/Least-Bandwidth + Delays_summary/10)  
         (Delays_summary is a value of delays as specified on devices, not in 10th of microseconds)
 
-EIGRP Path Selectionethanalyzer local interface inband capture-filter "host 10.144.200.33" limit-captured-frames 100 write bootflash:test.pcap
+EIGRP Path Selection
     Reported Distance (RD) - a metric shared by the neighbor for it to reach some subnet (metric for neighbor to reach the subnet).
     Feasible Distance (FD) - RD + routers metric to reach the neighbor that shared the RP metric
     Successor - a route to subnet with the lowest FD
@@ -2279,7 +2278,7 @@ EIGRP Path Selectionethanalyzer local interface inband capture-filter "host 10.1
         Some route can become feasible successor only if it's RD is lower than Successor's FD.
 
     Active state - Even though route might not match the criteria to become feasible successor (=route cannot be used in case all successors fail), query "how to reach the subnet" is sent into the network.
-                   So Active state is when query is sent to other routers and an answer is expected.
+                   So Active state is when query is sent to other routers and an answer is pending and doesn't change
         | There were an issue "Stuck in active" (SIA). That's when subnet reachability stops, router sends a query asking if there's another path (in active state at that moment)
         | and it sets timer for 3 minutes for query to come back. If some issues happen on link during that time - there will be no response and it'll bring the link down.
     Now there's SIA-query for such cases. If there's no responce in 90 seconds, router waiting for reply will send an SIA-query asking why there's no answer.
@@ -2312,7 +2311,6 @@ EIGRP for IPv6
     -Neighbors don't have to be on the same subnet
     -Updates are on FF02::A
 
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ VERY POORLY DESCRIBED BY KEVIN WALLACE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CHECK SOME OTHER COURSES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 Named EIGRPv6 - a concept of EIGRP configuration (can be applied both to IPv4 and IPv6 versions) that allows configuring (under different mode) settings for different IP address-families at the same time   
                 Done by creating EIGRP virtual instance ("router eigrp <name>")
                  address-families
@@ -2320,7 +2318,6 @@ My understanding: it is possible to configure EIGRP as a common instance (virtua
                   it's possible to configure settings for all interfaces (default) under that address families, also settings for the whole topology (variance)
                   In virtual instance another variable appears in regards to metric formula - K6 (for speeds more than 10gbit/s)
                   "Named" is because usually EIGRP is created "router eigrp <#>" where <#> is an AS number, and for named it should be created with a certain name instead of AS number.
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ VERY POORLY DESCRIBED BY KEVIN WALLACE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CHECK SOME OTHER COURSES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 EIGRP Authentication
     Plain text authentication - password is configured on routers and with EIGRP updates, the password is sent. It has to match on two routers to establish adjacency. Sent in plain text - UNSECURE
