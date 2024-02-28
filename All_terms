@@ -1,4 +1,4 @@
-All terms and points are covered here in a way I understood it.
+ All terms and points are covered here in a way I understood it.
 ***( - get to know the definition more
  
 https://linkmeup.gitbook.io/sdsm/0.-planirovanie
@@ -2181,7 +2181,7 @@ OSPF Filtering
                       "area <#> filter-list prefix <prefix-list> <in/out>" (IN is for routes to to not be accepted in area, OUT is for router to not leave the area)
                       Does not filter transit LSA3's from different zones
         Distribute-list - used to filter the routes from getting into the router's routing table. Route will still be in LSDB, router will know about it but won't input into the routing table.
-                          To do: under router ospf enter "distribute-list <ACL-number/prefix-list/route-map> in/out". Have to specify the ACL or prefix-list or route-map before.
+                          To do: under router ospf enter "distribute-list <ACL-number/prefix-list/route-map> in/out". Have to specify the  ACL or prefix-list or route-map before.
                           Distribute-list OUT doesn't have effect in OSPF
         Also routes distributed by ASBR can be filtered out from being spread in OSPF process.
         That can be done by redistributing the routes on ASBR with the route-map specified.
@@ -2304,6 +2304,12 @@ EIGRP Summarization
     Automatic is configured under router eigrp <#>: "auto-summary", but it summarizes in the classful boundaries (10.0.1.0 + 10.0.0.0 + 10.0.2.0 + 10.0.3.0 will be summarized into 10.0.0.0/8)
     Manual is configured under interface: "ip summary-address eigrp <#> <summarized-IP> <summary-MASK>"
     In addition to summarization, EIGRP router automatically creates a summarized route (10.0.0.0/8 for the above example) to Null0. That is done to provide additional security and prevent loops.
+    Also in case of prefix failure, Query request is not sent towards the router that previously anounced the summarized route to failed prefix
+
+EIGRP Traffic Engineering capabilites
+    Summarization (summarize to small prefix (/8) on one direction and leave higher subnets on another (/24,/25,/16)
+    Metric manipulation (distribute-list route-map, offset-list, delay/bandwidth)
+    LB through Variance
 
 EIGRP for IPv6
     -Next-hop is neighbor link-local address
