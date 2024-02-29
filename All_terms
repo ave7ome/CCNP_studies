@@ -2317,13 +2317,19 @@ EIGRP for IPv6
     -Neighbors don't have to be on the same subnet
     -Updates are on FF02::A
 
-Named EIGRPv6 - a concept of EIGRP configuration (can be applied both to IPv4 and IPv6 versions) that allows configuring (under different mode) settings for different IP address-families at the same time   
-                Done by creating EIGRP virtual instance ("router eigrp <name>")
-                 address-families
+Named EIGRP - a concept of EIGRP configuration (can be applied both to IPv4 and IPv6 versions) that allows configuring (under different mode) settings for different IP address-families at the same time   
+              Done by creating EIGRP virtual instance ("router eigrp <name>")
+              Multi-address-family mode.
 My understanding: it is possible to configure EIGRP as a common instance (virtual instance) on the router, then distribute the EIGRP processes over address-families (like IPv4 and IPv6).
                   it's possible to configure settings for all interfaces (default) under that address families, also settings for the whole topology (variance)
                   In virtual instance another variable appears in regards to metric formula - K6 (for speeds more than 10gbit/s)
                   "Named" is because usually EIGRP is created "router eigrp <#>" where <#> is an AS number, and for named it should be created with a certain name instead of AS number.
+
+Named EIGRP introduces Wide metric (delay is also measured in picoseconds instead of microseconds). Without wide metric, 10 and 40 gig links will have the same values and ECMP will happen
+Also Named EIGRP support different VRFs, different AS number processes can exist but cannot be deployed in the same routing table under same named process
+    To have few EIGRP ASes under same named process, they have to be configured under different routing tables (e.g. in global (unicast) and in VRF)
+    Can have different ASes if different named EIGRPs are created
+Can upgrade configuration from classic EIGRP to Named EIGRP using "eigrp upgrade-cli" - it is done with graceful EIGRP restart (NSF, non-stop forwarding) which doesn't break data plane (traffic will continue going through with no issues)
 
 EIGRP Authentication
     Plain text authentication - password is configured on routers and with EIGRP updates, the password is sent. It has to match on two routers to establish adjacency. Sent in plain text - UNSECURE
