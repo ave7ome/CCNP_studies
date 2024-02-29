@@ -2210,7 +2210,10 @@ OSPFv3 for IPv6
 ## (Mcast - 224.0.0.10 / FF02::A, TTL=1) 
 ## (IP protocol - 88)
 
-
+EIGRP neighborship required matching parameters:
+    K1, K2, K3, K4, K5, K6 weight values
+    Have to be in same Subnet
+    AS-number
 
 EIGRP - Enhanced Interior Gateway Routing Protocol
     Proprietary but Cisco opened it to other vendors (around 2010). But vendors don't really introduced into their OS.
@@ -2252,6 +2255,7 @@ EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like Me")
     Metric main points in calculation.
         1. Worst BW in the path. For each subnet a neighbor route reports it's worst BW segment that he has on the path (it can include either his own link in the direction of subnet or link of other router on the path to it)
         2. Summary of delays on the path. Each segment between routers on the path to the subnet adds it's own delay value (microseconds)
+        3. Usually Load and Reliability are not used since interface load change over time and that brings EIGRP process to constant recalculation
 
     EIGRP metric formula = ( (K1*Bmin + (K2*Bmin)/(256-L) + K3*D) * K5/(K4+R) ) * 256              //   If K5 = 0, then K5/(K4+R) = 1 (THAT IS AN EXCEPTION)
                             Bmin = (10^7)/Least-Bandwidth
