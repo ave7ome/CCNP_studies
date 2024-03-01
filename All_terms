@@ -1808,8 +1808,6 @@ To boost Failure_Detection_time, ALWAYS use either physical interface or SUB-int
         If it'll be received again, there is a delay because medium can be lost again shortly. Or can flap every 10msec. Like that, medium has to be healthy for at least 100msec before interface can go UP
 
 
-
-
 #                    OSPF 
 ## (AD - 110)  
 ## (Mcast - 224.0.0.5 / FF02::5) 
@@ -2243,7 +2241,7 @@ EIGRP Timers (DON'T HAVE TO MATCH FOR ADJACENCY TO BE ESTABLISHED)
     Hold (dead) timer - 15 seconds (default). Example: R1 send Hellos to R2. Hold timer is information advertised by R1 to R2 about how long should R2 wait for Hellos from R1 before considering it unavailable.
     #timers can be changed on the interface basis - "ip hello-interval eigrp <AS#>" and "ip hold-interval eigrp <AS#>"
 
-EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like Me")
+EIGRP Classic Metric (Mnemonic to remember - "Big Dogs Really Like Me")
     (default)  Bandwidth.
     (default)  Delay.
     (optional) Reliability.
@@ -2258,7 +2256,7 @@ EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like Me")
         3. Usually Load and Reliability are not used since interface load change over time and that brings EIGRP process to constant recalculation
 
     EIGRP metric formula = ( (K1*Bmin + (K2*Bmin)/(256-L) + K3*D) * K5/(K4+R) ) * 256              //   If K5 = 0, then K5/(K4+R) = 1 (THAT IS AN EXCEPTION)
-                            Bmin = (10^7)/Least-Bandwidth
+                            Bmin = (10^7)*256 / Least-BW
                                 Least-Bandwidth - the lowest BW link on the path to the desired subnet. Each router on the path reports it's available BW to the subnet and the lowest becomes "Least-Bandwidth"
                             Delay (D) is in 10th of microseconds. Can be checked by "show interface" - it's specified in usc there. Divide this value by 10 and it'll be 10th of microseconds.
                                 Delay is summed up for each link (router hop) on the path to the subnet. 
@@ -2273,6 +2271,21 @@ EIGRP Metric (Mnemonic to remember - "Big Dogs Really Like Me")
 
     (!)Simple metric formula with just defaults: Metric = 256 * (10,000,000/Least-Bandwidth + Delays_summary/10)  
         (Delays_summary is a value of delays as specified on devices, not in 10th of microseconds)
+
+EIGRP Wide metric is introduced with named EIGRP mode (info on named mode below) to address the growing BW of uplinks
+    Automatically enabled upon configuring Named EIGRP mode
+
+    With wide metric there are changes:
+        Bmin = (10^7)*65536 / Least-BW
+        Delay = Delay(in picoseconds) * 65536 / 10^6
+    In wide metrics, BW is now Throughput
+                  Delay is now Latency
+    Wide metric formula = ( (K1*Bmin + (K2*Bmin)/(256-L) + K3*Delay) * K5/(K4+R) ) * 256
+    By default it's: K1*Bmin + K3*Delay
+
+    Sometimes Wide metric can be too high value so that it would not be able to fit into the RIB metric field
+        For that, RIB_SCALE parameter is introduced (=128 by default.
+        Whenevern Metric is calculated, it's getting divided by RIB_SCALE value to lower it, only after that, metric is installed into RIB
 
 EIGRP Path Selection
     Reported Distance (RD) - a metric shared by the neighbor for it to reach some subnet (metric for neighbor to reach the subnet).
