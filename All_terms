@@ -2205,13 +2205,14 @@ OSPFv3 for IPv6
 
 #                    EIGRP 
 ## (iEIGRP AD - 90, eEIGRP AD - 170) 
-## (Mcast - 224.0.0.10 / FF02::A, TTL=1) 
+## (Mcast - 224.0.0.10 / FF02::A, TTL=1) - After Neighborship establishment, communication is over unicast IPs
 ## (IP protocol - 88)
 
-EIGRP neighborship required matching parameters:
-    K1, K2, K3, K4, K5, K6 weight values
-    Have to be in same Subnet
-    AS-number
+Adjacency will be established if following matches:
+    K1, K2, K3, K4, K5, K6 weight values;
+    Have to be in same Subnet;
+    AS-number;
+    Authentication configuration.
 
 EIGRP - Enhanced Interior Gateway Routing Protocol
     Proprietary but Cisco opened it to other vendors (around 2010). But vendors don't really introduced into their OS.
@@ -2225,16 +2226,11 @@ Features:
 -Dynamic Neighbor discovery
 -RTP (reliable transport protocol) to confirm the advertisement have been received. All the updates are confirmed to originating router.
 -DUAL (Diffusing update algorithm) - analogue to Dijkstra algorithm in OSPF. Used by EIGRP to make the routing decision
-
-Adjacency will be established if following matches:
-    -AS number
-    -K-number values
-    -Authentication configuration
     
 EIGRP Tables:
-    Neighbor Table - Table of available neighbors. "show ip eigrp neighbors" to display on device (+detail to see details like if the neighbor is STUB router)
-    Interface Table - 
-    Topology Table - 
+    Neighbor Table - A table of available neighbors. "show ip eigrp neighbors" to display on device (+detail to see details like if the neighbor is STUB router)
+    Interface Table - A table of all interfaces in the EIGRP processes (added through "network" command) 
+    Topology Table - A table that cosists of all routes received by EIGRP process from the neighbors
 
 EIGRP Timers (DON'T HAVE TO MATCH FOR ADJACENCY TO BE ESTABLISHED)
     Hello interval - 5 seconds (default). How often Hello packets are sent out.
@@ -2296,6 +2292,7 @@ EIGRP Path Selection
 
     Active state - Even though route might not match the criteria to become feasible successor (=route cannot be used in case all successors fail), query "how to reach the subnet" is sent into the network.
                    So Active state is when query is sent to other routers and an answer is pending and doesn't change
+                   Query is not sent if there is a feasible successor for the route
         | There were an issue "Stuck in active" (SIA). That's when subnet reachability stops, router sends a query asking if there's another path (in active state at that moment)
         | and it sets timer for 3 minutes for query to come back. If some issues happen on link during that time - there will be no response and it'll bring the link down.
     Now there's SIA-query for such cases. If there's no responce in 90 seconds, router waiting for reply will send an SIA-query asking why there's no answer.
