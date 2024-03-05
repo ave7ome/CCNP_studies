@@ -95,7 +95,7 @@ GLBP (Gateway Load Balance Protocol) - Load balancing mechanism (Cisco proprieta
     VMAC = 0007.B40x.xxyy (x.xx is a Group ID, limited by 1024 different ones, since first "x" is 4 bits; yy is an AVF identifier which is "01-04", can be checkes by show glbp commands)
     MulticastIP = 224.0.0.102 (like HSRPv2)
     
-SSO - mechanism that allows second CPU to take over the traffic and processing from other CPU in case of it's failure
+SSO (stateful switchover) - mechanism that allows second CPU to take over the traffic and processing from other CPU in case of it's failure
     Can be used if device has two Route processes (control planes) and one is going down
 NSF - Nonstop Forwarding. Allows data plane to send out packets to a neighbor even if it goes down control plane - wise.
     NSF feature must be configured on both devices to be operable
@@ -380,20 +380,20 @@ Campus Fabric is:
     Location Identifier Separation Protocol (LISP)
     CTS (ISE basically) - Cisco TrustSec
 
-DNA Center is a physical appliance only(!)
+DNA Center is a physical appliance only -- /Available as Virtual appliance as well since Aug 2023
 
 SDA doesn't operate in subnets. If a new EP comes online, nobody knows a destination to it at first.
 
 Cisco SD-Access layers:
     Physical (equipment)
         Control plane node (LISP) - a device responsible for storing the data of mappings (mappings DB) of each device (hosts, switches) in the network to other devices
-        Fabric border device - Core
-        Fabric intermediate device - Distribution
+        Fabric border device - "Core" (can be the same as CP node)
+        Fabric intermediate device - Distribution (underlay devices, can be vendor equipment)
         Fabric edge device - Access
-        Fabric WLC
+        Fabric WLC (+APs)
     Network (logic and physics of the network)
         VXLAN - Data plane. Builds direct tunnels but don't have information of where to direct traffic to.
-            (!)Additional 50 Bytes are used for the encapsulation. MTU of underlay should be increased by that number
+            (!)Additional 50 Bytes are used for the encapsulation. MTU of underlay should be decreased by that number
             Usual Packet: [eth|IP|data]
             VXLAN Packet: [eth|IP|VNID|above_packet_as_data]
             VXLAN-GPO is introduced by Cisco to serve it's purpose on the Policy plane. It includes SGTs (Scalable group tag) to manage the policies received by hosts
@@ -442,7 +442,7 @@ SDA EP onboarding
     EID in SDA is the IP-address of Endpoint connected to fabric.
     Whenever device is connected to network, it get's tagged with EID and switch A send out a registration message to control plane node (CPN).
     After that CPN know about that node and whenever some other switch (B,C) wants to send traffic to that EID, it forwards it to required switch A.
-    If switch B or C already sent traffic to that EID, info about direction is stored in their DB so they know the RLOC to which they should send that traffic further on (expired if no data is sent in 24H)
+    If switch B or C already sent traffic to that EID, info about direction is cached in their DB so they know the RLOC to which they should send that traffic further on (expired if no data is sent in 24H)
     In wireless, another VXLAN tunnel is formed with AP and it's data traffic is sent through that tunnel instead of CAPwAP tunnel (as usual)
 Client ROAM
     If client roams (moves frow Switch A to Switch B):
