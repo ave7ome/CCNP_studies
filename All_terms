@@ -2312,18 +2312,35 @@ EIGRP Load Balancing
         Successors metric (FD) is multiplied by variance number and FD of other routes that will be within the range of multiplication result, will be used to load balance the traffic.
         For example there are two routes to subnet X.X.X.X, one with FD:5000, another with FD:9000. If variance of 2 is configured, 5000*2=10000, the route with FD:9000 will be used to LB the traffic.
         Load balancing will be proportional, since first route is better, it'll receive more traffic.
-    
+
 EIGRP Summarization
-    There are Manual and Automatic summarization.
+    There are Manual and Automatic summarization (automatic is disabled by default)
+    Lowest metric among all summarized prefixes is used for summarized subnets - issue is that metric can change if that best prefix is changed
+        To prevent, can use the command "summary-metric <IP-subnet> <bandwidth> <delay>" to statically define the metric for summarized route
     Automatic is configured under router eigrp <#>: "auto-summary", but it summarizes in the classful boundaries (10.0.1.0 + 10.0.0.0 + 10.0.2.0 + 10.0.3.0 will be summarized into 10.0.0.0/8)
     Manual is configured under interface: "ip summary-address eigrp <#> <summarized-IP> <summary-MASK>"
+    Upon the summarization, all longer prefixes are suppressed and only summarized is left
     In addition to summarization, EIGRP router automatically creates a summarized route (10.0.0.0/8 for the above example) to Null0. That is done to provide additional security and prevent loops.
     Also in case of prefix failure, Query request is not sent towards the router that previously anounced the summarized route to failed prefix
+        That happens so that when the route to some certain prefix (like 1.2.3.0/24) is lost, QUERY is sent for that exact match
+        And next-hop router upon receival of QUERY, checks EIGRP process, sees summarized 10.0.0.0/8 subnet, and sends back the REPLY immediately (that limits the query domain)
+
+EIGRP QUERY
+    Whenever some links between EIGRP neighbors go down, or when link to subnet of one of the neighbors go down, router that lost the link generated a QUERY (QUERY not generated if there is a feasible successor for prefix)
+    QUERY is generated for EVERY lost prefix. It is used to ask all other routers in EIGRP domain to provide their information about the prefix to understand how it can be now reached
+    To erduce QUERY domain, it's recommended to summarize the prefixes
+        If there is a routers neighborship and one of routers advertise summarized 0.0.0.0/0 to another, when there is a QUERY received from 0/0 sharing router to the neighbor, router can't send reply with new route to that QUERY'd destination since it's beth path is 0/0 and if it's installed there is no better path anyways (because /0 is SHORTEST match prefix)
 
 EIGRP Traffic Engineering capabilites
     Summarization (summarize to small prefix (/8) on one direction and leave higher subnets on another (/24,/25,/16)
+        Can configure LEAK-MAPS with summarization to prefer certain prefixes over chosen connection (summary to share 0/0, and leaked prefix with longer match --- longer match will be chosen over the summary)
+        Alternatively if the same prefix is reachable over two different links, can summarize to lower subnet mask (if /24 is advertised, can summarize to /23)
+        Like that, /24 will be suppressed over that link and /23 will only be shared, that'll make /24 over ANOTHER link more preferrable as it's a longer match
     Metric manipulation (distribute-list route-map, offset-list, delay/bandwidth)
     LB through Variance
+
+    Can configure sharing of default-route from EIGRP router but also for it to share all it's prefixes (without supressing them)
+        To do that, summarization have to be configured (to 0.0.0.0/0) with the LEAK-MAP that is configured to permit any (in the prefix-list that belong to route-map)
 
 EIGRP for IPv6
     -Next-hop is neighbor link-local address
