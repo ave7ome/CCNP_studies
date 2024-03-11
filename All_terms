@@ -401,6 +401,7 @@ Cisco SD-Access layers:
             Each network device (switch or router) has an RLOC (Router LOCation) which identifies it in a network (usually it is a LOOPBACK address). 
             Each endpoint has a EID (Endpoint ID) and is bound to current RLOC (EID-RLOC mapping on CPN)
             Whenever traffic has to be sent from an endpoint to another enpoint, switch requests the direction from Mapping server (control plane node) and then just directs traffic as necessary
+            LISP in SDAccess makes it so ITR sends Map-Request to MS and MS will reply back to ITR with info on EID-RLOC which will be then used and cached by the ITR
         CTS (cisco trustsec) - Policy plane. Used to enforce existing policies to ongoing traffic.
             Microsegmentation (two hosts on same network shouln't talk to each other). SGs (scalable groups) used for that.
             Macrosegmentation (two hosts on same switch, diffrent network shoulnd not have any possibility to access each other. VNs (virtual networks) are used for that. Each host is in it's own VN.
