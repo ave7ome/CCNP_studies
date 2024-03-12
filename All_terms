@@ -992,7 +992,12 @@ DMVPN has 3 phases in terms of forming a Spoke-to-Spoke tunnel. Before any of Ph
 Phases define how Hub help Spokes to establish a tunnel to another Spoke.
     P1: Spoke-to-Spoke tunnels established as point-to-point tunnels
     P2: When Spokes want to form a tunnel with another Spoke, Hub does an IP resolution for them
+        IP resolution means that spokes will first contact the hub to ask about the translation of publicIP to privateIP of spokes and after that will route traffic over tunnel to internal subnets of other spokes
     P3: When Spokes want to form a tunnel with another Spoke, Hub does an NHRP redirection 
+        NHRP redirection happens for the first packet sent to other spoke's subnet, then the [250/1] NHRP route is added on source spoke and the traffic will go directly to other spoke through the tunnel from now on
+        It will eventually be cached out, but it still allows for low-end devices to serve as spokes in any scale DMVPN networks (only default GW is always in RIB, other routes come and go)
+
+    Nowadays, you want to run P3 because P2 doesn't support summatization (P3 does)
 
 Spoke-to-Spoke tunnels are on demand for DMVPN Phases 2 and 3. Tunnels are MUST in case of DMVPN Phase 1.
     Meaning IPSec SAs are established on demand for P2 and P3. Are MUST for P1.
@@ -1019,6 +1024,13 @@ NHRP configuration:
         Must also have an authentication password configured which match on nodes
         "tunnel key #" which have to also match between DMVPN nodes
         "tunnel mode gre multipoint" (that makes configuration either a P2 or P3)
+
+DMVPN Routing
+    Usually, EIGRP is used in DMVPN operations for low-medium scale deployment.
+        You want to disable Split-Horizon for the tunnel interface to spokes (also maybe run "no next-hop-self" to make traffic go directly spoke to spoke)
+    OSPF is not a good fit for DMVPN because of it's hierarchy - all areas have to be connected to Area 0.
+        SPF recalculation will occur whenever some route is lost or changed
+    BGP is used for high-scale deployments.
 
 
 #                    LISP (as an independent protocol)
