@@ -2311,11 +2311,15 @@ EIGRP Path Selection
     Now there's SIA-query for such cases. If there's no responce in 90 seconds, router waiting for reply will send an SIA-query asking why there's no answer.
     If it's all good, they'll receive SIA-reply and will not bring link down.
 
-EIGRP Stub routing
+EIGRP Stub routing (used to reduce QUERY domain)
     Stub router - router which won't be used for queries about reaching the network if other routers lose the connectivity to some subnet.
                   Stub router is the one that has just a single router it connects to and no routers are connected further ahead.
                   Stub router doesn't distribute any routes to it's neighbors by default, that's why some options should be configured as well.
                   Command is under router eigrp <#>: "eigrp stub <options>" (options being "connected", "summary", "static" - depending on what should be advertised. Usually - connected)
+
+    If Stub router is also have to serve as a transit router for some devices, some additional configuration is required
+        One option: configure summary default 0/0 to branch part of network (few routes) and configure route-leaking to the hub (headquarter) side which hosts a lot of other routes
+        
 
 EIGRP Load Balancing
     By default, there's only 1 route to destination and EIGRP chooses the best one.
