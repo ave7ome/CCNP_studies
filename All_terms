@@ -1829,7 +1829,7 @@ To boost Failure_Detection_time, ALWAYS use either physical interface or SUB-int
 
 Practical OSPF series (https://www.youtube.com/playlist?list=PLIFyRwBY_4bSkwy0-im5ERL-_CeBxEdx3)
 
-Adjacency established if following matches for neighbors:
+ADJACENCY is established if following matches for neighbors:
    +Hello timer
    +Dead timer
    +Area ID
@@ -1838,6 +1838,9 @@ Adjacency established if following matches for neighbors:
    +Subnet on the link
    +MTU
 ----Link network type DOESN'T have to match to establish the adjacency.
+
+    There's a difference between NEIGHBORSHIP and ADJACENCY - ADJACENCY state is FULL, NEIGHBORSHIP state is 2-WAY.
+    DR/BDR are ADJACENCY, DROTHER is NEIGHBORSHIP
 
 OSPF uses Dijkstra algorithm to calculate the routes
     All router interconnections are represented as a graph
@@ -1865,6 +1868,8 @@ OSPF Packets
                               OR a global OSPF update with newly discovered subnet
     L.S. Acknowledgement (LSAck) - confirmation packet for neighbor routers to make sure LSU have been received.
 
+    LSA is updated every 30 minutes (new LSA with newer sequence number but with no changes - no need to recalculate the tree)
+    LSAs older than 60 minutes (MaxAge) are withdrawn.
 
 OSPF Areas
     Areas in OSPF form a 2-tier hierarchy. 
