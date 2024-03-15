@@ -1029,7 +1029,8 @@ DMVPN Routing
     Usually, EIGRP is used in DMVPN operations for low-medium scale deployment.
         You want to disable Split-Horizon for the tunnel interface to spokes (also maybe run "no next-hop-self" to make traffic go directly spoke to spoke)
     OSPF is not a good fit for DMVPN because of it's hierarchy - all areas have to be connected to Area 0.
-        SPF recalculation will occur whenever some route is lost or changed
+        Also, in DMVPN, there's a single tunnel interface to spokes, it has to be in a single Area (let's say area 1). All spokes have to be in that area 1 as well
+        Because of that, SPF recalculation will occur for all spokes whenever some route is lost or changed. Not optimal
     BGP is used for high-scale deployments.
 
 
@@ -1973,7 +1974,7 @@ DR and BDR election metrics:
     3. Highest IP-address on Interface
 
     In topology of any number of routers, each with same priority, DR/BDR election depends exclusively on which router is enabled first. It can be the one with RouterID 1.1.1.1 and it still will be the DR. Whenever any other router (RouterID 2.2.2.2 for example) gets up, it'll see that R1 is DR and won't be able to do anything apart from becoming BDR.
- (!)There is no Preempt for DR/BDR election in OSPF
+ (!)There is no Preempt for DR/BDR election in OSPF - If router is chosen as DR, it's required to reload the process to change it
 
     DR/BDR Election happens on 2-WAY state of neighborship.
     Election only happens on BROADCAST link type
@@ -2136,9 +2137,10 @@ OSPF Route codes
     "O" - intra-area route (LSA1,LSA2)
     "O IA" - inter-area route (LSA3)
     "O E2/E1" - external route redistributed into OSPF (E2) with default ASBR to external routing protocol default metric, for (E1) metric is different from default and is summarized on the whole way to the external routing Autonomous System
+        E2 displays static metric on ASBR to reach the destination (20) but it doesn't neccesary reflect the real metric to the prefix, real metric still includes values from router to ASBR (if same area), or metric from router to ABR and then from ABR to ASBR (if different area)
     "O N2/N1" - external route redistributed into OSPF in NSSA Area (N2) with default ASBR to external routing protocol default metric, for (N1) metric is different from default and is summarized on the whole way to the external routing Autonomous System
 
-Route preference goes as (from most preferred to least): O -> O IA -> E1/N1 -> E2/N2 
+Route preference goes as (from most preferred to least): O -> O IA -> Intra-area E1/N1 -> Inter-area E1/N1 -> Intra-area E2/N2 -> Inter-area E2/N2
 
 OSPF Passive interface
     Passive interface Feature is used to prevent OSPF Router from sending Hello packets off a certain interface
