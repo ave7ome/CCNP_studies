@@ -2420,7 +2420,7 @@ BGP Mnemonics:
         Local Preference (higher is better)
              Originated locally
                      AS-path (shorter is better)
-                        Origin type ( IGP < EGP < Incomplete )
+                         Origin type ( IGP < EGP < Incomplete )
                                 MED (lower is better)
                                      Paths (external>internal)
                                            Router-ID (lower is better)
@@ -2429,6 +2429,8 @@ BGP basics
     BGP runs whole internet on it's shoulders
     Organizations are divided into AS (Autonomous System)
     Generally used to load-balance or filter updates/prefixes from ISPs
+    Loop-prevention mechanism: router inspects every received router's AS-PATH to check if there is it's AS in it. If there is - prefix won't get installed to prevent loops (will get dropped)
+ (?)BGP doesn't ever receive new route updates automatically. Have to trigger "clear ip bgp <options>" to receive updates
 
 AS - "a network in a network of networks". An entity managed by one organization that is represented by some number of publicly available external subnets.
 BGP itself is the only available protocol that allows organization to publish their servers (in internal subnets) externally. 
@@ -2447,13 +2449,15 @@ BGP Characteristics
     - Advertises a collection of Path Attributes used for path selection
     - Path-Vector routing protocol
 
-BGP confederation & BGP Route-Reflector
-    Example: there's iBGP of 5 routers. By default (by iBGP design), there must be a full-mesh connectivity between them.
-    And since it is a MUST, there's always an assumption that there actually is.
-    Therefore routers doesn't share the information received from neighbors by default.
-    But if there's more and more routers - number of required adjacencies will be unreasonable.
+iBGP
+    In iBGP, routers don't share prefixes received from iBGP neighbor (iBGP split-horizon)
+    Therefore, for prefixes to be shared, there must be a full-mesh connectivity between all routers in iBGP domain (AS)
+    But if there are more and more routers in topology - number of required adjacencies will become unreasonable (BGP confederations or Route-reflectors are used to resolve the issue)
+    
+    Prefixes not being shared is a loop-prevention mechanism:
+        In iBGP, shared prefixes have "AS-PATH" attribute unchanged (always empty) therefore general loop-prevention (don't install prefix with my AS in it) won't work
 
-    To address the above issue, there are some features available:
+To address the above issues, there are some features available:
  (!)BGP confederation - a subset of ASes within one single AS. That way 3 routers from example can be in one sub-AS interconnected in full mesh (3 adjacencies), and other 2 routers in another sub-AS (1 adjacency there + 1 between sub-ASes)
                         that would basically be a set of eBGPs within an iBGP
  (!)Route-Reflector - a BGP router configuration allowing device to share the updates and prefixes (NLRI) received from other router. (works kind of as a DR in OSPF)
@@ -2533,7 +2537,19 @@ BGP best path algorithm
     10. Router-ID (lower RID wins) 
     11. Lower Cluster list length
     12. Lower next-hop address
-    
+
+BGP prefix propagation
+    Command "network <prefix> <mask>" - looks up RIB for an exact match, won't install the prefix into BGP if there is no exact match
+    Redistribution - will install prefixes as set in the command
+
+BGP ORF
+    A feature to request for prefixes from neighbor that match the prefix-list (neighbor will filter itself and send) 
+
+BGP Local preference
+    A value added to received prefix and propagated further with updated value
+    ONLY ADVERTISED FURTHER WITH NEW LOCAL PREFERENCE WITHIN iBGP
+    in eBGP Local Preference is not advertised!!!
+
 BGP Synchronization
     Old feature (from early 1990-s) that allowed BGP router to advertise a prefix from itself to a eBGP neighbor ONLY if the initial router had the subnet in it's routing table received through some IGP (EIGRP, OSPF etc.)
     Example: There are two AS - 65100 and 65200.
@@ -2557,8 +2573,10 @@ BGP Peer-group
 
 eBGP vs. iBGP (differences)
     - sending a prefix in eBGP changes "next-hop" attribute for the prefix to the IP of router that shared the information about prefix last. 
-            in iBGP - "next-hop" is the one initially received within the AS (if received by AS Edge device, the route is to outside of AS). Can be fixed by "neighbor <neigh_IP> next-hop-self" command on AS edge router
-    - in addition to above point - iBGP router doesn't change ANY attribute of received prefix
+            in iBGP - "next-hop" is the one initially received within the AS (if received by AS Edge device, the route is to outside of AS). 
+            Can be changed by "neighbor <neigh_IP> next-hop-self" command on AS edge router
+            Also can still be used as is just to share prefixes in BGP for traffic to successfully go within network
+ (!)- iBGP router doesn't change ANY attribute of received prefix
     - iBGP peers doesn't share prefixes received from BGP ("i" or "e") neighbors (route reflectors / BGP confederations help with that)
 
 BGP IPv6
