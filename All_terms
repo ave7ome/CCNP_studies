@@ -2458,7 +2458,7 @@ iBGP
         In iBGP, shared prefixes have "AS-PATH" attribute unchanged (always empty) therefore general loop-prevention (don't install prefix with my AS in it) won't work
 
 To address the above issues, there are some features available:
- (!)BGP confederation - a subset of ASes within one single AS. That way 3 routers from example can be in one sub-AS interconnected in full mesh (3 adjacencies), and other 2 routers in another sub-AS (1 adjacency there + 1 between sub-ASes)
+ (!)BGP confederation - a subset of ASes within one single AS. That way 3 routers from example (5-rputer topology) can be in one sub-AS interconnected in full mesh (3 adjacencies), and other 2 routers in another sub-AS (1 adjacency there + 1 between sub-ASes)
                         that would basically be a set of eBGPs within an iBGP
  (!)Route-Reflector - a BGP router configuration allowing device to share the updates and prefixes (NLRI) received from other router. (works kind of as a DR in OSPF)
                       to configure router as an RR (route-reflector) - under "router bgp <#>", configure "neighbor <neigh_IP> route-reflector-client" on all routers that need to participate in iBGP route sharing
