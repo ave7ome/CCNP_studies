@@ -2579,6 +2579,14 @@ eBGP vs. iBGP (differences)
  (!)- iBGP router doesn't change ANY attribute of received prefix
     - iBGP peers doesn't share prefixes received from BGP ("i" or "e") neighbors (route reflectors / BGP confederations help with that)
 
+BGP Multipath
+    Normally, BGP supports only one single best path to each prefix, but it's possible to configure ECMP analogue for BGP called MULTIPATHING
+    For that Prefix have to be received with the same AS-Path (can be configured to same number of ASes in AS-path with "bestpath as-path multipath-relax")
+    Then configured as "maximum-paths <options>"
+    Other attributes that have to match:
+        Weight, LocalPref, Origin, MED, IGP metric. 
+        Next-hop HAVE to be different
+
 BGP IPv6
     configured by utilizing address-families (MP-BGP)
     before configuring, route-map has to be created that's going to advertise egress IPv6 address as a next-hop:
