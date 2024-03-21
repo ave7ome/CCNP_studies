@@ -2562,6 +2562,10 @@ BGP Synchronization
 BGP Summarization
     Summarized == Aggregated (in BGP)
     to summarize subnet in BGP - under "router BGP <#>", "aggregate-address <subnet_aggregated> <subnet_mask> <OPTIONS>" (OPTIONS can be "summary-only" for example, which makes router to ONLY advertise the aggregated address)
+    Such summarization will remove AS-Path value from the aggregated prefix - loop prevention mechanism gets lost. 
+    Can get AS-Path back with "as-set" option of aggregation - but it will insert all ASes that are included in the specific prefixes within the aggregate into the advertised AS-Path for the aggregate
+        But still, prefixes SHOULD ALWAYS BE aggregated in the AS of prefix origination
+    it's possible to filter out more specific routes that are included in summarized prefix
 
 BGP Multihop
     in BGP it is possible to form a neighborship with non-adjacent router, with the router that is located behind the adjacent one, for example
@@ -2598,6 +2602,8 @@ BGP IPv6
     after that, neighbor have to be activated under "address-family ipv6" and route-map specified to set the next-hop to ipv6 address
 
     To verify BGP IPv6 config: "show bgp ipv6 unicast" and "show bgp ipv6 unicast summary"
+
+part 3 50:00
 
 #                Wireless
 Wireless design is on Line 104 in this document
