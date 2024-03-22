@@ -990,7 +990,7 @@ DMVPN key components:
 
 DMVPN has 3 phases in terms of forming a Spoke-to-Spoke tunnel. Before any of Phases being active, tunnel from Spokes to Hub is a MUST (have to be established).
 Phases define how Hub help Spokes to establish a tunnel to another Spoke.
-    P1: Spoke-to-Spoke tunnels established as point-to-point tunnels
+    P1: Spoke-to-Spoke tunnels established as point-to-point tunnels through the Hub and all the routes between spokes are directed through the Hub
     P2: When Spokes want to form a tunnel with another Spoke, Hub does an IP resolution for them
         IP resolution means that spokes will first contact the hub to ask about the translation of publicIP to privateIP of spokes and after that will route traffic over tunnel to internal subnets of other spokes
     P3: When Spokes want to form a tunnel with another Spoke, Hub does an NHRP redirection 
@@ -1968,18 +1968,32 @@ R1(FULL)         --- R2(LOADING)
 R1(FULL)         --- R2(FULL)
 ________________________________________________OSPF ROUTER STATES
 
+In Multi-access connectivites (through an L2 switch for example), also broadcast environments, it can be more than 2 OSPF nodes on a single link.
+In that case, Designated Router and Backup Designated Router have to be chosen.
+
+In short, DR is a point of contact in such networks, every router in order to reach some prefix, does an OSPF LSDB lookup for LSA2 to understand how to reach the DR
+    At the same time, DR has a direct connectivity to all other OSPF nodes on it's link. Therefore every node is reachable for every other node through a DR.
+
 DR and BDR election metrics:
     1. Highest Priority number (can be set manually 0-255). If priority is 0 - interface will ALWAYS be DROTHER
     2. Highest Router-ID
     3. Highest IP-address on Interface
 
     In topology of any number of routers, each with same priority, DR/BDR election depends exclusively on which router is enabled first. It can be the one with RouterID 1.1.1.1 and it still will be the DR. Whenever any other router (RouterID 2.2.2.2 for example) gets up, it'll see that R1 is DR and won't be able to do anything apart from becoming BDR.
- (!)There is no Preempt for DR/BDR election in OSPF - If router is chosen as DR, it's required to reload the process to change it
+ (!) There is no Preempt for DR/BDR election in OSPF - If router is chosen as DR, it's required to reload the process to change it
+     (!) WAIT timer serves as KIND OF preemption - until it is expired (about 40 seconds usually), preemption can happen if new router with better priority is presented on the media
+     (!) There might be another case of preemption
+            A new router is initiated with the OSPF process
+            It is not connected to the network yet 
+            It's WAIT timer expires with router becoming DR for itself
+            Router is configured with higher priority than other routers on the segment
+            All of the above leads to this router becoming DR PREEMPTIVELY upon the connection to the network (WAIT timer already exprired) since it's priority is higher - DR is reelected
+            That is often the case with DMVPN
 
     DR/BDR Election happens on 2-WAY state of neighborship.
     Election only happens on BROADCAST link type
 
- (!)It's a best practice to turn off DR/BDR election on point to point links (the one you're sure about) by moving the network type between them to P2P
+ (!) It's a best practice to turn off DR/BDR election on point to point links (the one you're sure about) by moving the network type between them to P2P
 
     Topology of 4 routers. R1, R2, R3 and R4. Each has priority 1. RIDs are 1.1.1.1, 2.2.2.2, 3.3.3.3 and 4.4.4.4. All are disabled.
     1. R1 gets enabled first. Starts to send out Hello packets with own RID, priority, DR and BDR IPs. Since there's yet no DR/BDR, it's 0.0.0.0
