@@ -2222,10 +2222,13 @@ OSPF Filtering
 
 OSPF Virtual links
     An internal OSPF tunnel serving as an "Area 0 stretcher"
-    Can be configured between Area 0 router (ABR) to ABR between areas that are not backbone (area 1 connected to area 3 for example
-    Configuration is simply setting a virtual-link between IP-addresses of ABR routers
+    Can be configured between Area 0 router (ABR) to ABR between areas that are not backbone (area 1 connected to area 3 for example)
+    Configuration is simply setting a virtual-link between Router-IDs of ABR routers
     LSAs do not go over that virtual link, they're transferred through routers on the way
     Authentication have to be configured before starting the neighborship process
+    Virtual-links runs as a demand circuit meaning that there are no periodic Hello packets exchanged by default - therefore LSDB with virtual-links will have "DNA" (Do No Age) for LSAs
+
+    Not commonly used as of now, a case of badly designed network
 
 OSPFv3 for IPv6
     IPv6 version of OSPF differs from IPv4 version in some additional LSA types:
