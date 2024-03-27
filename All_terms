@@ -1824,7 +1824,7 @@ To boost Failure_Detection_time, ALWAYS use either physical interface or SUB-int
 
 #                    OSPF 
 ## (AD - 110)  
-## (Mcast - 224.0.0.5 / FF02::5) 
+## (Mcast - 224.0.0.5 / FF02::5, TTL=1) 
 ## (Mcast DR/BDR - 224.0.0.6 / FF02::6, TTL=1) 
 ## (IP protocol - 89)
 
@@ -1838,7 +1838,7 @@ ADJACENCY is established if following matches for neighbors:
    +Authentication parameters
    +Subnet on the link
    +MTU
-----Link network type DOESN'T have to match to establish the adjacency.
+----Link network type DOESN'T have to match to establish the adjacency (P2P - P2MP is OK, BROADCAST - NBMA is OK, etc.)
 
     There's a difference between NEIGHBORSHIP and ADJACENCY - ADJACENCY state is FULL, NEIGHBORSHIP state is 2-WAY.
     DR/BDR are ADJACENCY, DROTHER is NEIGHBORSHIP
@@ -1855,7 +1855,6 @@ OSPF Tables
         Link State Database (LSDB), same as Topology table - consists of LSAs as entries
         Link State Advertisement (LSA) - a piece of information shared between routers in OSPF process
     Routing Table - table of all the best routes known to the router
-
 
 OSPF Packets
     Hello packets - packets that each router with OSPF process enabled are sending out to 224.0.0.5 multicast-address. Includes information about router (helps to determine if adjacency should be formed)
@@ -1887,7 +1886,7 @@ OSPF Areas
 
     Area Types
             Normal - a basic area that allows all routes to be inserted into itself (routes from all areas or from other routing protocols distributed within OSPF process)
-            Stub - an area that allows only routes from OSPF process and summarizes all the routes received from external routing protocols (serves as a default-gateway to reach a lot of outer prefixes)
+            Stub - an area that allows only routes from OSPF process (external not alllowed) and summarizes all the routes received from external routing protocols (serves as a default-gateway to reach a lot of outer prefixes)
                    Stub is an area with nothing behind it and only Area 0 in front.
             NSSA (Not-so-stubby-area) - a stub area that STILL doesn't allow redistributed (from other routing protocols) routes in common but allows redistributed routes from local area
                                         Basically NSSA is a stub area but there are some other subnets behind it (some other routing protocol)
