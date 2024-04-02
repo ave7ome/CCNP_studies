@@ -2621,7 +2621,6 @@ BGP IPv6
 
     To verify BGP IPv6 config: "show bgp ipv6 unicast" and "show bgp ipv6 unicast summary"
 
-part 3 50:00
 
 #                Wireless
 Wireless design is on Line 104 in this document
