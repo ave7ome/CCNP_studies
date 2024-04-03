@@ -2609,6 +2609,11 @@ BGP Multipath
         Weight, LocalPref, Origin, MED, IGP metric. 
         Next-hop HAVE to be different
 
+BGP Communities
+    Represented as values 0-65535:0-65535 (in a new format)
+    It is a "tag" that can be applied to any prefix in BGP and any action can be done to that prefix later (increase loc_pref, decrease MED, etc.)
+    There are certain well-known preset communities ("no-export" - no advertise to eBGP but OK for iBGP, "no-advertise" - no advertise to anyone around, "local-AS" - no advertise between confederations, but ok for iBGP)
+
 BGP IPv6
     configured by utilizing address-families (MP-BGP)
     before configuring, route-map has to be created that's going to advertise egress IPv6 address as a next-hop:
