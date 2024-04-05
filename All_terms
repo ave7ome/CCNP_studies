@@ -2137,7 +2137,11 @@ OSPF Area Types
         It is done for traffic engineering, like that totally stub ABR shares only default as LSA3 and no inter-area routes, and stub ABR shares all the inter-area routes - they are preferred through that box in that scenario
     NSSA (Not So Stubby Area) - NSSA is like a Stub Area but with ASBR which redistributes routes from other routing protocols. LSA1, LSA2 and LSA3 are allowed in an area. LSA4 and LSA5 are prohibited. 
         Routes from different routing protocols are shared within the Area as Type 7 LSAs (LSA7) - these are basically LSA5 but within NSSA. 
-            These prefixes are further shared by ABR to other zones as LSA5 (with ABR being the advertising router instead of ASBR as usual). "Forward address" within that LSA will forward to original ASBR
+            These prefixes are further shared by ABR to other zones as LSA5 (with ABR being the advertising router instead of ASBR as usual). "Forward address" within that LSA will forward to original ASBR IP-ADDRESS (not RID) located in NSSA
+            Usually LSA5 advertisements from original ASBRs (in non-NSSA) are installed with forward address 0.0.0.0 - router looks up the ASBR IP-address within LSA4
+            In NSSA, LSA7 are advertised and translated into LSA5s and no LSA4 is shared. Therefore routers in other areas get external routes (N2,N1) and they get ASBR through LSA3.
+                Like that, if there are more than 1 ABR to NSSA, it's possible that LSA5 will be translated from LSA7 and readvertised from one. Even though real route goes through another ABR because it's forward to real IP and route to it might be different
+                In that case, if translating&readvertising router will fail, it'll still trigger reconvergence even though data plane is over another router
         Possible issue: Type 5 LSAs from other NSSAs are not shared into the area so external routes from other areas should be reachable by some other means.
         There's a setting "default-information-originate" which allows for ABR to share a default route as LSA7 into the NSSA area
     Totally NSSA - Same as NSSA but type 3 LSAs are also prohibited and ABR shares a single 0.0.0.0/0 LSA3 as a default route. That remediates the possible issue of NSSA.  
@@ -2152,8 +2156,12 @@ OSPF Route codes
     "O" - intra-area route (LSA1,LSA2)
     "O IA" - inter-area route (LSA3)
     "O E2/E1" - external route redistributed into OSPF (E2) with default ASBR to external routing protocol default metric, for (E1) metric is different from default and is summarized on the whole way to the external routing Autonomous System
-        E2 displays static metric on ASBR to reach the destination (20) but it doesn't neccesary reflect the real metric to the prefix, real metric still includes values from router to ASBR (if same area), or metric from router to ABR and then from ABR to ASBR (if different area)
+        E2 displays static metric on ASBR to reach the destination (20) but it doesn't neccesary reflect the real metric to the prefix, real metric still includes SPT values from router to ASBR (if same area), or metric from router to ABR and then from ABR to ASBR (if different area)
+        It's called FORWARD METRIC
     "O N2/N1" - external route redistributed into OSPF in NSSA Area (N2) with default ASBR to external routing protocol default metric, for (N1) metric is different from default and is summarized on the whole way to the external routing Autonomous System
+
+    ASBR route metrics are used in case there are more than one ASBR with the same prefix
+    External prefix metric will be used as a decider to forward traffic to certain prefix
 
 Route preference goes as (from most preferred to least): O -> O IA -> Intra-area E1/N1 -> Inter-area E1/N1 -> Intra-area E2/N2 -> Inter-area E2/N2
 
