@@ -2139,11 +2139,15 @@ OSPF Area Types
         Routes from different routing protocols are shared within the Area as Type 7 LSAs (LSA7) - these are basically LSA5 but within NSSA. 
             These prefixes are further shared by ABR to other zones as LSA5 (with ABR being the advertising router instead of ASBR as usual). "Forward address" within that LSA will forward to original ASBR IP-ADDRESS (not RID) located in NSSA
             Usually LSA5 advertisements from original ASBRs (in non-NSSA) are installed with forward address 0.0.0.0 - router looks up the ASBR IP-address within LSA4
-            In NSSA, LSA7 are advertised and translated into LSA5s and no LSA4 is shared. Therefore routers in other areas get external routes (N2,N1) and they get ASBR through LSA3.
-                Like that, if there are more than 1 ABR to NSSA, it's possible that LSA5 will be translated from LSA7 and readvertised from one. Even though real route goes through another ABR because it's forward to real IP and route to it might be different
-                In that case, if translating&readvertising router will fail, it'll still trigger reconvergence even though data plane is over another router
+            In NSSA, LSA7 are advertised and translated into LSA5s and no LSA4 is shared. Therefore routers in other areas get external routes (N2,N1) and they get to ASBR through LSA3.
+                Like that, if there are more than 1 ABR to NSSA, it's possible that LSA5 will be translated from LSA7 and readvertised from only one ABR, even though real route goes through another ABR because it forwards to real IP and route to it might be different
+                In that case, if translating & readvertising router will fail, it'll still trigger reconvergence even though data plane is over another router
         Possible issue: Type 5 LSAs from other NSSAs are not shared into the area so external routes from other areas should be reachable by some other means.
         There's a setting "default-information-originate" which allows for ABR to share a default route as LSA7 into the NSSA area
+
+        In NSSA, there's a p-bit for LSA7 originated in the area. It's set by default and allows LSA7 to be translated into LSA5 on ABRs to be advertised further into other areas.
+        It's possible to unset p-bit for traffic engineering if necessary.
+        
     Totally NSSA - Same as NSSA but type 3 LSAs are also prohibited and ABR shares a single 0.0.0.0/0 LSA3 as a default route. That remediates the possible issue of NSSA.  
             to configure NSSA - "area * nssa" on ALL routers in an area
         NSSA config options for ABR:
