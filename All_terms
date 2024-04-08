@@ -2137,8 +2137,8 @@ OSPF Area Types
         It is done for traffic engineering, like that totally stub ABR shares only default as LSA3 and no inter-area routes, and stub ABR shares all the inter-area routes - they are preferred through that box in that scenario
     NSSA (Not So Stubby Area) - NSSA is like a Stub Area but with ASBR which redistributes routes from other routing protocols. LSA1, LSA2 and LSA3 are allowed in an area. LSA4 and LSA5 are prohibited. 
         Routes from different routing protocols are shared within the Area as Type 7 LSAs (LSA7) - these are basically LSA5 but within NSSA. 
-            These prefixes are further shared by ABR to other zones as LSA5 (with ABR being the advertising router instead of ASBR as usual). "Forward address" within that LSA will forward to original ASBR IP-ADDRESS (not RID) located in NSSA
-            Usually LSA5 advertisements from original ASBRs (in non-NSSA) are installed with forward address 0.0.0.0 - router looks up the ASBR IP-address within LSA4
+            These prefixes are further shared by ABR to other zones as LSA5 (with ABR being the advertising router instead of ASBR as usual). "Forward address" within that LSA will forward to original ASBR IP-ADDRESS (not RID) located in NSSA therefore will be resolved through any available ABR
+            Usually LSA5 advertisements from original ASBRs (in non-NSSA) are installed with forward address 0.0.0.0 meaning that to resolve, router will have to reach the "Advertising router" first and ASBR then. Avertising router is usually only one (if there are two ABRs to NSSA area, only one will be utilized)
             In NSSA, LSA7 are advertised and translated into LSA5s and no LSA4 is shared. Therefore routers in other areas get external routes (N2,N1) and they get to ASBR through LSA3.
                 Like that, if there are more than 1 ABR to NSSA, it's possible that LSA5 will be translated from LSA7 and readvertised from only one ABR, even though real route goes through another ABR because it forwards to real IP and route to it might be different
                 In that case, if translating & readvertising router will fail, it'll still trigger reconvergence even though data plane is over another router
@@ -2160,14 +2160,15 @@ OSPF Route codes
     "O" - intra-area route (LSA1,LSA2)
     "O IA" - inter-area route (LSA3)
     "O E2/E1" - external route redistributed into OSPF (E2) with default ASBR to external routing protocol default metric, for (E1) metric is different from default and is summarized on the whole way to the external routing Autonomous System
-        E2 displays static metric on ASBR to reach the destination (20) but it doesn't neccesary reflect the real metric to the prefix, real metric still includes SPT values from router to ASBR (if same area), or metric from router to ABR and then from ABR to ASBR (if different area)
+        E2 displays static metric on ASBR to reach the destination (20) but it doesn't neccesary reflect the real metric to reach the advertised prefix, real metric still includes SPT values from router to ASBR (if same area), or metric from router to ABR and then from ABR to ASBR (if different area)
         It's called FORWARD METRIC
     "O N2/N1" - external route redistributed into OSPF in NSSA Area (N2) with default ASBR to external routing protocol default metric, for (N1) metric is different from default and is summarized on the whole way to the external routing Autonomous System
 
     ASBR route metrics are used in case there are more than one ASBR with the same prefix
     External prefix metric will be used as a decider to forward traffic to certain prefix
 
-Route preference goes as (from most preferred to least): O -> O IA -> Intra-area E1/N1 -> Inter-area E1/N1 -> Intra-area E2/N2 -> Inter-area E2/N2
+    Route preference goes as (from most preferred to least): O -> O IA -> Intra-area E1->N1 -> Inter-area E1->N1 -> Intra-area E2->N2 -> Inter-area E n2->N2
+    Although E1 and E2 are preferred over N1 and N2 respectively, that is only true when the FORWARD METRIC to prefix is the same for both. If FORWARD METRIC is lower with the N1/N2 route, it will be preferred over same prefix route with E1/E2 code
 
 OSPF Passive interface
     Passive interface Feature is used to prevent OSPF Router from sending Hello packets off a certain interface
