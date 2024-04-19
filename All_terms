@@ -2217,7 +2217,17 @@ OSPF Summarization
     In OSPF, it is possible to summarize the information about networks shared through LSA3 (command is under router ospf: "area <#> range <IP-prefix> <Subnet-mask>" - # is an area number, IP-prefix is a prefix value to which to summarize, Subnet-mask is a summary mask)
     Example: few subnets like 10.0.0.0/24, 10.0.1.0/24, 10.0.100.0/24, 10.0.200.0/24, 10.0.250.0/24 etc. can be summarized to 10.0.0.0/16 with the command "area 0 range 10.0.0.0 255.255.0.0".
     Also external routes (shared by ASBR) can be summarized: under router ospf, command "summary-address <IP-prefix> <Subnet-mask>" (values are same as in ABR summarization)
-    
+
+    Upon summarization, a short match route to NULL0 is created and advertised to other routers which allows other routes to know the direction of some longer matches.
+        If some traffic is sent to routes that is not available to summary-advertising router, it gets sent to Null0 which effectively drop the traffic.
+
+    Summarization ways:
+    "RANGE" command - summarize internal prefixes into a single Null0 route. LSA1 into LSA3
+    "SUMMARY-ADDRESS" command - summarize external prefixes (received through ASBR) into a single Null0 route. LSA5 into LSA7 (summ on ASBR/ABR); LSA5 into LSA5 (summ on ASBR); LSA7 into LSA7 (summ on ASBR)
+
+    With Summarization it's also possible to remove route from being advertised ("not-advertise" etc.)
+    Also in NSSA it's possible to remove P-bit and like this NSSA will keep the LSA7 route to itself ("nssa-only")
+
 OSPF Filtering
     In OSPF, advertised routes can be filtered to prevent them from being shared. There are different possibilities to do so:
         "Not-advertise" command - can be done during the area summarization command: "area <#> range <IP-prefix> <Subnet-mask> not-advertise".
@@ -2369,6 +2379,10 @@ EIGRP Load Balancing
         Load balancing will be proportional, since first route is better, it'll receive more traffic.
 
 EIGRP Summarization
+
+    Upon summarization, a short match route to NULL0 is created and advertised to other routers which allows other routes to know the direction of some longer matches.
+        If some traffic is sent to routes that is not available to summary-advertising router, it gets sent to Null0 which effectively drop the traffic.
+
     There are Manual and Automatic summarization (automatic is disabled by default)
     Lowest metric among all summarized prefixes is used for summarized subnets - issue is that metric can change if that best prefix is changed
         To prevent, can use the command "summary-metric <IP-subnet> <bandwidth> <delay>" to statically define the metric for summarized route
