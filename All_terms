@@ -2494,7 +2494,7 @@ BGP Characteristics
     - Advertises a collection of Path Attributes used for path selection
     - Path-Vector routing protocol
 
-iBGP
+iBGP 
     In iBGP, routers don't share prefixes received from iBGP neighbor (iBGP split-horizon)
     Therefore, for prefixes to be shared, there must be a full-mesh connectivity between all routers in iBGP domain (AS)
     But if there are more and more routers in topology - number of required adjacencies will become unreasonable (BGP confederations or Route-reflectors are used to resolve the issue)
