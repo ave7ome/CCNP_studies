@@ -1,0 +1,52 @@
+#              MPLS
+
+Scope:
+In the Service Provider scope of infrastructure, there is a requirement to move traffic from a lot of different clients (hence prefixes) to a lot of other clients (and hence prefixes).
+Initially to solve that, every router everywhere have to know how to reach each of the prefixes in the Internet - that is too resource consuming.
+One solution is to build tunnels between end routers - that allow transit routers to have no infomation about end prefixes, they only have to know how to reach the edge routers.
+
+MPLS is one of the options to build such tunnels.
+
+MPLS (Multi-Protocol Label Switching) - a technology allowing traffic to be forwarded in a tunnel-like manner with the use of labels (MPLS L2 header is inserted between 802.1q and L3 info) with provision of minimum details apart from labels to transit nodes for the remote prefixes.
+    LDP (Label Distribution Protocol) - a labeling protocol. Whenever turned on, Router introduces sets a label ("Local Label") for each IGP prefix on a RIB (1 prefix = 1 label, prefix can be reachable through different next-hops, that's still 1 label)
+            Then router shares this label to all the LDP neighbors and that label becomes an "Outgoint label" for them in their MPLS Forwarding-table. "Pop Label" - 
+            
+
+Configuration:
+0. IGP reachability have to be configured before proceeding with LDP.
+1. "mpls ldp router-id <interface>" - define LDP Router-ID which will act as a connection source
+2. "mpls label protocol <ldp/tdp>" - enable label protocol to be either LDP or TDP
+3. "mpls ip" on the interface - enable MPLS
+    After that step, LDP Hello messages to 224.0.0.2 will be spammed. From Source port TCP/646(!!!) to Dest port TCP/646(!!!)
+    In LDP Hello, IPv4 Transport address is shared and Router-ID
+4. After enabling MPLS on both sides, LDP neighborship will be formed if there is a 2-way reachability.
+5. Now for all the IGP received routes, LDP assignes a Label which is used on the traffic forwarding.
+
+"show mpls forwarding" - see MPLS Table
+All the labels are also stored in the CEF.
+
+MPLS Optimization
+First point is not to label the transit prefixes (the ones used for p2p connections between routers, transit). And only to label the loopbacks. That would be enough.
+    1. "no mpls ldp advertise-labels" - disable label generation
+    2. Create ACL and defing all the loopbacks there
+    3. "mpls ldp advertise-labels for <ACL-name>" - enable label generation for ACL
+    4. Now traffic to loopbacks is going with labeled hops, traffic to transit networks (not defined in ACL) will go without labels.
+
+Now it's possible to build a BGP session(-s) between any routers (loopbacks are reachable) and therefore it's possible to announce any routes only to nodes that should know about them (only reachability to Loopbacks are required).
+And it works because even though the Destination IP for packets will be known only to first and last routers and UNKNOWN for transit routers, MPLS Label allows traffic to be forwarded further on the transit (Label lookup happen on every hop to determine the next hop)
+
+Router receives packet for remote DestinationIP, checks the routing table, assignes a Label and forward according to MPLS table.
+    Next, transit router, receives packet, sees MPLS label, checks it's MPLS table, SWAPs the label to it's own one and forward the packer further.
+    When end router receives the packet, there is no label already as no MPLS label is set for end destination, it just forward the packet to DestinationIP.
+
+
+Possible MPLS Issues
+    1. Since LDP runs over IGP (e.g. OSPF). If OSPF drops on some segment, LDP also drops and reconverges.
+       When OSPF goes back up, it'll reconverge back while LDP is still not ready (it relies on OSPF to have a stable connectivity).
+       During the LDP reconvergence, upstream router will drop MPLS related traffic since MPLS labels aren't getting assigned.
+       To fix - "mpls ldp sync" under OSPF process config - interface is announced as "non-transit" while OSPF is up but LDP neighborship is not established yet.
+            Metric is forcefully set to 65535 (maximum).
+    2. 
+
+
+
