@@ -10,7 +10,7 @@ MPLS is one of the options to build such tunnels.
 MPLS (Multi-Protocol Label Switching) - a technology allowing traffic to be forwarded in a tunnel-like manner with the use of labels (MPLS L2 header is inserted between 802.1q and L3 info) with provision of minimum details apart from labels to transit nodes for the remote prefixes.
     LDP (Label Distribution Protocol) - a labeling protocol. Whenever turned on, Router introduces sets a label ("Local Label") for each IGP prefix on a RIB (1 prefix = 1 label, prefix can be reachable through different next-hops, that's still 1 label)
             Then router shares this label to all the LDP neighbors and that label becomes an "Outgoint label" for them in their MPLS Forwarding-table. "Pop Label" - 
-            
+     (!)LDP is kind of Legacy as of 2020 - Either OSPF or ISIS is used for label distribution (SEGMENT ROUTING).
 
 Configuration:
 0. IGP reachability have to be configured before proceeding with LDP.
@@ -39,14 +39,29 @@ Router receives packet for remote DestinationIP, checks the routing table, assig
     Next, transit router, receives packet, sees MPLS label, checks it's MPLS table, SWAPs the label to it's own one and forward the packer further.
     When end router receives the packet, there is no label already as no MPLS label is set for end destination, it just forward the packet to DestinationIP.
 
-
 Possible MPLS Issues
     1. Since LDP runs over IGP (e.g. OSPF). If OSPF drops on some segment, LDP also drops and reconverges.
        When OSPF goes back up, it'll reconverge back while LDP is still not ready (it relies on OSPF to have a stable connectivity).
        During the LDP reconvergence, upstream router will drop MPLS related traffic since MPLS labels aren't getting assigned.
        To fix - "mpls ldp sync" under OSPF process config - interface is announced as "non-transit" while OSPF is up but LDP neighborship is not established yet.
             Metric is forcefully set to 65535 (maximum).
-    2. 
+    2. ~~~
+
+Usually MPLS is used in carrier networks and carries internal subnets in itself. Therefore there might be many of the same prefixes (10.1.1.0/24 e.g.)
+    To forward many of similar prefixes, VRFs are used.
+
+VRF is basically a different Routing Table on the router.
+    VRF is specified with the Route Distinguisher value (RD). It can be 0-65535:0-65535 (16 bytes) 
+    Let's pick VRF "EXAMPLE" with RD of 100:100 and "PEPOPE" with RD of 200:200
+        Route to 1.2.3.4/32 in EXAMPLE will look like 100:100:1.2.3.4/32
+        Route to 1.2.3.4/32 in PEPOPE will look like 200:200.1.2.3.4/32
+    And like that, these will be two different routes
+
+(!)Prefix with RD in front of it is called VPNv4 PREFIX
+(!) RD + IPv4 = VPNv4
+
+To prevent ourselves from creating every VRFs on all transit routers, BGP with VPNv4 AF can be used to carry the NLRI from one PE to another to provide the prefix between customer devices.
+
 
 
 
