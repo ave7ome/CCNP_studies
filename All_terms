@@ -781,11 +781,14 @@ Normally set to 1500 (20 bytes IP packet, 20 bytes TCP packet, rest for Data)
 #        DATA PATH VIRTUALIZATION
 VRF - A technology that allows router (or Multilayer device) to logically be divided into few other routers (which basically means into few independent Routing tables)
     It is impossible to share routes between VRFs within the same device, one VRF can be reachable from another VRF only if there's a connection between them through external interface.
+    (!) Actually, VRF Leaking exists. It works by exporting/importing same RTs between VRFs within same router.
 Each VRF will have their own routing table (for example that allows few 10.0.0.0/24 subnets to be defined in each VRF and still be reachable).
     To differentiate subnets in such cases, a "Route Distinguisher" is used (rd).
     With "rd", routes become 1:1:10.0.0.0/24 and 2:2:10.0.0.0/24 (DIFFERENT from the routing point of view)
     Usually "rd" value is 'AS_NUMBER':'VRF_NUMBER' (65000:100, 64378:1433, etc.)
 Usually used in ISP networks therefore requires ISP network technologies (MPLS, VPN, L3VPN, BGP).
+    To share routes within BGP, Router Target (RT) is used
+    RT is specified under VRF configuration. Exact RT import/export values are configured as x:y (0-65535:0-65535)
 
 Routing protocols while used with VRF work a bit different - share the routes with RD parameter.
 
