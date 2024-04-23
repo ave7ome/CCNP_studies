@@ -47,6 +47,8 @@ Possible MPLS Issues
             Metric is forcefully set to 65535 (maximum).
     2. ~~~
 
+#MPLS L3VPN
+
 Usually MPLS is used in carrier networks and carries internal subnets in itself. Therefore there might be many of the same prefixes (10.1.1.0/24 e.g.)
     To forward many of similar prefixes, VRFs are used.
 
@@ -61,7 +63,13 @@ VRF is basically a different Routing Table on the router.
 (!) RD + IPv4 = VPNv4
 
 To prevent ourselves from creating every VRFs on all transit routers, BGP with VPNv4 AF can be used to carry the NLRI from one PE to another to provide the prefix between customer devices.
+    To make sure devices on each end are aware which route should be corresponded to which VRF, ROUTE TARGET (RT) parameter is used.
+    RT is attached with the prefix advertisement as a community and other side accepts the prefix if it's RT matches the value configured in VRF RT import/export.
+    Configure import RT under the VRF definition to make sure prefix is received to correct VRF.
+        Import RT is to receive prefixes with that RT
+        Export RT is to export prefixes with that RT
 
-
+    For prefixes received through BGP, prefixes initial RD doesn't matter. It gets replaced by corresponding VRF on the receiving router by receiving VRF.
+    If R1 sent 100:100:1.1.1.1/32 through BGP to R2's VRF with RD 200:200, prefix will change to 200:200:1.1.1.1/32 on R2 and will be accessible through R1.
 
 
