@@ -2478,7 +2478,7 @@ BGP basics
     Organizations are divided into AS (Autonomous System)
     Generally used to load-balance or filter updates/prefixes from ISPs
     Loop-prevention mechanism: router inspects every received router's AS-PATH to check if there is it's AS in it. If there is - prefix won't get installed to prevent loops (will get dropped)
- (?)BGP doesn't ever receive new route updates automatically. Have to trigger "clear ip bgp <options>" to receive updates
+    BGP can use specified interface as a BGP update source (LOOPBACKs are generally used)
 
 AS - "a network in a network of networks". An entity managed by one organization that is represented by some number of publicly available external subnets.
 BGP itself is the only available protocol that allows organization to publish their servers (in internal subnets) externally. 
@@ -2626,7 +2626,7 @@ BGP Peer-group
 eBGP vs. iBGP (differences)
     - sending a prefix in eBGP changes "next-hop" attribute for the prefix to the IP of router that shared the information about prefix last. 
             in iBGP - "next-hop" is the one initially received within the AS (if received by AS Edge device, the route is to outside of AS). 
-            Can be changed by "neighbor <neigh_IP> next-hop-self" command on AS edge router
+            Can be changed by "neighbor <neigh_IP> next-hop-self" command on AS edge router (next-hop comes from the specified UPDATE SOURCE)
             Also can still be used as is just to share prefixes in BGP for traffic to successfully go within network
  (!)- iBGP router doesn't change ANY attribute of received prefix
     - iBGP peers doesn't share prefixes received from BGP ("i" or "e") neighbors (route reflectors / BGP confederations help with that)
