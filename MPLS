@@ -59,8 +59,12 @@ VRF is basically a different Routing Table on the router.
         Route to 1.2.3.4/32 in PEPOPE will look like 200:200.1.2.3.4/32
     And like that, these will be two different routes
 
-(!)Prefix with RD in front of it is called VPNv4 PREFIX
+(!) Prefix with RD in front of it is called VPNv4 PREFIX
 (!) RD + IPv4 = VPNv4
+
+(!) RD have to be globally unique to prevent routing issues. 
+    RD is advertised over BGP with RD values and if two routers have the same RD, it'll be two of the same routes. And these two routes will be compared to choose the best.
+    In the end only one route will be used. Or in cases where it is different clients with same RD, one of the clients can just loose the access as their route will not be advertised since it was chosen as worse.
 
 To prevent ourselves from creating every VRFs on all transit routers, BGP with VPNv4 AF can be used to carry the NLRI from one PE to another to provide the prefix between customer devices.
     To make sure devices on each end are aware which route should be corresponded to which VRF, ROUTE TARGET (RT) parameter is used.
@@ -71,5 +75,34 @@ To prevent ourselves from creating every VRFs on all transit routers, BGP with V
 
     For prefixes received through BGP, prefixes initial RD doesn't matter. It gets replaced by corresponding VRF on the receiving router by receiving VRF.
     If R1 sent 100:100:1.1.1.1/32 through BGP to R2's VRF with RD 200:200, prefix will change to 200:200:1.1.1.1/32 on R2 and will be accessible through R1.
+
+    For VPNv4 prefixes in MPLS, second label gets added to prefixes and it remains the same for all devices (it is carried in BGP update) 
+
+PE-CE Routing
+    On the routing from Provider to Customer and other way around (PE-CE), generally VRFs are used to distinguish customers from each other and route their prefixes exclusively with no visibility to others.
+    It can be done with configuring OSPF between CE device and PE device (PR interface to CE is in it's own VRF).
+    With OSPF, it's possible to announce necessary prefixes there and PR will redistribute them from OSPF into BGP (where peering to other side of MPLS network is configured).
+    Like that, prefixes are advertised to another PE connected to customers another CE and BGP redistributes them back into OSPF on that different location.
+    These prefixes are received by OSPF process and for Customer such configuration brings single L3 point of branches interconnection.
+
+Prefixes redistributed from OSPF into BGP has extra community values:
+    Route-Target;
+    OSPF DOMAIN;
+    OSPF RT;
+    OSPF ROUTER.
+
+OSPF DOMAIN Contains OSPF process ID as hex value - if process IDs are different on PE-CE pairs (e.g. 100 and 200), OSPF routes are shared as E2 over L3VPN.
+    If OSPF Process IDs are the same on PE-CE, routes are shared as IA over L3VPN
+    This is in fact a Domain-ID value and it can be changed manually instead of changing the whole OSPF process ID
+
+In OSPF for MPLS VRF, there is a so-called "DOWN BIT" that prevents prefixes to be redistributed infinitely which effectively prevent loops.
+    Routes from PE to CE are shared with that bit active
+    "capabilities vrf-lite" helps to resolve the problem of not receiving the routes with that bit set.
+
+MPLS can serve as "MPLS SuperBackbone" to make OSPF routes as intra-area (O).   
+    For that, configure Loopback on PEs and set up "SHAM-link" (like virtual-link in OSPF) between them.
+    
+
+
 
 
