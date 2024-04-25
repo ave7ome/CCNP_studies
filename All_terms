@@ -2473,6 +2473,8 @@ BGP Mnemonics:
                                      Paths (external>internal)
                                            Router-ID (lower is better)
 
+(!)Weight and Local Preference achieve the same BUT Weight has local significance and Local Preference is sent within all further updates to other BPG neighbors within the AS.
+
 BGP basics
     BGP runs whole internet on it's shoulders
     Organizations are divided into AS (Autonomous System)
