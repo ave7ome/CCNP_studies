@@ -2644,6 +2644,16 @@ BGP Communities
     It is a "tag" that can be applied to any prefix in BGP and any action can be done to that prefix later (increase loc_pref, decrease MED, etc.)
     There are certain well-known preset communities ("no-export" - no advertise to eBGP but OK for iBGP, "no-advertise" - no advertise to anyone around, "local-AS" - no advertise between confederations, but ok for iBGP)
 
+There is a concept OF AFI/SAFI (address family identifier / subsequent address family identifier) in BGP (not only there in fact).
+    During the BGP configuration, there are two steps
+    1. Define the BGP transport (TCP connections settings, etc.) 
+    2. Define the BGP policy (route advertisement, BGP settings like RR-client, "next-hop-self", etc.)
+
+    AFI is used when there's a step to insert routes into the BGP process. And under AFI (IPv4 Unicast, VPNv4 Unicast, etc.), it's possible to define which route to insert.
+    It can either be simple IPv4, VPNv4 (IPv4 with VRF RD) or something else.
+
+    In IOS, IPv4 unicast is used by default - can be changed by running "no bgp default ipv4-unicast"
+
 BGP IPv6
     configured by utilizing address-families (MP-BGP)
     before configuring, route-map has to be created that's going to advertise egress IPv6 address as a next-hop:
