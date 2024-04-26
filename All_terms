@@ -104,7 +104,7 @@ VSS - stacking mechanism that allows two physical switches to be represented as 
 
 
 #                    WLAN (wireless LAN) design
-Wireless details are on Line 1802 (more or less) in GitHub
+Wireless details are further in the document on Line 2672 (more or less)
 
 Useful on Wireless (+recommended learning in the end of publication)
 https://packetpushers.net/askjjx-help-office-wi-fi-is-so-bad-an-intern-is-following-the-ceo-around-with-an-ap/ 
@@ -2670,7 +2670,7 @@ BGP IPv6
 
 
 #                Wireless
-Wireless design is on Line 104 in this document
+Wireless design is on Line 106 in this document
 
 Important variables
    *Frequency (Hz) - amount of transmitted signals (waves) per second in a form of wave swings. In other words - number of waves transmitted over a 1 second interval. 
