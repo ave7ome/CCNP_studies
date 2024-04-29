@@ -2678,7 +2678,8 @@ Important variables
             So that motion 0 -> 1 -> 0 -> -1 -> 0 is called Cycle (or wave).
    *Wavelength - how long does wave move forward before next cycle (the higher the frequency, the lower the wavelength)
    *Amplitude - the amount of energy in the wave ("wave height"). Can be changing over time when the signal exchange happen for received to distinguish when new different information is received
-             Amplitude becomes lower the further wave travels. Wave become less powerful therefore signal becomes weaker.
+             Amplitude becomes lower the further wave travels. 
+             Wave become less powerful therefore signal becomes weaker - this is called ATTENUATION
 
 AP connectivity options
     Ad Hoc Wireless LAN - two devices communicate each other directly (withoup accessing AP) and act as wireless devices
@@ -2697,14 +2698,41 @@ Wireless Communications
 Radio Frequency
     Radio frequency signal (RFS) transmission can be imagined as a sinusoid. It starts at 0:0, makes an amplitude up to 1 (not an actual value), back to 0, then to -1 and then back to 0.
         So that motion 0 -> 1 -> 0 -> -1 -> 0 is called Cycle (or wave).
-    Radio Frequency is a number of cycles completed per second. 1 Hz = 1 cycle.
+    Radio Frequency is a number of cycles completed per second. 1 Hz = 1 cycle. Or how ofter does something changes in the RFS. 1Hz - one change per second. 1kHz - 1000 changes per second.
         Hertz is a measurement of cycles/s (or waves/s)
+
+Modulation
+    Modulation is changing something about the RFS to transmit data
+
+    Frequency modulation - changing the frequence of signal to encode data (1s and 0s)
+    Wavelength modulation - changing of wavelenglth
+    Amplitude modulation - changing of aplitude which is basically changes in transmitting power (100mWatt is maximum in US)
+        Sometimes signal can be transmitted with 100mWatt, sometimes with 5mWatt
+    Phase - two different signals are compared and if for the same length of time (1 sec or less/more), both signals have the same wavelength, frequency and amplitude, these signals are IN PHASE
+        Signals are OUT OF PHASE if they differ in some values.
+
+  DSSS - Direct Sequence Spread Spectrum
+    Using all of the modulation techniques allows to encode more data with the usage of all of them
+
+BPSK - Binary Phase Shift Key
+    If signals are in phase, it's a 0
+    If signals are 180-degrees out of phase, it's a 1
+
+DQPSK - Differential Quadrature Phase Shift Key
+    There are 4 different possibilities for that
+    If signals are 45 degrees different - 00
+    135 degrees - 01
+    225 degrees - 10
+    315 degrees - 11
 
 RF Range
     2.4 GHz band = 2.4 to 2.4835 GHz
     5 GHz band = 5.15 to 5.85 GHz
     Wireless communication as a whole happen between 3kHz and 300GHz (300000000kHz)
     Wireless bands are subdivided into channels
+
+    Difference between 2.4 GHz and 5 GHz - 2.4 is less speed but in penetrates objects like walls and bodies better that 5
+        That is because of wavelength. The longer the wavelength, the better signal penetrates things
 
 2.4 GHz band theory
     This band is divided into 14 channels
@@ -2721,7 +2749,8 @@ RF Range
 There's a WiFi 6e in development which brings a 6 GHz channel to the game
 
 RF signal strength (w/ EIRP, RSSI)
-    Measured in dBm (decibel milliwats)
+    Measured in dBm (decibel milliwats) - a relative value to display the power
+    Absolute value would be masuring in mW but it degrades drastically even when receiver is few centimeters away from transmitter and won't be simple to use
     Router Transmitters in antenna usually range between 1 and 100 mW (mW = 1/1000 W)
     Reference transmit power for Wireless is 1mW = 0dBm
         Mathematically, power works as following: 10mW = 10dBm, 100mW = 20dBm, 1000mW = 30dBm, 0.1mW = -10dBm, 0.01mW = -20dBm, 0.001mW = -30dBm
@@ -2742,6 +2771,12 @@ RF signal strength (w/ EIRP, RSSI)
 
 Possible noise issues and values:
 
+    Noise Floor
+        RF energy in the same space as Wi-Fi caused by different things:
+            Baby monitors
+            Microwaves
+            Other APs and etc.
+
     Signal to Noise Ratio (SNR)
         Difference in decibel-milliwatts between signal and background noise. Background noice can be anything like bluetooth devices, microwaves, etc.
         Calculated as a "Signal - Noise = SNR"
@@ -2753,6 +2788,10 @@ Possible noise issues and values:
         That creates an issue, signals are transmitted differently with slight difference in wave location which overlaps and reduces the amount of received signal on the overlap value
         Signals can even cancel each other by being received with opposite amplitude values
         Some APs use it to their advantage and radiate signals with the delay exactly for them to stack on each other and INCREASE the signal
+
+(!)Wifi AP and client negotiate their data rate
+    AP sends out a wifi beacon at lowest supported rate (1Mbps) and these beacons have to be acknowledged by sending a packet in responce. Every one of the beacons
+    These beacons allow to negotiate the capabilities of data transfer between AP and client - how complex can client go and how high of a speed can be set
 
 Wireless standarts differences (802.11 with some letters on the end)
     There are quite few standards with it's own differences. A lot has been developed.
@@ -2822,6 +2861,11 @@ Antenna Types (comes with the dBi values giving a hint on how strong their dBm i
 
     Values identifying antenna strength
         dBi (decibells relative to isotropic) - antennas radiating power in perfect environment (not reachable in any way)
+            "Perfect environment" in a sense that it's an antenna that radiated in all directions in a sphere with equal power
+            dBi is a gain of an real antenna (omnidirectional radiates in 360 around it but struggles with radiating up and down) measured against an isotropic antenna 
+            That is used because radiating in all directions equally consumes certain amount of power
+            and real antennas radiate unequally and take same amount of power to radiate in narrower direction - that means there's a gain in dB as compared between isotropic and real antennas
+            the narrower the direction, the more the dBi gain (parabolic give more dBi compared to omnidirectional)
         dBd (decibells relative to dipole) - dipole antennas radiating power with all the degradation taken into account
 
 Wireless terminology
