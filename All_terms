@@ -3132,6 +3132,7 @@ NAT terminology
 
 #                Multicast Routing
 
+Commonly known IP addresses:
 224.0.0.0/24 is reserved for link-local addresses
 224.0.1.0 - 238.255.255.255 is globally scoped addresses
 232.0.0.0/8 - Source-Specific Multicast addresses
@@ -3139,6 +3140,9 @@ NAT terminology
     For example: AS number is 65000, Multicast-IP is 233.253.232.0/24
     Because 65000 in decimal equals to FDE8 in hexadecimal. FDE8 is split in two parts: FD-E8 and FD in hex is 253 in Decimal, E8 in hex is 232 in decimal therefore: 233.253.232.0/24.
 239.0.0.0/8 - Limited Scope addresses
+
+Whole scope 224.0.0.0/4 can only be used as DESTINATION IP address
+    Cannot be used as source - hence cannot be assigned as valid IP on host
 
 Multicast-MAC calculation based on the Multicast-IP
     1. Take 224.1.10.10 as IP
@@ -3157,9 +3161,24 @@ Whenever device wants the receive traffic destined to certain Multicast group (e
 Router received that IGMP request, looks for destination to RP (in shared tree topology) and directs the request (the "JOIN REQUEST") from device to RP using the PIM protocol. Further routes do the same until it reaches the root.
 
 Multicast Control protocols
-    IGMP (Internet Group Management Protocol) - a way for devices to say that they want to be a part of Multicast group. There are IGMP versions 1, 2 and 3
-    PIM (Protocol Independent Multicast) - a way for routers to notify RP about endpoints willing to join the Multicast group
+    IGMP (Internet Group Management Protocol) - a way for devices to say that they want to be a part of Multicast group. There are IGMP versions 1, 2 and 3.
+        IGMP basically works between host and it's gateway. Not further
+    PIM (Protocol Independent Multicast) - a way for routers to notify RP about endpoints willing to join the Multicast group and communicate to other routers.
         PIM link-local Multicast-IP is 224.0.0.13
+
+Multicast protocols are divided in two groups:
+    L2 Multicast - IGMP
+        L2 Multicast - communication of host to the gateway and not further. Generally between host, switch with L2 and Router (as a gateway)
+        Since every MCast IP is tied to MCast MAC-address, and MCast IP cannot be source, switch will never learn it and won't add to it's CAM table - that is basically an L2 broadcast instead of multicast
+        For that, IGMP Snooping is used. Whenever host subscribes to MCast group, Switch adds port of the host to IGMP Snooping table as "Interface -- MCast-Group IP"
+        Upon receival of MCast traffic to that IP, it'll be sent to the registered interfaces only
+
+     (!)For OSPF and other procotols that use Multicast IPs like 224.0.0.5 etc. IGMP snooping is not used - for 224.0.0.0/24. Packets are flooded in that case.
+
+        If there are two gateways available upstream (R1 and R2), one of them is chosen as Querior - somewhat of an "active IGMP gateway".
+
+    L3 Multicast - PIM
+        L3 Multicast - communication of gateway further to other routers and to RP 
 
 There are following traffic delivery options:
     Shared Tree - as in literal "Tree", there is a Trunk device. It is called "Rendezvous Point" (RP) and it serves as the root device in the Shared tree Multicast topology
