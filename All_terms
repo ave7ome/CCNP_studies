@@ -2796,11 +2796,12 @@ Possible noise issues and values:
 Wireless standarts differences (802.11 with some letters on the end)
     There are quite few standards with it's own differences. A lot has been developed.
     5GHz is always faster in terms of bitrate (speed) than 2.4GHz due to higher signal frequency but it is always LOWER REACH
+    First implementation is from 1997 - 802.11
     Initially in 1999 there were two standards (one for 2.4GHz, another for 5GHz), 5GHz was faster due to more complex transmission technology. Most people used 2.4GHz
     In 2003, new 2.4GHz standard has been developed with higher speeds
-    In 2009, new standart for 2.4GHz/5GHz was introduced. Added MIMO (technology to transmit traffic through all antennas at once) and aggregated radio channels (40MHz) (for more throughput)
-    In 2014, 5GHz standard has been improved to support more than 1Gbit/s rates by utilizing up to 160MHz aggregated channels and MUMIMO (multiple user communication with MIMO but only from AP to device)
-    In 2019 even better standard was developed with 1-6GHz ISM frequencies being able to be utilized. Bidirectional MUMIMO introduced. 600-9608 Mbit/s speeds available and better support of more clients located in the close reach
+    (802.11n)In 2009, new standart for 2.4GHz/5GHz was introduced. Added MIMO (technology to transmit traffic through all antennas at once) and aggregated radio channels (40MHz) (for more throughput). These was the breakthrough amendments with the addition of options to increase bandwidth dramatically and make the transmition more stable if required
+    (802.11ac)In 2014, 5GHz standard has been improved to support more than 1Gbit/s rates by utilizing up to 160MHz aggregated channels and MUMIMO (multiple user communication with MIMO but only from AP to device)
+    (802.11ax)In 2019 even better standard was developed with 1-6GHz ISM frequencies being able to be utilized. Bidirectional MUMIMO introduced. 600-9608 Mbit/s speeds available and better support of more clients located in the close reach
 
 Wireless technologies (some will just be here with no explanation)
     FDM (Frequence Division Multiplexing)
@@ -2820,6 +2821,7 @@ Wireless technologies (some will just be here with no explanation)
     QAM (Quadrature Amplitude Modulation) - an ability to represent more than 1 bit in 2MHz frequency range by changing the amplitude and wavelength (16-QAM, 16 = 2^4 -> 4 bits instead of 1; same system for 64-QAM, 256-QAM, 1024-QAM)
     MIMO (multiple input, multiple output) - technology that allows to split portions of data on AP to send them through different antennas
         receiving host should also have few antennas to be able to receive portions of data from AP and combine them together upon receival
+        Spatial Multiplexing (different data streams are sent from transmitter to receiver) is used for quicker data tranmition
     Channel aggregation - a technology used to increase throughput by combining power of few radio channels
     MUMIMO (Multiple User MIMO) - same as MIMO, but now can be used to transmit from different antennas to different clients at the same time (normally only one communication can happen). Only works from APs to devices, downstream
     OFDMA Orthagonal Frequence Division Multiple Access - introduced TTW (time to wake) which are certain timeslots when clients can speak in network 
@@ -2870,7 +2872,7 @@ Antenna Types (comes with the dBi values giving a hint on how strong their dBm i
 
 Wireless terminology
     Service cell - a signal reach of a single Access Point 
-    Basic Service Set (BSS) - a set of services provided by AP in it's service cell
+    Basic Service Set (BSS) - a set of services provided by AP in it's service cell. A coverage area of an AP
     Independent Basic Service Set (IBSS) - set of services provided without some intermediate AP device (direct device to device)
     Service Set Identifier (SSID) - basically a WiFi network association (name)
     Basic Service Set Identifier (BSSID) - an association of specific SSID to specific AP, written in a form of MAC-address so it differs from AP to AP even for same SSID
@@ -2896,7 +2898,7 @@ Wireless Frame Types
 
 Wireless Traffic Flow
     WiFi operates only in HALF DUPLEX mode, meaning that only one device can speak at a time or only AP can speak. No two devices can communicate at the same time. If they could - traffic would be unintelligible
- (!)Introduction of MUMIMO changed the above behaviour
+ (!)Introduction of MUMIMO and 802.11ax standard changed the above behavior - traffic can now be transmitted both up- and downlink using MUMIMO
     For that, there are various technics to make sure no device nor AP is sending frames whenever there's already a traffic exchange going on.
     All WiFi devices has an IFS (Inter-Frame Space) that activates after it sent out a frame. At that time, client doesn't send any frames. IFS can either be SIFS (short IFS) or DIFS (distributed IFS)
     During waiting time, devices "listen to the air" and check if there's a frame exchange going on. No traffic is sent during that time
