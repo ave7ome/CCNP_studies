@@ -2830,6 +2830,19 @@ Wireless technologies (some will just be here with no explanation)
     Beamforming - ability to alter the wave in way to either increase the signal to/from wanted source/destination (constructive interference - summing two waves beaming at the same time with the same wavelength)
                                                           or to decrease the signal effectively to 0 (destructive interfecence - summing two waves beaming absolutely symmetrical horizontally which effectively sum them up to 0)
 
+CAPWAP tunnels and Split-MAC Architecture
+    Split-MAC basically means implementing the controller and the division of the functions between AP and the controller
+        Real-time functions are handled locally by Lightweight AP (modulation, RF transmit/receive, encryption, decryption)
+        Management functions are handled by the controller (RF management, what channel, frequency to use, transmit power, roaming and client association request, etc.)
+
+    CAPWAP (control and provisioning of wireless access points) tunnel allows everything above to work as intended
+        It's a tunnelling protocol to interconnect AP with the controller. Everything transmitted between AP and WLC is encapsulated
+        Two CAPWAP tunnels are built between AP and WLC (one for CAPWAP control messages / another for all the actual data from clients and by clients on AP)
+     (!)CAPWAP adds ~48 bytes of overhead
+
+    Building the CAPWAP control tunnel:
+        Client hello -> Hello verify from controller to AP -> Client hello -> Server hello -> Certificate fragments exchange -> Client key exchange -> Encrypted Handshake -> FURTHER COMMUNICATION IS ENCRYPTED
+
 Access point modes
     Autonomous AP  - can be used to place a lot of APs. One AP connects internet through it's WAN port, then other APs are interconnected via LAN interfaces
                      Scales poorly since every device have to be manually configured to match the first AP (which connects to internet)
@@ -2879,7 +2892,6 @@ Wireless terminology
     Multiple BSSID - just a set of associations in form of MAC-address (when AP radiates more than one SSIDs)
     Extended Service Set (ESS) - a set of services provided by more than one APs within their service cells
 
-
 Wireless Frame Types
     Data frames - frames with data :). As in wired network, consist of data with headers (SMAC, DMAC) in front of it and CRC Checksum field behind
                   Includes NULL FRAME - sent by device connected to WiFi to say that it's going to power saving mode for AP to buffer frames directed to it.
@@ -2921,21 +2933,38 @@ Access Point Operation
     8 - Reset State. Lightweight AP tears down CAPWAP tunnels and start over the process
 
 WLC Discovery Process
-    Attempts to find as many WLCs as possible
+    Attempts to find as many WLCs as possible:
     1. CAPWAP Discovery Request messages are sent out from Lightweight AP as broadcast on a local subnet
     2. IP-addresses manually configured and stored on LAP are checked
-    3. DHCP option 43 can be used to send the WLC IP-address
-    4. LAP attempts to resolve request to CISCO-CAPWAP-CONTROLLER.localdomain
-    5. If no WLC found, LAP reboots and does the discovery again
+    3. Previously used controller IPs
+    4. DHCP option 43 can be used to send the WLC IP-address
+    5. LAP attempts to resolve request to CISCO-CAPWAP-CONTROLLER.localdomain
+    6. If no WLC found, LAP reboots and does the discovery again
 
-    Discovery goes as following, if at any step the WLC IP address is received, discovery stops(?):
-        DHCP option -> DNS request to name from p.4 -> cached list from before reboot is checked -> Broadcast to 255.255.255.255 -> Checks if there's statically WLC IP configured -> **
-            ** - If AP before reboot was linked to WLC that was part of mobility group, it received IPs of other WLCs in mobility group therefore AP checks these IP-addresses -> if no IPs found, AP resets
+    AP does a lookup for all 5 points and then decidec which to join.
 
-    In the end of discovery, LAP has a list of available WLCs. Which WLC will LAP join:
-        1. Previously known controller
-        2. Master controller
-        3. Least-loaded controller
+    In the end of discovery, LAP has a list of available WLCs. Order of preference for joining the controller:
+        1. Statically configured controller
+        2. Previously known
+        3. Discovered
+            1. Master controller
+            2. Least-loaded controller
+
+Controller Redundancy
+    Keepalives are exchanged between AP and WLC to make sure they're available to each other
+    Upon keepalive loss, AP will send 3-4 quick keepalives and if all of them are lost, WLC is considered unavailable
+
+    When WLC is lost:
+        1. AP will try to associate to another static, pre-configured WLC
+        2. WLC could advertise other controller to AP upon initial connect and AP connects to one of those
+        3. Two WLCs can be configured to HA with SSO. Then if one is lost, AP continues communication with other node in HA
+
+    WLC HA
+        WLCs are connected through a physical port (PR - redundancy port)
+        HA is available through the virtual IP (FHRP, HSRP, VRRP, etc.)
+        WLCs share same config, software, IPs on management (FHRP)
+        Standby controller maintains list of joined APs as well
+        When Active fails, Secondary takes control of existing CAPWAP tunnels and APs
 
 Wireless Roaming
     Roaming - when wireless client changes which AP it is connected to
