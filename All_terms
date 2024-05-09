@@ -2966,20 +2966,33 @@ Controller Redundancy
         Standby controller maintains list of joined APs as well
         When Active fails, Secondary takes control of existing CAPWAP tunnels and APs
 
+(!)Client to AP connection sequence
+    1. APs send beacon frames to the air with it's SSID information
+    2. Client receives beacon frames and user makes decision to connect to announced SSID
+    3. It sends an AUTHENTICATION REQUEST frame to AP - it checks if AP even support 802.11 capabilities
+    4. AP answers with AUTHENTICATION RESPONCE frame to Client. It still doesn't mean client gets into the SSID
+    5. Client sends an ASSOCIATION REQUEST frame to AP
+    6. AP answers with ASSOICATION RESPONCE frame to Client
+    7. When clients leaves SSID, it sends a DE-ASSOCIATION frame to AP
+
+    (optional) 8. During the roaming event, client connected to SSID and decides to roam, sends AUTH RQ to new AP
+                    Then if the answer is good, it can decide to roam and send a REASSOCIATION REQUEST with REASSOCIATION RESPONCE from AP.
+                    Reassoiceation happens to SSID instead of the exact Hardware AP.
+
 Wireless Roaming
     Roaming - when wireless client changes which AP it is connected to
     Intracontroller roaming - roaming between APs of the same WLC
     Intercontroller roaming - roaming between APs of different WLCs
 
 Autonomous Wireless Roaming
-    Example: wireless client is in a reach of two APs with the same SSID. It is closer to 1st one therefore connected to it
+    Example: wireless client is in a reach of two APs with the same SSID. It is closer (RSSI is higher) to 1st one therefore connected to it
     If the client needs to change it's location, and it happens to be closer to 2nd AP, it'll start receiving less RSSI from the 1st one
     Once 2nd RSSI is better and 1st RSSI is too bad for communication, client will send an AUTHENTICATION frame to 2nd AP and once the process is done, it'll send a RE-ASSOCIATION frame to now appear on another AP
     Also there'll be a DE-ASSOCIATION message to 1st AP
 
 L2 Roaming
     Client moves between APs which WLCs belong to the same VLAN. Client keeps it's IP-address and it happens seamlessly
-    Once RSSI becomes very bad for one AP, client scans for different APs with better RSSI
+    Once RSSI becomes very bad for one AP, client checks it's received BSS table for different APs with better RSSI
     If it finds one, it'll move to it (same as described in autonomous roaming)
 
     From the perspecitve of WLC:
