@@ -3243,7 +3243,7 @@ Multicast Control protocols
 Multicast protocols are divided in two groups:
     L2 Multicast - IGMP
         L2 Multicast - communication of host to the gateway and not further. Generally between host, switch with L2 and Router (as a gateway)
-        Since every MCast IP is tied to MCast MAC-address, and MCast IP cannot be source, switch will never learn it and won't add to it's CAM table - that is basically an L2 broadcast instead of multicast
+        Since every MCast IP is tied to MCast MAC-address, and MCast IP cannot be source, switch will never learn it and won't add to it's CAM table - that makes it basically an L2 broadcast instead of multicast
         For that, IGMP Snooping is used. Whenever host subscribes to MCast group, Switch adds port of the host to IGMP Snooping table as "Interface -- MCast-Group IP"
         Upon receival of MCast traffic to that IP, it'll be sent to the registered interfaces only
 
@@ -3253,6 +3253,7 @@ Multicast protocols are divided in two groups:
 
     L3 Multicast - PIM
         L3 Multicast - communication of gateway further to other routers and to RP 
+        PIM must be configured on all intefaces where Multicast traffic is forwarded.
 
 There are following traffic delivery options:
     Shared Tree - as in literal "Tree", there is a Trunk device. It is called "Rendezvous Point" (RP) and it serves as the root device in the Shared tree Multicast topology
@@ -3278,12 +3279,17 @@ Multicast Modes
             Prune request - router request that asks adjacent routers not to send packets destined to certain Multicast group (when router don't have any hosts that are part of it)
         Dense mode does not get used nowadays since it brings too low control and not really great to use
 
+        In Dense mode, RPF is used to prevent loops (as packet is just sent out all interfaces). Upon packet arrival, if RPF of source and Forwarding information match the RPF, packet is flooded further.
+        RPF checks if the routing table info and received packet are on the same interface. If not - RPF is not passed.
+
     Sparse Mode - a mode that introduces Rendezvous point (RP) which serves as the ROOT of multicast topology and all multicast requests first go to RP and then forwarded further.
-        In Sparse Mode, hosts that want to participate in some Multicast group send out IGMP ("Membership report") request which, upon receival by Router, is sent to RP as "Join Request" (as a (* , G) since source is unknown yet) through all routers on the way (sent to every router on the way to RP and translated further by each router until it reaches RP)
+        In Sparse Mode, hosts that want to participate in some Multicast group send out IGMP ("Membership report") request which, upon receival by Router, is sent to RP as "PIM Join Request" (as a (* , G) since source is unknown yet) through all routers on the way (sent to every router on the way to RP and translated further by each router until it reaches RP)
             Membership report - IGMP request from Endpoint to it's gateway to be included in Multicast for certain (specified) group
             Join request - PIM join request used to add host to Multicast group
-        Whenever some other router receives the request with dst-ip as multicast (e.g. 224.1.1.1), it notifies RP about such request, then RP tells it back that "i want that, send it to me".
+     (!)Whenever RP is specified, every router on the way from client to RP creates a special control plane tunnel to that RP built from RPF-checked interface to IP-address of RP.
+        Whenever some other router receives the request with dst-ip as multicast (e.g. 224.1.1.1), it notifies RP about such request by sending PIM Register, then RP tells it back that "i want that, send it to me".
         Initial router then sends the request to RP which distributes it further to all routers that initiated join request for some of it's hosts that looks like this - (* , 224.1.1.1)
+     (!)PIM Register from router to RP is sent over GRE tunnel
         Whenever traffic has already been exchanged, there might be more efficient path, without going to RP. Receiving router may have received multicast traffic from some source, it'll see that routing table entry for that host is not from where the traffic is coming
         Based on that, router will initiate the PIM Join Request (this time it'll be (S , G) meaning that source is now known) in accordance to existing route to the host and like that, SPT (Shortest Path Tree) is built between routers (of Source endpoint and Destination Endpoint) for their more direct path between each other
             After that traffic will flow both over built SPT and through the RP, therefore upon receival of that same traffic from RP, Router will send prune message back to it to stop using RP route
@@ -3337,12 +3343,15 @@ There is a way to auto-negotiate the RP IP-address in the network
 Multicast Process (sparse-mode with RP)
     1. An endpoint willing to receive some traffic from some Multicast-group initiates a connection to a Multicast-address
     2. Router1 hosting the endpoint receives Multicast message, then sends out a PIM register message to RP specifying the (S,G) pair
+     (!)Here Router1 attempts to build "SHORTEST PATH TREE" to RP with (S,G) data
     3. RP sends the PIM Register Stop message back to the Router1
-    4. Meanwhile the server decides to join the same Multicast-group and sends out the IGMP report (or IGMP join) message
+    4. Meanwhile the server decides to join the same Multicast-group an  d sends out the IGMP report (or IGMP join) message
     5. Router2 hosting the server, receives the IGMP report and now it has a (*,G) entry for the Multicast
-    6. Router2 sends the PIM join message to RP which is then transferred down to Router1
+    6. Router2 sends the PIM join message to RP
+     (!)Here, Router2 and RP builds a "SHARED TREE"
     7. Now RP has entries to (S,G) and (*,G)
-    8. Endpoint on Router1 can now send traffic to Multicast group over RP
+    8. Endpoint on Router1 can now send traffic to Multicast group over RP   
+     (!)RP upon receival of traffic over "SHORTEST PATH TREE" is sending it internally to "SHARED TREE" and then just sends it further to the Multicast server
     9. Once the Router2 receives the traffic it'll also have a (S,G) entry and will recalculate SPT (shortest path tree) for traffic to flow without RP
 
 
