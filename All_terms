@@ -3332,7 +3332,7 @@ RPF (Reverse Path Forwarding) - when there's a multicast loop, and router receiv
 There is a way to auto-negotiate the RP IP-address in the network
     For that, a mapping server exist which listens to all the announcement "i want to be RP" and resolves it to a single device
     Listens on Multicast-IP 224.0.1.39 (or 224.0.1.40?)
-    But before devices can run Multicast in sparse mode (with RP), they have to negotiate the RP through the multicast... 
+    But before devices can run Multicast in sparse mode (with RP), they have to negotiate the RP through the multicast with Dense mode
     Well, for that, there's a mode called "Sparse-Dense". Basically Routers work in dense until RP is set up, then it's just usual Sparse mode
 
     Configure auto-negotiation
