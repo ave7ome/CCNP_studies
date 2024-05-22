@@ -987,9 +987,24 @@ There are concepts of HUB and SPOKE
 DMVPN key components:
     Multihop GRE tunnels (mGRE) - virtual connectivity to HUB/SPOKES with no tunnel destination specified
     NHRP - to understand the required tunnel destination needed for the communication
-    Underlay routing (whether it's OSPF, EIGRP, BGP) - for traffic to be able
-
+    Underlay routing (whether it's OSPF, EIGRP, BGP) - for traffic to be able go from hub to spoke and back
     Also IPSec crypto profiles if IPSec is configured - usual case as in 99% IPSec is being run in DMVPN setup
+
+(!)In Cisco, DMVPN is a combination of multipointGRE, NHRP (next-hop register) and IPSec
+
+DMVPN Configuration steps:
+    1. Set up underlay routing and reachability (BGP generally)
+    2. Configure Hub with tunnel in multipoint GRE mode, configure tunnel source and IP-address
+    3. Configure Hub with NHRP Server (to receive registrations from Spokes)
+    4. Configure Spokes, tunnel IP Address, tunnel source, tunnel destination (for phase1, tunnel mode p2p GRE)
+    5. Set up Spokes with NHRP map server (hub) IP-address, map tunnel IP of hub to it's public IP
+    6. Configure NHRP network-id to link NHRP requests with the tunnel 
+    
+    If there's a provided connectivity and it's necessary to receive default route from them. And at the same time it's desirable to have a default route through hub:
+    VRF helps!
+    ISP connection can be configured in different VRF and after that tunnel source can be reconfigured to interface that is in that VRF.
+    Then "tunnel vrf <VRF_NAME>" should be configured to specify on how to establish the tunnel
+    That allows both default routes to exist by just being in different routing tables
 
 DMVPN has 3 phases in terms of forming a Spoke-to-Spoke tunnel. Before any of Phases being active, tunnel from Spokes to Hub is a MUST (have to be established).
 Phases define how Hub help Spokes to establish a tunnel to another Spoke.
@@ -1029,12 +1044,11 @@ NHRP configuration:
         "tunnel mode gre multipoint" (that makes configuration either a P2 or P3)
 
 DMVPN Routing
-    Usually, EIGRP is used in DMVPN operations for low-medium scale deployment.
+    Usually, EIGRP is used in DMVPN operations for low-medium scale deployment. BGP for high scale.
         You want to disable Split-Horizon for the tunnel interface to spokes (also maybe run "no next-hop-self" to make traffic go directly spoke to spoke)
     OSPF is not a good fit for DMVPN because of it's hierarchy - all areas have to be connected to Area 0.
         Also, in DMVPN, there's a single tunnel interface to spokes, it has to be in a single Area (let's say area 1). All spokes have to be in that area 1 as well
         Because of that, SPF recalculation will occur for all spokes whenever some route is lost or changed. Not optimal
-    BGP is used for high-scale deployments.
 
 
 #                    LISP (as an independent protocol)
