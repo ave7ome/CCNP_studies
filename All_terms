@@ -3200,6 +3200,12 @@ NAT (Network Address Translation)
 NAT is a technology, allowing inside network IP-addresses ("Gray IP") to be altered into Internet IP addresses ("White IP") when leaving the network
 Also can be used to change IP-addresses internally (Gray to another Gray in case of some B2B DMZ connectivity)
 
+NAT order of operation
+On the inside
+    Routing occurs before the translation
+On the outside
+    Packets are un-translated before routing
+
 NAT terminology
     Source NAT - a NAT that changes the source IP-address for traffic passing the NATting device (on the way back, there will be NAT translation in the table and it'll work like destination NAT)
         SNAT is bidirectional (a one-to-one translation, can be used by both sides of translation)
@@ -3353,7 +3359,10 @@ There is a way to auto-negotiate the RP IP-address in the network
         1. Set pim mode for all interfaces to "Sparse-dense"
         2. Choose RP and configure it to "ip pim send-rp-announce <interface> scope <TTL>" (to make it RP) and "ip pim send-rp-discovery scope <TTL>" (to make it mapping server)
         3. Verify in "show ip mroute" and "show ip pim rp"
-    
+
+MSDP is a protocol that allows two routers to server as two different RPs. 
+MSDP links routers together (TCP session) and allows them to build a multicast tree extension between each other to forward traffic
+
 Multicast Process (sparse-mode with RP)
     1. An endpoint willing to receive some traffic from some Multicast-group initiates a connection to a Multicast-address
     2. Router1 hosting the endpoint receives Multicast message, then sends out a PIM register message to RP specifying the (S,G) pair
