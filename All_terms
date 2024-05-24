@@ -49,11 +49,19 @@ VRRP (Virtual Router Redundancy Protocol) - virtual gateway protocol. 2+ gateway
     Can use one of physical router IPs as virtual. In that case, the router with that IP is an Active by default.
     VRRP authentication is recommended (MD5)
     VRRP priority (1-254). 100 is default. The bigger the better.
-    After Master router switchover, "preemt" is required to be switched back over to previous active one. Preemt feature is *enabled by default
+    After Master router switchover, "preemt" is required to be switched back over to previous active one. Preemt feature is ENABLED by default
     VRRPv2 and VRRPv3 (used for IPv6) exist.
     VMAC = 0000.5e00.01** (256 different ones)
     MulticastIP = 224.0.0.18
     VRRP on Nexus with VPC (in DC) acts same as HSRP
+    Uses it's own transport protocol - 112
+    Timers are: Hello - 1, Dead - 3.6
+        Timers contained in VRRP hello packers are 8-bit long where value of 1 represents 1 second
+        Timers can still be reduced to sub-second but it has to be same for all routers in a group
+        "vrrp <group-id> timers learn" can make routers learn timers from the received hellos. They do not learn by default
+        If timer is INCREASED manually, router will become master if it wasn't one. If DECREASED - it'll be fine
+
+    In VRRP, only Master gateway sends out Hellos (in HSRP also Standbydoes it)
 
 HSRP (Hot Standby Router Protocol) - Cisco proprietary VRRP implementation. 2+ gateways
     "Active" and "Standby" routers. "Listen" as well
@@ -66,6 +74,7 @@ HSRP (Hot Standby Router Protocol) - Cisco proprietary VRRP implementation. 2+ g
         256 HSRP groups; 
         VMAC = 0000.0c07.ac** (256 different ones);
         MulticastIP = 224.0.0.2
+        Uses UDP/1985
     HSRPv2:
         4096 HSRP groups;
         VMAC = 0000.0c9f.f*** (4096 different ones);
@@ -73,7 +82,24 @@ HSRP (Hot Standby Router Protocol) - Cisco proprietary VRRP implementation. 2+ g
         Millisecond timers are configurable.
     HSRP on Nexus with VPC acts differently. Usually all the traffic goes to Active switch and in VPC scenario it'll have to go through standby sometimes. That's why in given scenario, Standby switch handles the packets just like active. But it's still standby if checked hsrp status on switches. But some requests (like ARP) will still go to Active and be responded from it.
     It's a good idea to LB using HSRP by making one router primary for one VLAN and other router primary for other VLAN.
-    
+
+    HSRP doesn't natively support load-balancing.
+    But it's possible to configure two different HSRP groups for the same interface VLAN on two switches and assign different hosts from VLAN with different GW IP-addresses
+    That's called MHSRP - Multigroup HSRP
+
+HSRP State Machine
+    Disabled - HSRP is not doing anything (probably interface DOWN)
+    Initial (INIT) - HSRP not running yet (probably because interface JUST WENT UP)
+    Learn - HSRP process on device learns IP-address from the HSRP neighbor Hellos. Learn means device waiting to learn IP from Active router
+    Listen - Router knows virtual IP-address but it has no state like Active or Standby
+    Speak - Router attempts to become Active router, it doesn't know about others and sends out HSRP Hellos. Or it heard other HSRP Hello but has a better priority with PREEMPTION. It'll still send Hellos stating that it wants to become Active
+    Standby / Active - self-explanatory. Hellos from Standby are sourced with Physical MAC of an interface. Hellos from Active are sourced with Virtual MAC of HSRP group.
+
+HSRP timers
+    Hello - 3 secs, Dead - 10 secs (~3x Hello)
+
+HSRP can track objects and decrease priority if tracked object fails.
+
 After switches get assigned a virtual IP, also they receive a virtual MAC-address. After first ARP from client, primary switch responces to packet. Whenever it's down and there appears a new primary switch which takes over the virtual IP (virtual MAC as well), it sends a Gratuitous ARP to say "now i have that MAC"
 GARP - An ARP response when there were to ARP request.
 FHRP object tracking helps to change the VIP holder to another device in case of some event. Following can be tracked:
@@ -82,10 +108,17 @@ FHRP object tracking helps to change the VIP holder to another device in case of
     Prefix reachability;
     IP SLA.
 
-GLBP (Gateway Load Balance Protocol) - Load balancing mechanism (Cisco proprietary). Similar to HSRP, but supports no less than 4 gateways
+GLBP (Gateway Load Balance Protocol) - Load balancing mechanism (Cisco proprietary). Similar to HSRP, but supports no more than 4 gateways
     "Active Virtual Gateway" (AVG) and "Active Virtual Forwarder" (AVF) states of router
+    Whenever endpoints want to know their gateway, they send an ARP-request to VIP and it's received and answered by AVG.
+        AVG distributes different hosts to different AVFs (they differ by their virtual MAC-addresses)
     Traffic from connected endpoints is being sent to one of AVFs (AVG is also an AVF) and by that, gets load-balanced
     AVG is choosed based on priority
+    Preemption is disabled by default
+    All AVFs are sending out Hello packets
+        That is done for cases where one AVF dies - AVG have to know about it as soon as possible and lack of Hello packet indicates that
+        When one AVF is dead, AVG moves Virtual MAC of dead AVF to another AVF. Now some AVF has two virtual MACs
+    Hello timer - 3 sec, Dead timer - 10 sec
     Can be load-balanced based on:
         Round-robin
         Weighted
