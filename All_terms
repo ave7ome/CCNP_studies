@@ -128,9 +128,12 @@ GLBP (Gateway Load Balance Protocol) - Load balancing mechanism (Cisco proprieta
     VMAC = 0007.B40x.xxyy (x.xx is a Group ID, limited by 1024 different ones, since first "x" is 4 bits; yy is an AVF identifier which is "01-04", can be checkes by show glbp commands)
     MulticastIP = 224.0.0.102 (like HSRPv2)
     
-SSO (stateful switchover) - mechanism that allows second CPU to take over the traffic and processing from other CPU in case of it's failure
+SSO (stateful switchover) - mechanism that allows second supervisor (or CPU in non-modular switches) to take over the traffic and processing from other supervisor (CPU) in case of it's failure
     Can be used if device has two Route processes (control planes) and one is going down
-NSF - Nonstop Forwarding. Allows data plane to send out packets to a neighbor even if it goes down control plane - wise.
+    FIB (CEF) and Adjacency tables are maintained by both. Also STP information with port states
+    Routing protocol information not maintained (dynamic routing have to be relearned)
+    0-3 seconds switchover
+NSF - Nonstop Forwarding. An enchancement to SSO. Allows data plane to send out packets to a neighbor even if it goes down control plane - wise.
     NSF feature must be configured on both devices to be operable
     Routes are being marked as Stale and will be exchanged once again when CP (control plane) goes up
 VSS - stacking mechanism that allows two physical switches to be represented as a single virtual switch. Devices can be located in remote locations
