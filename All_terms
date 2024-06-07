@@ -3262,26 +3262,40 @@ NAT terminology
 
 #                Multicast Routing
 
-Commonly known IP addresses:
+Commonly known IPv4 addresses:
 224.0.0.0/24 is reserved for link-local addresses
 224.0.1.0 - 238.255.255.255 is globally scoped addresses
+    224.0.1.1 - reserved for NTP
 232.0.0.0/8 - Source-Specific Multicast addresses
 233.0.0.0/8 - GLOP addresses (GLOP-globally unique multicast based on AS number), 
     For example: AS number is 65000, Multicast-IP is 233.253.232.0/24
     Because 65000 in decimal equals to FDE8 in hexadecimal. FDE8 is split in two parts: FD-E8 and FD in hex is 253 in Decimal, E8 in hex is 232 in decimal therefore: 233.253.232.0/24.
 239.0.0.0/8 - Limited Scope addresses
 
+Commonly known IPv6 addresses:
+Multicast IPv6 starts with "FF" always (11111111xxxxyyyy...)
+yyyy - defines how far can packet go.
+if yyyy = 1, it's local on the device (localhost)
+        = 2, it's link-local
+        etc.
+if yyyy = E, it's global scope
+
 Whole scope 224.0.0.0/4 can only be used as DESTINATION IP address
     Cannot be used as source - hence cannot be assigned as valid IP on host
 
 Multicast-MAC calculation based on the Multicast-IP
-    1. Take 224.1.10.10 as IP
+    1. Take 224.1.10.10 as IP (1st octet can be any in the multicast range, 224-239)
     2. Pick 3 last octets and translate them into groups of 4bit binary values:
         1.10.10 = 00000001.00001010.00001010 = 0000.0001.0000.1010.0000.1010
     3. Convert LEFT-MOST bit into 0 and translate that into hex
         0000.0001.0000.1010.0000.1010 = 01:0A:0A
     4. Prepend 01:00:5e
         01:00:5e:01:0a:0a
+
+Multicast MAC for IPv6 is done like following:
+    3333 is prepended in the beginning of MAC-address,
+    other 32 bits are represented as last 32 bits of IPV6 address
+ (!)If IPv6 address is FF02::ABCD:EF12, MAC will be 3333:ABCD:EF12
 
     Have to keep in mind that due to p.3 on left-most bit, 224.129.10.10 will have SAME MAC - have to keep it considered not to dup the MAC.
 
