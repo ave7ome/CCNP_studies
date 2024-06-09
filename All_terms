@@ -3311,15 +3311,28 @@ Multicast Control protocols
         PIM link-local Multicast-IP is 224.0.0.13
 
 Multicast protocols are divided in two groups:
-    L2 Multicast - IGMP
+    L2 Multicast - IGMP (all IGMP packets have TTL=1)
         L2 Multicast - communication of host to the gateway and not further. Generally between host, switch with L2 and Router (as a gateway)
         Since every MCast IP is tied to MCast MAC-address, and MCast IP cannot be source, switch will never learn it and won't add to it's CAM table - that makes it basically an L2 broadcast instead of multicast
         For that, IGMP Snooping is used. Whenever host subscribes to MCast group, Switch adds port of the host to IGMP Snooping table as "Interface -- MCast-Group IP"
         Upon receival of MCast traffic to that IP, it'll be sent to the registered interfaces only
 
      (!)For OSPF and other procotols that use Multicast IPs like 224.0.0.5 etc. IGMP snooping is not used - for 224.0.0.0/24. Packets are flooded in that case.
-
         If there are two gateways available upstream (R1 and R2), one of them is chosen as Querior - somewhat of an "active IGMP gateway".
+
+        IGMPv1
+            IGMP Report - message from host (that want to receive traffic to some MCAST group IP) to gateway. It's sent with DIP of MCAST IP it listens to 
+            IGMP Query (224.0.0.1), General Query - Router sends out queries (with DIP in IP header 224.0.0.1) to ask all devices in broadcast domain if they listen to some MCAST IP (it's sent in IGMP packet and there's 0.0.0.0 in the IGMP header). If there is somebody, it'll send IGMP report back
+                Sent out every minute (actually every 'not longer than once a minute')
+
+        IGMPv2
+            IGMP Report - message from host (that want to receive traffic to some MCAST group IP) to gateway. It's sent with DIP of MCAST IP it listens to 
+            IGMP  General Query, Group Membership Query (224.0.0.1) - Router sends out queries (with DIP in IP header 224.0.0.1) to ask all devices in broadcast domain if they listen to some MCAST IP (it's sent in IGMP packet and there's 0.0.0.0 in the IGMP header). If there is somebody, it'll send IGMP report back
+                Sent out every minute (actually every 'not longer than once a minute')
+            IGMP Leave - Sent to DIP 224.0.0.1, it SHOULD be sent by host that previously received some MULTICAST STREAM when unsubscribing from it
+            IGMP Group-Specific Query - Sent in responce to Leave message
+
+            In IGMPv2, a QUERIER (router that queries) election happens (the one with lowest IP-address wins)
 
     L3 Multicast - PIM
         L3 Multicast - communication of gateway further to other routers and to RP 
