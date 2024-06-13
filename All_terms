@@ -429,7 +429,7 @@ Cisco SD-Access layers:
         Fabric WLC (+APs)
     Network (logic and physics of the network)
         VXLAN - Data plane. Builds direct tunnels but don't have information of where to direct traffic to.
-            (!)Additional 50 Bytes are used for the encapsulation. MTU of underlay should be decreased by that number
+            (*)Additional 50 Bytes are used for the encapsulation. MTU of underlay should be decreased by that number
             Usual Packet: [eth|IP|data]
             VXLAN Packet: [eth|IP|VNID|above_packet_as_data]
             VXLAN-GPO is introduced by Cisco to serve it's purpose on the Policy plane. It includes SGTs (Scalable group tag) to manage the policies received by hosts
@@ -817,7 +817,7 @@ Normally set to 1500 (20 bytes IP packet, 20 bytes TCP packet, rest for Data)
 #        DATA PATH VIRTUALIZATION
 VRF - A technology that allows router (or Multilayer device) to logically be divided into few other routers (which basically means into few independent Routing tables)
     It is impossible to share routes between VRFs within the same device, one VRF can be reachable from another VRF only if there's a connection between them through external interface.
-    (!) Actually, VRF Leaking exists. It works by exporting/importing same RTs between VRFs within same router.
+    (*) Actually, VRF Leaking exists. It works by exporting/importing same RTs between VRFs within same router.
 Each VRF will have their own routing table (for example that allows few 10.0.0.0/24 subnets to be defined in each VRF and still be reachable).
     To differentiate subnets in such cases, a "Route Distinguisher" is used (rd).
     With "rd", routes become 1:1:10.0.0.0/24 and 2:2:10.0.0.0/24 (DIFFERENT from the routing point of view)
@@ -1026,7 +1026,7 @@ DMVPN key components:
     Underlay routing (whether it's OSPF, EIGRP, BGP) - for traffic to be able go from hub to spoke and back
     Also IPSec crypto profiles if IPSec is configured - usual case as in 99% IPSec is being run in DMVPN setup
 
-(!)In Cisco, DMVPN is a combination of multipointGRE, NHRP (next-hop register) and IPSec
+(*)In Cisco, DMVPN is a combination of multipointGRE, NHRP (next-hop register) and IPSec
 
 DMVPN Configuration steps:
     1. Set up underlay routing and reachability (BGP generally)
@@ -1173,7 +1173,7 @@ VXLAN L3 Gateway is basically an Anycast solution through the Asymetric/Symetric
 VXLAN allows for ethernet-over-IP traffic.
 Allows to control the broadcast traffic and CAM tables so that MAC-addresses are written only for local on-switch devices and not for every device in VLAN (broadcast domain)
 
-(!) VLAN ID and IP-addresses are only locally significant:
+(*) VLAN ID and IP-addresses are only locally significant:
         VLAN 10 on one switch and VLAN 20 on another switch can be mapped to the same VNID (ex. 100010) making it the same "Bridge domain" therefore same broadcast domain
         Like NAT. VLAN is inside local IP, VXLAN is inside global
 
@@ -1275,7 +1275,7 @@ Symmetric & Asymmetric IRB (IRB - Integrated Routing&Bridging)
         SMac1 is Server1 MAC, DMac1 is MAC-address of SVI1 for SIP1 since SIP2 is in different subnet
         Leaf1 receives Packet, changes SMac1 to SVI MAC-address, DMac1 to DIP1 SVI2 of Leaf2 (note from author: don't really know new DMac1)
         Then Packet is moved from SVI1 on Leaf1 to SVI2 on Leaf2
-     (!)(for asymetric ARB to work, all SVIs have to be configured on all switches)
+     (*)(for asymetric ARB to work, all SVIs have to be configured on all switches)
         Leaf2 received Packet [SMac2 - DMac2 - SIP1 - DIP1]
         then packet goes over SVI on Leaf2, received by Server2, then server2 sends it back
     Symmetric IRB.
@@ -1620,7 +1620,7 @@ PAgP (Port Aggregation Protocol, Cisco proprietary) - two modes of EC (auto - en
 
 PortChannel is established if packet over all PC links from another device is received with the same "system-id" parameter - that way local device can be sure they're from the same device
 
-(!)How Link Aggregation really works in network devices:
+(*)How Link Aggregation really works in network devices:
         Whenever PC (port-channel10) is created (for example with 4 ports aggregated, gi0/0-3), a "virtual Load-balancer" (LB) is created inside device, which groups the interfaces
         When some packet arrives that should go out of Port-channel10, it'll be redirected to the LB which will redirect it to one of the port-channel10 member
         To determine which interface of port-channel10 should packet go to, a mathematical HASH function is used - F(x)
@@ -1859,7 +1859,7 @@ PBR configuration:
     2. Create Route-map for ACL matched traffic and set next-hop IP for PBR 
     3. Apply Route-map to the internal interface (the one in which traffic get into the router) so that external interface would already forward PBR'ed traffic
 
-(!)Common Convergence time for all Dynamic routing protocols is usually as follows:
+(*)Common Convergence time for all Dynamic routing protocols is usually as follows:
     Convergence_time = Failure_Detection_time + Event_Propagation_time + Dynamic_Routing_Mechanism_Runtime (SPF/DUAL/etc.) + RIB_FIB_Update_time
 
 Failure_Detection_time consist of
@@ -1928,7 +1928,7 @@ OSPF Areas
     Areas in OSPF form a 2-tier hierarchy. 
     That means that there is a central "Area 0" (known as Backbone area).
     And also there can be other areas (number 1 to 2^32). Each non-Backbone area have to be connected to Area 0. And all communication between areas can only happen through Area 0.
- (!)Summary LSA routes are not installed by non-0 areas if received from non-0 area (LSA3 from area1 won't be accepted directly by area2, but will be accepted if received via area0)
+ (*)Summary LSA routes are not installed by non-0 areas if received from non-0 area (LSA3 from area1 won't be accepted directly by area2, but will be accepted if received via area0)
         That mechanism is called "ABR Loop prevention"
 
     Each area has it's own LSDB (and therefore set of LSAs). That allows to exchange only relevant information between routers from different Areas.
@@ -2032,9 +2032,9 @@ DR and BDR election metrics:
     3. Highest IP-address on Interface
 
     In topology of any number of routers, each with same priority, DR/BDR election depends exclusively on which router is enabled first. It can be the one with RouterID 1.1.1.1 and it still will be the DR. Whenever any other router (RouterID 2.2.2.2 for example) gets up, it'll see that R1 is DR and won't be able to do anything apart from becoming BDR.
- (!) There is no Preempt for DR/BDR election in OSPF - If router is chosen as DR, it's required to reload the process to change it
-     (!) WAIT timer serves as KIND OF preemption - until it is expired (about 40 seconds usually), preemption can happen if new router with better priority is presented on the media
-     (!) There might be another case of preemption
+ (*) There is no Preempt for DR/BDR election in OSPF - If router is chosen as DR, it's required to reload the process to change it
+     (*) WAIT timer serves as KIND OF preemption - until it is expired (about 40 seconds usually), preemption can happen if new router with better priority is presented on the media
+     (*) There might be another case of preemption
             A new router is initiated with the OSPF process
             It is not connected to the network yet 
             It's WAIT timer expires with router becoming DR for itself
@@ -2045,7 +2045,7 @@ DR and BDR election metrics:
     DR/BDR Election happens on 2-WAY state of neighborship.
     Election only happens on BROADCAST link type
 
- (!) It's a best practice to turn off DR/BDR election on point to point links (the one you're sure about) by moving the network type between them to P2P
+ (*) It's a best practice to turn off DR/BDR election on point to point links (the one you're sure about) by moving the network type between them to P2P
 
     Topology of 4 routers. R1, R2, R3 and R4. Each has priority 1. RIDs are 1.1.1.1, 2.2.2.2, 3.3.3.3 and 4.4.4.4. All are disabled.
     1. R1 gets enabled first. Starts to send out Hello packets with own RID, priority, DR and BDR IPs. Since there's yet no DR/BDR, it's 0.0.0.0
@@ -2186,7 +2186,7 @@ OSPF Area Types
         Stub config options for ABR:
             "no-summary" (create Totally Stub) - ABR shares a 0/0 route into Stub Area as a LSA3 (other LSA3s are prohibited)
             "no-ext-capability" - opaque LSAs are prohibited
-    (!) There might be more than 1 ABR in STUB AREA and it's possible that one ABR will be configured as STUB (no "no-summary") and another ABR will be configured as TOTALLY STUB (with "no-summary")
+    (*) There might be more than 1 ABR in STUB AREA and it's possible that one ABR will be configured as STUB (no "no-summary") and another ABR will be configured as TOTALLY STUB (with "no-summary")
         It is done for traffic engineering, like that totally stub ABR shares only default as LSA3 and no inter-area routes, and stub ABR shares all the inter-area routes - they are preferred through that box in that scenario
     NSSA (Not So Stubby Area) - NSSA is like a Stub Area but with ASBR which redistributes routes from other routing protocols. LSA1, LSA2 and LSA3 are allowed in an area. LSA4 and LSA5 are prohibited. 
         Routes from different routing protocols are shared within the Area as Type 7 LSAs (LSA7) - these are basically LSA5 but within NSSA. 
@@ -2331,7 +2331,7 @@ Adjacency will be established if following matches:
 EIGRP - Enhanced Interior Gateway Routing Protocol
     Proprietary but Cisco opened it to other vendors (around 2010). But vendors don't really introduced into their OS.
 
-(!)Cannot be configured on the interface config level. Directly interfaces can only be used either for timers or with named EIGRP.
+(*)Cannot be configured on the interface config level. Directly interfaces can only be used either for timers or with named EIGRP.
     Either granular network statements or a Passive-interface feature should be used to prevent unwanted announcements.
 
 Instead of knowing all the information in the area like in OSPF, EIGRP routers only know the information from their direct neighbors and their direct perspective of some information.
@@ -2358,7 +2358,7 @@ EIGRP Classic Metric (Mnemonic to remember - "Big Dogs Really Like Me")
     (optional) Load.
     (optional) MTU. - not in the formula, used as a last resort
 
-    (!)Each router for each subnet DOESN'T RECEIVE THE METRIC VALUE from the neighbor (only the REPORTED DISTANCE - neighbors metric to reach subnet). It just receives the variable values and calculates the metric for itself (sum delay & minimum BW on the path)
+    (*)Each router for each subnet DOESN'T RECEIVE THE METRIC VALUE from the neighbor (only the REPORTED DISTANCE - neighbors metric to reach subnet). It just receives the variable values and calculates the metric for itself (sum delay & minimum BW on the path)
 
     Metric main points in calculation.
         1. Worst BW in the path. For each subnet a neighbor route reports it's worst BW segment that he has on the path (it can include either his own link in the direction of subnet or link of other router on the path to it)
@@ -2379,7 +2379,7 @@ EIGRP Classic Metric (Mnemonic to remember - "Big Dogs Really Like Me")
                                 K4 = 0 
                                 K5 = 0
 
-    (!)Simple metric formula with just defaults: Metric = 256 * (10,000,000/Least-Bandwidth + Delays_summary/10)  
+    (*)Simple metric formula with just defaults: Metric = 256 * (10,000,000/Least-Bandwidth + Delays_summary/10)  
         (Delays_summary is a value of delays as specified on devices, not in 10th of microseconds)
 
 EIGRP Wide metric is introduced with named EIGRP mode (info on named mode below) to address the growing BW of uplinks
@@ -2523,7 +2523,7 @@ BGP Mnemonics:
                                      Paths (external>internal)
                                            Router-ID (lower is better)
 
-(!)Weight and Local Preference achieve the same BUT Weight has local significance and Local Preference is sent within all further updates to other BPG neighbors within the AS.
+(*)Weight and Local Preference achieve the same BUT Weight has local significance and Local Preference is sent within all further updates to other BPG neighbors within the AS.
 
 BGP basics
     BGP runs whole internet on it's shoulders
@@ -2558,9 +2558,9 @@ iBGP
         In iBGP, shared prefixes have "AS-PATH" attribute unchanged (always empty) therefore general loop-prevention (don't install prefix with my AS in it) won't work
 
 To address the above issues, there are some features available:
- (!)BGP confederation - a subset of ASes within one single AS. That way 3 routers from example (5-rputer topology) can be in one sub-AS interconnected in full mesh (3 adjacencies), and other 2 routers in another sub-AS (1 adjacency there + 1 between sub-ASes)
+ (*)BGP confederation - a subset of ASes within one single AS. That way 3 routers from example (5-rputer topology) can be in one sub-AS interconnected in full mesh (3 adjacencies), and other 2 routers in another sub-AS (1 adjacency there + 1 between sub-ASes)
                         that would basically be a set of eBGPs within an iBGP
- (!)Route-Reflector - a BGP router configuration allowing device to share the updates and prefixes (NLRI) received from other router. (works kind of as a DR in OSPF)
+ (*)Route-Reflector - a BGP router configuration allowing device to share the updates and prefixes (NLRI) received from other router. (works kind of as a DR in OSPF)
                       to configure router as an RR (route-reflector) - under "router bgp <#>", configure "neighbor <neigh_IP> route-reflector-client" on all routers that need to participate in iBGP route sharing
 
 BGP Neighbor formation and States
@@ -2656,7 +2656,7 @@ BGP Synchronization
              In 65100, there are two routers, in 65200 there is 1 router. Synchronization is ON for all in BGP processes
              65100 routers (R2 and R3) have iBGP formed between them, also 65200 router (R1) has eBGP formed to R2 from 65100
              R3 has a loopback IP and R2 has a loopback IP configured
-          (!)If these loopbacks is not in any IGP (OSPF, EIGRP, IS-IS, RIP etc.), it will not be shared over eBGP neighborship
+          (*)If these loopbacks is not in any IGP (OSPF, EIGRP, IS-IS, RIP etc.), it will not be shared over eBGP neighborship
             To enable sharing - either configure IGP and add route to it's routing table or disable synchonization
 
 BGP Summarization
@@ -2680,7 +2680,7 @@ eBGP vs. iBGP (differences)
             in iBGP - "next-hop" is the one initially received within the AS (if received by AS Edge device, the route is to outside of AS). 
             Can be changed by "neighbor <neigh_IP> next-hop-self" command on AS edge router (next-hop comes from the specified UPDATE SOURCE)
             Also can still be used as is just to share prefixes in BGP for traffic to successfully go within network
- (!)- iBGP router doesn't change ANY attribute of received prefix
+ (*)- iBGP router doesn't change ANY attribute of received prefix
     - iBGP peers doesn't share prefixes received from BGP ("i" or "e") neighbors (route reflectors / BGP confederations help with that)
 
 BGP Multipath
@@ -2839,7 +2839,7 @@ Possible noise issues and values:
         Signals can even cancel each other by being received with opposite amplitude values
         Some APs use it to their advantage and radiate signals with the delay exactly for them to stack on each other and INCREASE the signal
 
-(!)Wifi AP and client negotiate their data rate
+(*)Wifi AP and client negotiate their data rate
     AP sends out a wifi beacon at lowest supported rate (1Mbps) and these beacons have to be acknowledged by sending a packet in responce. Every one of the beacons
     These beacons allow to negotiate the capabilities of data transfer between AP and client - how complex can client go and how high of a speed can be set
 
@@ -2888,7 +2888,7 @@ CAPWAP tunnels and Split-MAC Architecture
     CAPWAP (control and provisioning of wireless access points) tunnel allows everything above to work as intended
         It's a tunnelling protocol to interconnect AP with the controller. Everything transmitted between AP and WLC is encapsulated
         Two CAPWAP tunnels are built between AP and WLC (one for CAPWAP control messages / another for all the actual data from clients and by clients on AP)
-     (!)CAPWAP adds ~48 bytes of overhead
+     (*)CAPWAP adds ~48 bytes of overhead
 
     Building the CAPWAP control tunnel:
         Client hello -> Hello verify from controller to AP -> Client hello -> Server hello -> Certificate fragments exchange -> Client key exchange -> Encrypted Handshake -> FURTHER COMMUNICATION IS ENCRYPTED
@@ -2960,7 +2960,7 @@ Wireless Frame Types
 
 Wireless Traffic Flow
     WiFi operates only in HALF DUPLEX mode, meaning that only one device can speak at a time or only AP can speak. No two devices can communicate at the same time. If they could - traffic would be unintelligible
- (!)Introduction of MUMIMO and 802.11ax standard changed the above behavior - traffic can now be transmitted both up- and downlink using MUMIMO
+ (*)Introduction of MUMIMO and 802.11ax standard changed the above behavior - traffic can now be transmitted both up- and downlink using MUMIMO
     For that, there are various technics to make sure no device nor AP is sending frames whenever there's already a traffic exchange going on.
     All WiFi devices has an IFS (Inter-Frame Space) that activates after it sent out a frame. At that time, client doesn't send any frames. IFS can either be SIFS (short IFS) or DIFS (distributed IFS)
     During waiting time, devices "listen to the air" and check if there's a frame exchange going on. No traffic is sent during that time
@@ -3016,7 +3016,7 @@ Controller Redundancy
         Standby controller maintains list of joined APs as well
         When Active fails, Secondary takes control of existing CAPWAP tunnels and APs
 
-(!)Client to AP connection sequence
+(*)Client to AP connection sequence
     1. APs send beacon frames to the air with it's SSID information
     2. Client receives beacon frames and user makes decision to connect to announced SSID
     3. It sends an AUTHENTICATION REQUEST frame to AP - it checks if AP even support 802.11 capabilities
@@ -3295,7 +3295,7 @@ Multicast-MAC calculation based on the Multicast-IP
 Multicast MAC for IPv6 is done like following:
     3333 is prepended in the beginning of MAC-address,
     other 32 bits are represented as last 32 bits of IPV6 address
- (!)If IPv6 address is FF02::ABCD:EF12, MAC will be 3333:ABCD:EF12
+ (*)If IPv6 address is FF02::ABCD:EF12, MAC will be 3333:ABCD:EF12
 
     Have to keep in mind that due to p.3 on left-most bit, 224.129.10.10 will have SAME MAC - have to keep it considered not to dup the MAC.
 
@@ -3313,11 +3313,21 @@ Multicast Control protocols
 Multicast protocols are divided in two groups:
     L2 Multicast - IGMP (all IGMP packets have TTL=1)
         L2 Multicast - communication of host to the gateway and not further. Generally between host, switch with L2 and Router (as a gateway)
+        
         Since every MCast IP is tied to MCast MAC-address, and MCast IP cannot be source, switch will never learn it and won't add to it's CAM table - that makes it basically an L2 broadcast instead of multicast
-        For that, IGMP Snooping is used. Whenever host subscribes to MCast group, Switch adds port of the host to IGMP Snooping table as "Interface -- MCast-Group IP"
-        Upon receival of MCast traffic to that IP, it'll be sent to the registered interfaces only
+        For that, 
+     (*)IGMP SNOOPING is used. Whenever host subscribes to MCast group, Switch adds port of the host to IGMP Snooping table as "Interface -- MCast-Group IP"
+            Upon receival of MCast traffic to that IP, it'll be sent to the registered interfaces only
+            IGMP SNOOPING table is built based on IGMP traffic sent by receivers
+            IGMP SNOOPING need router to be connected to switch with PIM enabled to populate the table
 
-     (!)For OSPF and other procotols that use Multicast IPs like 224.0.0.5 etc. IGMP snooping is not used - for 224.0.0.0/24. Packets are flooded in that case.
+        PROXY REPORTING - switch with IGMP SNOOPING limits the quantity of IGMP membership reports sent to a router (DDoS protection)
+            Proxies Group-Specific Queries (it is triggered after IGMP leave) received from router, that means that it can answer to that query since switch already seen IGMP leave and can answer for any receivers left in network
+            Membership reports are not suppressed - that is done to make sure switch has all the necessary information in their IGMP Snooping Table
+
+            In the end, Proxy reporting is a set of measures to make sure Switch can answer to router queries and for switch to have all the necessary information about alive receivers
+
+     (*)For OSPF and other procotols that use Multicast IPs like 224.0.0.5 etc. IGMP snooping is not used - for 224.0.0.0/24. Packets are flooded in that case.
         If there are two gateways available upstream (R1 and R2), one of them is chosen as Querior - somewhat of an "active IGMP gateway".
 
         IGMPv1
@@ -3333,6 +3343,23 @@ Multicast protocols are divided in two groups:
             IGMP Group-Specific Query - Sent in responce to Leave message
 
             In IGMPv2, a QUERIER (router that queries) election happens (the one with lowest IP-address wins)
+
+        IGMPv3
+            Must be configured manually
+            Called "Source-Specific Multicast" - receivers can now specify what server to receive stream from
+            Packet structure consists of "GROUP RECORDs" which contain source addresses inside (as well as MCAST-IP)
+            
+            IGMPv3 Group Membership Query - Group-address is set to MCAST-IP device interested in. Source of stream also specified inside as "SOURCE ADDRESS"
+            IGMPv3 Group Membership Report - Sent to new All IGMPv3 Routers (224.0.0.22). One packet can include many associations to receive many different streams
+                Specific source addresses can be INCLUDEd or EXCLUDEd based on "Record Type" value in header of group membership report
+            IGMPv3 Leave - No difference with IGMPv2. No leave is sent ever as dedicated packet. Usually it's sent as Membership report with "INLUDE" set as 0.0.0.0
+            IGMPv3 Group-Specific Query - No difference with IGMPv2
+            
+            NO REPORT SUPPRESSION exist in IGMPv3
+
+     (*)Bridged IGMP (L2 only)
+            Router still have to be connected or else MCAST traffic will be flooded
+            Switch can be configured as IGMP Querier - it'll be responsible for listening to Leaves, Queries and serve as Router would have been used
 
     L3 Multicast - PIM
         L3 Multicast - communication of gateway further to other routers and to RP 
@@ -3369,10 +3396,10 @@ Multicast Modes
         In Sparse Mode, hosts that want to participate in some Multicast group send out IGMP ("Membership report") request which, upon receival by Router, is sent to RP as "PIM Join Request" (as a (* , G) since source is unknown yet) through all routers on the way (sent to every router on the way to RP and translated further by each router until it reaches RP)
             Membership report - IGMP request from Endpoint to it's gateway to be included in Multicast for certain (specified) group
             Join request - PIM join request used to add host to Multicast group
-     (!)Whenever RP is specified, every router on the way from client to RP creates a special control plane tunnel to that RP built from RPF-checked interface to IP-address of RP.
+     (*)Whenever RP is specified, every router on the way from client to RP creates a special control plane tunnel to that RP built from RPF-checked interface to IP-address of RP.
         Whenever some other router receives the request with dst-ip as multicast (e.g. 224.1.1.1), it notifies RP about such request by sending PIM Register, then RP tells it back that "i want that, send it to me".
         Initial router then sends the request to RP which distributes it further to all routers that initiated join request for some of it's hosts that looks like this - (* , 224.1.1.1)
-     (!)PIM Register from router to RP is sent over GRE tunnel
+     (*)PIM Register from router to RP is sent over GRE tunnel
         Whenever traffic has already been exchanged, there might be more efficient path, without going to RP. Receiving router may have received multicast traffic from some source, it'll see that routing table entry for that host is not from where the traffic is coming
         Based on that, router will initiate the PIM Join Request (this time it'll be (S , G) meaning that source is now known) in accordance to existing route to the host and like that, SPT (Shortest Path Tree) is built between routers (of Source endpoint and Destination Endpoint) for their more direct path between each other
             After that traffic will flow both over built SPT and through the RP, therefore upon receival of that same traffic from RP, Router will send prune message back to it to stop using RP route
@@ -3429,15 +3456,15 @@ MSDP links routers together (TCP session) and allows them to build a multicast t
 Multicast Process (sparse-mode with RP)
     1. An endpoint willing to receive some traffic from some Multicast-group initiates a connection to a Multicast-address
     2. Router1 hosting the endpoint receives Multicast message, then sends out a PIM register message to RP specifying the (S,G) pair
-     (!)Here Router1 attempts to build "SHORTEST PATH TREE" to RP with (S,G) data
+     (*)Here Router1 attempts to build "SHORTEST PATH TREE" to RP with (S,G) data
     3. RP sends the PIM Register Stop message back to the Router1
     4. Meanwhile the server decides to join the same Multicast-group an  d sends out the IGMP report (or IGMP join) message
     5. Router2 hosting the server, receives the IGMP report and now it has a (*,G) entry for the Multicast
     6. Router2 sends the PIM join message to RP
-     (!)Here, Router2 and RP builds a "SHARED TREE"
+     (*)Here, Router2 and RP builds a "SHARED TREE"
     7. Now RP has entries to (S,G) and (*,G)
     8. Endpoint on Router1 can now send traffic to Multicast group over RP   
-     (!)RP upon receival of traffic over "SHORTEST PATH TREE" is sending it internally to "SHARED TREE" and then just sends it further to the Multicast server
+     (*)RP upon receival of traffic over "SHORTEST PATH TREE" is sending it internally to "SHARED TREE" and then just sends it further to the Multicast server
     9. Once the Router2 receives the traffic it'll also have a (S,G) entry and will recalculate SPT (shortest path tree) for traffic to flow without RP
 
 
@@ -3707,7 +3734,7 @@ ACL can be:
     Standard (match source addresses). ACL #1-99, #1300-1999
     Extended (match source/destination/ports/protocols). ACL #100-199, #2000-2699
 
-(!)Outbound ACL on a router does not filter self-originated traffic.
+(*)Outbound ACL on a router does not filter self-originated traffic.
 
 
 #                Control Plane Policing (CoPP)
