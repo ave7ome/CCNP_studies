@@ -3321,6 +3321,10 @@ Multicast protocols are divided in two groups:
             IGMP SNOOPING table is built based on IGMP traffic sent by receivers
             IGMP SNOOPING need router to be connected to switch with PIM enabled to populate the table
 
+            With STP, IGMP SNOOPING has following behaviour:
+                Upon receival of TCN packet (due to some interface with no portfast coming up/going down), all MCAST traffic will be flooded for VLAN of TCN - configure portfast for edge ports
+                STP Root bridge will sent IGMP Leave (from MCAST group 0.0.0.0) upon receival of TCN to make sure that correct way is used for MCAST traffic after some interface went down
+
         PROXY REPORTING - switch with IGMP SNOOPING limits the quantity of IGMP membership reports sent to a router (DDoS protection)
             Proxies Group-Specific Queries (it is triggered after IGMP leave) received from router, that means that it can answer to that query since switch already seen IGMP leave and can answer for any receivers left in network
             Membership reports are not suppressed - that is done to make sure switch has all the necessary information in their IGMP Snooping Table
@@ -3361,9 +3365,20 @@ Multicast protocols are divided in two groups:
             Router still have to be connected or else MCAST traffic will be flooded
             Switch can be configured as IGMP Querier - it'll be responsible for listening to Leaves, Queries and serve as Router would have been used
 
-    L3 Multicast - PIM
+        IGMP traffic can be Filtered using ACLs
+
+    L3 Multicast - PIM (PIM is a Multicast Routing protocol)
         L3 Multicast - communication of gateway further to other routers and to RP 
         PIM must be configured on all intefaces where Multicast traffic is forwarded.
+
+        PIM Uses Hello messages to communicate with other routers.
+        PIM is IP protocol 103
+        MCAST-IP used by PIM: 224.0.0.13
+
+        (Details about PIM operation is below)
+        PIM Join is sent to 224.0.0.13. If it's sent to the destination with Switch on the way, it'll flood id from all interfaces (switch won't learn MCAST-IP + MAC)
+            For that cases, PIM SNOOPING is used
+            PIM SNOOPING "cooperates" with IGMP SNOOPING and allows it to put all the information containing in PIM Join messages to be populated to the PIM SNOOPING table (mcast group mac, mcast IP etc.)
 
 There are following traffic delivery options:
     Shared Tree - as in literal "Tree", there is a Trunk device. It is called "Rendezvous Point" (RP) and it serves as the root device in the Shared tree Multicast topology
@@ -3466,6 +3481,22 @@ Multicast Process (sparse-mode with RP)
     8. Endpoint on Router1 can now send traffic to Multicast group over RP   
      (*)RP upon receival of traffic over "SHORTEST PATH TREE" is sending it internally to "SHARED TREE" and then just sends it further to the Multicast server
     9. Once the Router2 receives the traffic it'll also have a (S,G) entry and will recalculate SPT (shortest path tree) for traffic to flow without RP
+
+IPv6 
+    IGMP analogue for IGMP is MLDP (Multicast Listener Discovery Protocol)
+
+ (*)Packet structure
+    MLDP is based on IGMP (MLD v1 is based on IGMPv2, MLD v2 is based on IGMPv3)    
+    MDLP is carried within ICMPv6 message and specified in a "Type" field of ICMPv6 message
+    To let Router know that it have to inspect the information stored in the packet (MLDP packet), there's a special structure for IPv6 packet:
+        In the IPv6 header, there's a "NEXT HEADER" field that usually specifies transport layer protocol that'll follow (TCP, UDP, ICMP, etc.)
+        To make sure, it'll be examined by router CPU, there's a specific value to that field - "Router-Alert" ("Hop-By-Hop" as seen in Wireshark) which adds IPv6 Extension header (Router-Alert) after IPv6 header
+        Extension header will also contain "NEXT HEADER" field specifying that the ICMPv6 will follow that will have to be checked by CPU (MLDP is inside)
+
+    MLDP Snooping is pretty much the same as IGMP Snooping
+        There are 'MLD Snooping v1', 'MLD Snooping v2', 'MLD Snooping v2 Enhanced Snooping'
+
+    
 
 
 #                SNMP
