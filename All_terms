@@ -3374,7 +3374,7 @@ Multicast protocols are divided in two groups:
         PIM Uses Hello messages to communicate with other routers.
         PIM is IP protocol 103
         MCAST-IP used by PIM: 224.0.0.13
-
+ 
         (Details about PIM operation is below)
         PIM Join is sent to 224.0.0.13. If it's sent to the destination with Switch on the way, it'll flood id from all interfaces (switch won't learn MCAST-IP + MAC)
             For that cases, PIM SNOOPING is used
