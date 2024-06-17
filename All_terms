@@ -1730,6 +1730,13 @@ Second 64 bit is an "Interface-ID"
 
 If my ISP provider delegated a portion of the prefix to me (e.g. `2003:1000:1000:1600/56`), then I could use the subnets `1600` through to `16FF` for my own purposes.
 
+(*)In IPv6 NAT is still present and in use.
+    Unique-local addresses unfortunately can intersect between different branches of a company :-(
+
+(*)In IPv6, there is no ARP. Instead, ICMPv6 Neighbor Solicitation Message is used
+    Thanks to that, packet is sent as broadcast like ARP, but it is not processed on the end devices
+    It is not processed because internal headers contain different MAC-address and IPv6 than the initial one 
+
 Multicast
 Communication from one node to another is called Unicast Communication from one node to many is called Multicast.
 The following IPv6 multicast addresses may be used in in the link-local scope:
@@ -1785,7 +1792,8 @@ The DHCPv6 protocol is explained in more detail in this [Wikipedia Article](http
 DHCPv6 vs. SLAAC
 Depending on how the router and the client are set up, the client can (and will) use both mechanisms (i.e. SLAAC and DHCP) to acquire IPv6 address allocations. The following table highlights the possible configuration combinations:
 
-
+https://www.youtube.com/watch?v=xvvd8u5HYJU&list=PLhDYfiUuFcxPjoQuVAY0MVeEDNh0JzU-u&index=30
+54:45
 
 #                    Routing 
 
