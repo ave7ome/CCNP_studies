@@ -3513,15 +3513,15 @@ MSDP links routers together (TCP session) and allows them to build a multicast t
 Multicast Process (sparse-mode with RP)
     1. An endpoint willing to receive some traffic from some Multicast-group initiates a connection to a Multicast-address
     2. Router1 hosting the endpoint receives Multicast message, then sends out a PIM register message to RP specifying the (S,G) pair
-     (*)Here Router1 attempts to build "SHORTEST PATH TREE" to RP with (S,G) data
+     (*)Here Router1 attempts to build "SHARED TREE" to RP with (S,G) data
     3. RP sends the PIM Register Stop message back to the Router1
-    4. Meanwhile the server decides to join the same Multicast-group an  d sends out the IGMP report (or IGMP join) message
+    4. Meanwhile the server decides to join the same Multicast-group and sends out the IGMP report (or IGMP join) message
     5. Router2 hosting the server, receives the IGMP report and now it has a (*,G) entry for the Multicast
     6. Router2 sends the PIM join message to RP
      (*)Here, Router2 and RP builds a "SHARED TREE"
     7. Now RP has entries to (S,G) and (*,G)
     8. Endpoint on Router1 can now send traffic to Multicast group over RP   
-     (*)RP upon receival of traffic over "SHORTEST PATH TREE" is sending it internally to "SHARED TREE" and then just sends it further to the Multicast server
+     (*)RP upon receival of traffic over "SHORTEST PATH TREE" is sending it internally to "SHARED TREE" and then just sends it further to the Multicast receival
     9. Once the Router2 receives the traffic it'll also have a (S,G) entry and will recalculate SPT (shortest path tree) for traffic to flow without RP
 
 IPv6 
