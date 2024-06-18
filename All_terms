@@ -1785,15 +1785,30 @@ Here are some frequently used IPv6 ICMP types:
 
 A full list is maintained by [IANA](https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml)
 
-DHCPv6
-IPv6 addresses can be distributed using the IPv6 version of the Dynamic Host Configuration Protocol (DHCPv6). If a host wishes to obtain an IPv6 address via DHCPv6, it sends out a **DHCP Solicitation** from UDP port 546 to port 547 on the DHCP multicast address `ff02::1:2`. The DHCP server then replies to the client (from UDP port 547 to UDP port 546) with **DHCP Advertisement**. This handshake can be completed by the client sending out a **DHCP Request** and the server responding with a **DHCP Reply**
-The DHCPv6 protocol is explained in more detail in this [Wikipedia Article](https://en.wikipedia.org/wiki/DHCPv6)
+(*)Methods of IPv6 address auto-assignment:
+
+1. SLAAC
+    Imagine simplest topology where endhost is connected to a gateway with some network between them and Link-local IPv6 on a gateway interface to host.
+    In SLAAC, gateway sends out an "RA" (Router Advertisement) from it's link-local IPv6 to FF02::1 (All IPv6 Devices MCAST address)
+    RA is an ICMPv6 Router Advertisement. It advertises prefix (network between host and gateway), prefix length and some flags (A=1, O=0, M=0)
+    Endhost receives that advertisement, retrieves defaul gateway (Link-local IP of router), prefix and prefix-length
+    Based on that info, host can derive a full IPv6 by MAC-to-IPv6 process (prefix+MAC+mask)
+
+2. SLAAC + stateless DHCPv6 server
+    New device in network sends out "NDP Router Solicitation Message" to FF02::2
+    Router sends back "NDP Router Advertisement Message" with flags A=1 and O=1 ("O=1" means that host should contact STATELESS DHCP server somewhere in the network for IPv6)
+    Host then goes over SLAAC process and initiates "NDP Duplicate address detection"
+    To find duplicate, it initiates ICMP echo for address and if packet is received, then that IPv6 is already in network
+    If no dup, "DHCPv6 SOLICIT Message" is sent to reserved link-local IP which all DHCP servers listen to
+    DHCP gets message and then process goes as in IPv4 (advertise, request, reply)
+
+3. Stateful DHCPv6 
+    Start is same as p.2 with "NDP Router Advertisement Message", but flags from router are M=1, A=0 (M=1 means Stateful DHCPv6 server)
+    That would prevent receiving prefix, prefix-length and dns server with use of SLAAC. All that parameters will be given out by DHCP server
 
 DHCPv6 vs. SLAAC
-Depending on how the router and the client are set up, the client can (and will) use both mechanisms (i.e. SLAAC and DHCP) to acquire IPv6 address allocations. The following table highlights the possible configuration combinations:
+Depending on how the router and the client are set up, the client can (and will) use both mechanisms (i.e. SLAAC and DHCP) to acquire IPv6 address allocations. 
 
-https://www.youtube.com/watch?v=xvvd8u5HYJU&list=PLhDYfiUuFcxPjoQuVAY0MVeEDNh0JzU-u&index=30
-54:45
 
 #                    Routing 
 
@@ -2316,10 +2331,29 @@ OSPF Virtual links
     Not commonly used as of now - a case of badly designed network
 
 OSPFv3 for IPv6
+
+    In OSPFv3, there was an attempt to make it more resilient and reliable - LSA1 always contained topology information and Network (IPs, subnets) information
+    Not anymore, LSA9 and LSA8 were created to change that.
+    Topologic info is now independent from Network info and like that, changing some IP-address won't bring full SPF recalculation
+
+    Neighborships are built over Link-Local addresses
+
     IPv6 version of OSPF differs from IPv4 version in some additional LSA types:
-        LSA1,LSA2 also exist on the OSPFv3 but there's no more prefix information on the existing networks carried in the LSA information
+        LSA1,LSA2 also exist on the OSPFv3 but there's no more prefix information or the existing networks carried in the LSA
+            Only OSPF topology is specified there (OSPF graph - related information), links that are going to stub networks or other processes are not displayed there
+            For example topology:
+
+        FD01::/64 --- R1 --- SW1 --- R2
+
+            R1 will have 1 link in LSA1 (towards SW1)
+            R1 will have 1 entry in LSA2 (specifying R1 as DR and listing all routers on broadcast segment)
+                Link to network FD01::/64 won't be displayed in LSA1 or LSA2. It will be present in LSA8 (with link-local address) and LSA9 (with subnet address)
+        
         LSA9 (named Intra Area Prefix Link State) is a new LSA type responsible for carrying the subnet information shared within the area for interfaces participating in the OSPFv3 process. 1 LSA for each subnet
-        LSA8 (named Link States) is also a new LSA type which is local in the OSPFv3 LSDB to every router in the process. Each router has it's own LSA8, one LSA8 for each of it's interfaces in OSPFv3 and one LSA8 for every connected to router interface of adjacent router.
+        
+        LSA8 (named Link States) is also a new LSA type which is local in the OSPFv3 LSDB to every router in the process. 
+            Each router has it's own LSA8, one LSA8 for each of it's interfaces in OSPFv3 and one LSA8 for every connected to router interface of adjacent router 
+            Contains Link-Local Address
 
         LSA3 in OSPFv3 is named "inter-area prefix"
         LSA4 in OSPFv3 is named "inter-area router"
