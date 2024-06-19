@@ -1809,6 +1809,50 @@ A full list is maintained by [IANA](https://www.iana.org/assignments/icmpv6-para
 DHCPv6 vs. SLAAC
 Depending on how the router and the client are set up, the client can (and will) use both mechanisms (i.e. SLAAC and DHCP) to acquire IPv6 address allocations. 
 
+#                    802.1X
+
+802.1X helps to secure the access of users to the network and protect the network from unapproved access.
+
+802.1x architecture consists of:
+    Supplicant - basically a client that would like to connect
+    Authenticator - a device that allows suppliant access to the network or denies it. Also applies some policy to the client
+    Authentication server - is a server that stores all the policies. Must know how to work with RADIUS protocol
+
+How it works:
+    Let's say Authenticator is some Cisco switch.
+    On the interfaces, dot1x have to be turned on. After that, switch starts to send out(EAP request) and accept EAP packets
+        (*)EAP is an Extensible Authentication Protocol (for example username-password inside, or user's certificate)
+        (*)EAPoL - EAP over Lan (L2), no IP is required
+
+    There are different modes to dot1x on the interface
+        - Hard - only EAPoL packets are allowed, everything else is RESTRICTED until user is authenticated
+        - Soft - everything is allowed even if user is not authenticated (generally used for monitoring of initial deployment)
+        - Mix - some traffic is allowed, but most is blocked until user gets Authenticated. Traffic is controlled with ACL on an L2 interface. That ACL is called (ACL_PRE_AUTH)
+
+    1. When dot1x interface comes up, switch (AUTHENTICATOR) sends out EAP REQUEST waiting for device to authenticate to get access to the network
+        (*)What if printer is connected? It cannot authenticate!
+            Device won't be able to answer to EAP REQUEST.
+            On such interfaces, command "mab" is enabled. When request is timed out, switch takes a 1st packet from connected device and sends it to AUTHENTICATION SERVER with credentials of username:device_MAC and same password
+            Authentication will be on MAB and it have to be whitelisted in the server
+    For connected device (let's say PC) to have connection, some software with 802.1x capabilities have to run on it
+    Cisco Anyconnect is the best for that as it supports different EAP types
+
+    2. Upon receival or EAP REQUEST, PC will get a popup window to input the Username and Password and it (SUPPLICANT) replies with EAP REPLY
+    3. SUPPLICANT will encapsulate the received EAP REPLY into the RADIUS ([MAC][IP][UDP][RADIUS][CREDENTIALS]) and sends to Cisco ISE (AUTHENTICATION SERVER)
+    4. AUTHENTICATION SERVER has a local DB (manual entries) or remote DB (some other server). It checks its DBs for match in received packet with Credentials
+    5. There are rules on what DB to use with what requests. Let's say it has to check with AD DB for request - it sends the Credentials to AD server and receives a reply from it ("all good, there is such user")
+    6. After Authentication, it's tume to Authorization
+    7. There are rules on AUTHENTICATION SERVER: "if group1 then profile1" and so on for other groups - other profiles.
+        groups are groups from Active Directory
+        profiles are some specific rules set up on server for the group (like downloadable ACL with configured rules)
+            downloadable ACL is an ACL applied to a user after it's authorized
+            redirect ACL is generally a new user who is not in any group and it is being redirected to some guest portal for user to create an account
+            etc.
+
+    8. After Authorization on AUTHENTICATION SERVER, it sends out a RADIUS ACCEPT to AUTHENTICATOR. It specifies if user is allowed to network and sends out profile policies for the group user fell into (downloadable ACL named 'ACL-1' for example)
+    9. After that, traffic on the interface previously controlled by L2-ACL is changed to 'ACL-1'
+    10. And client can connect to allowed in 'ACL-1' resources
+
 
 #                    Routing 
 
