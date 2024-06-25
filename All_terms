@@ -3466,6 +3466,17 @@ Multicast protocols are divided in two groups:
             For that cases, PIM SNOOPING is used
             PIM SNOOPING "cooperates" with IGMP SNOOPING and allows it to put all the information containing in PIM Join messages to be populated to the PIM SNOOPING table (mcast group mac, mcast IP etc.)
 
+        Similarities to IGP routing protocols:
+            - Hello packets are sent to 224.0.1.13 (like OSPF/EIGRP) every ~30 seconds
+            - If few Hellos are lost, PIM is considered dead on a neighbor
+            - Information learned in PIM has an expiration timer (210 sec)
+
+        Differences:
+            - IGPs only care about destinations, PIM keeps track about both Source and Destinations
+            - Relies on receivers or senders to trigger any PIM information excahnge
+            - Populates Multicast routing table (MROUTE)
+            - Cannot work without IGP
+
 There are following traffic delivery options:
     Shared Tree - as in literal "Tree", there is a Trunk device. It is called "Rendezvous Point" (RP) and it serves as the root device in the Shared tree Multicast topology
         Whenever RP received the PIM request to add some device to certain Multicast-group, it does it and from now on, traffic with dst-ip of 224.1.1.1 (or any other specified IP) will also be forwarded to that new device that sent IGMP request
@@ -3554,18 +3565,28 @@ There is a way to auto-negotiate the RP IP-address in the network
 MSDP is a protocol that allows two routers to server as two different RPs. 
 MSDP links routers together (TCP session) and allows them to build a multicast tree extension between each other to forward traffic
 
+Shared tree - a traffic path from the router in multicast "domain" TO RP.
+
 Multicast Process (sparse-mode with RP)
-    1. An endpoint willing to receive some traffic from some Multicast-group initiates a connection to a Multicast-address
-    2. Router1 hosting the endpoint receives Multicast message, then sends out a PIM register message to RP specifying the (S,G) pair
-     (*)Here Router1 attempts to build "SHARED TREE" to RP with (S,G) data
+    1. An receiver willing to receive some traffic from some Multicast-group initiates a connection to a Multicast-address (IGMP report with MCAST-IP as destination)
+    
+    2. Router1 hosting the endpoint receives Multicast message (IGMP Report), then sends out a PIM register message to RP specifying the (*,G) pair
+     (*)Here Router1 attempts to build "SHARED TREE" to RP with (*,G) data
+    
     3. RP sends the PIM Register Stop message back to the Router1
-    4. Meanwhile the server decides to join the same Multicast-group and sends out the IGMP report (or IGMP join) message
-    5. Router2 hosting the server, receives the IGMP report and now it has a (*,G) entry for the Multicast
+    
+    4. Meanwhile the MCAST sender decides to join the same Multicast-group and sends out the IGMP report (or IGMP join) message
+    
+    5. Router2 hosting the sender, receives the IGMP report and now it has a (S,G) entry for the Multicast
+    
     6. Router2 sends the PIM join message to RP
      (*)Here, Router2 and RP builds a "SHARED TREE"
+    
     7. Now RP has entries to (S,G) and (*,G)
+    
     8. Endpoint on Router1 can now send traffic to Multicast group over RP   
      (*)RP upon receival of traffic over "SHORTEST PATH TREE" is sending it internally to "SHARED TREE" and then just sends it further to the Multicast receival
+    
     9. Once the Router2 receives the traffic it'll also have a (S,G) entry and will recalculate SPT (shortest path tree) for traffic to flow without RP
 
 IPv6 
