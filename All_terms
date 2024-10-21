@@ -298,13 +298,13 @@ SD-WAN  is separated into 4 planes
     Management plane (centralized configuration of the SD-WAN);
     Control plane (decides on how the traffic flows inc. routing protocolcs and maintains network topology);
     Data plane (responsible for forwarding packets and traversing them over network, all based on decisions made by control plane).
-In usual network, Control and Data plane are both living on same device.
+In usual network, Control and Data plane are both living on same device and generally there's no Orchestration plane nor the dedicated Management plane.
 In case of SD-WAN (and SDN), controller is responsible for Control Plane (brain of network). Edge devices are responsible for Data plane (legs of network).
 
 Differences:
 WAN                                                             |   SD-WAN
 ________________________________________________________________|__________________________________________________________________________
-Each device has own control plane                               |   Centralized control plane
+Each device has own control plane                               |   Centralized control plane (on a controller)
 All configuration, upgrades and monitoring done on each box     |   Configuration, upgrades and monitoring done centralized
 Automation only through scripts                                 |   Automation can be done using API or scripts
 New installation done from scratch                              |   New installation can be done with help of ZTP (Zero-Touch Provisioning)
@@ -312,19 +312,22 @@ New installation done from scratch                              |   New installa
 Cisco solution was initially iWAN (intelligent WAN) but that failed and they made a purchase of Viptela company.
 Currect solution is "Cisco SD-WAN". Also they have a Meraki SD-WAN solution
 
+vManage, vSmart and vBond are all SD-WAN controllers.
+
 Cisco SD-WAN components:
-    vManage - User logs in to it and configures all the settings required to be run on devices. Centralized management and monitoring happens here. Changes are pushed to vSmart Controller first then vSmart pushes them to devices
+    vManage - A GUI. User logs in to it and configures all the settings required to be run on devices. Centralized management and monitoring happens here. Changes are pushed to vSmart Controller first then vSmart pushes them to devices
         DEMO: https://sandbox-sdwan-2.cisco.com/ (devnetuser/RG!_Yw919_83)
         Templates are used to push the predefined configuration to devices.
         Can be configured using REST API over "vManage API"
     vSmart - A controller, CAN ONLY BE VIRTUAL (public/private cloud or on-prem). It sends out the configuration (that has been configured on vManage) to routers. Config like Security/QoS/VPNs
         Also responsible for fabric discovery.
+        A route-reflector for vEdges.
     vEdge - Basically a Router. It is interconnected with other routers via IPsec tunnel. So underlay is a Provider network. Overlay is tunnels
         vEdge can be deployed in a Cloud therefore be virtual.
         Also there's a cEdge - Cisco ISRs with Viptela code running on them. Used to be able to support T1, E1 (Voice, serial) lines, or some security features
         Represented by Cisco devices (ASR 1k, ISR 1k, ISR 4k, ENCS 5400), device runs IOS-XE 18.3.0+
         It is not recommended to run both vEdges and cEdges in the same location
-    vBond - An orchestrator (virtual deployment only, it must have a public IP) with OOB view on the SD-WAN. Used to glue all the components together. Orchestrates the connectivity between vEdges and vSmart controller.
+    vBond - An orchestrator (virtual deployment only, it MUST have a public IP, but can be NATted 1:1, IP to IP) with OOB view on the SD-WAN. Used to glue all the components together. Orchestrates the connectivity between vEdges and vSmart controller.
         Whenever new vEdge device join SD-WAN, it goes to vBond which sends out the info to vManage. Then Administrator can approve or reject adding the vEdge to SD-WAN
         Can help for two vEdges to build an IPsec tunnel if both of them are behind NAT - that is called NAT traversal
         Example: it sends out a packet to two vEdges which open the certain ports. Devices then use that ports to build a tunnel. Or it can orchestrate so those devices exchange packets themselves.
@@ -346,11 +349,28 @@ SD-WAN fabirc initialization process:
     7. vEdges authenticates to vManage and to vSmart
     8. vManage sends a config to vEdges (through vSmart)
 
+Cisco SD-WAN definitions:
+    TLOC - an identifier. Consists of System-IP (router-id analogue), Color (Private/Public or custom) and Encapsulation (IPSec/GRE)
+    Color - specifies if interface is connected to public network or to private network, also specifies if NAT is configured
+    VPN - a VRF analogue from Viptela. 0 (default-external) and 512 (MGMT) are reserved
+    Site-ID - just as name implies. Distributed locations ID. Devices don't build tunnels with each other within same Site (actually they will try, then check Site-ID and will stop doing that upon seeing same ID)
+        Policies are applied to Site-ID
+    OMP - every vEdge advertises routes to vSmart over OMP. Three types of routes:
+            OMP routes (vRoutes, analogue of BGP Prefix with it's own attributes) - analogue of vpnv4 AF. Routes within VPNs (attributes: TLOC, Origin, Originator, Preference, Service, Site-ID, Tag, VPN)
+            TLOC routes - vSmart shares all vEdges to all other vEdges
+            Service Routes - service chains
+        vEdges don't have to be connected to all vSmarts.
+        vEdge to vSmart activity is encrypted using TLS (DTLS).
+
+     (!)Between vEdges, active BFD-session is required to insert vRoutes into the FIB (alive TLOC is required)
+
+        OMP Graceful restart exists (analogue of BGP Graceful restart)
+
 Authentication process:
-vBond sends out it's certificate to vSmart to be authenticated with the vSmart. If the contents of certificate are good (including that it was indeed signed by local root CA), vSmart authenticates vBond and consideris it a part of fabric
+vBond sends out it's certificate to vSmart to be authenticated with the vSmart. If the contents of certificate are good (including that it was indeed signed by local root CA), vSmart authenticates vBond and consider it as part of the fabric
 
 SD-WAN protocols:
-    OMP - communication of vEdge to vSmart
+    OMP - communication of vEdge to vSmart (BGP analogue in Cisco SD-WAN)
     DTLS - communication of vBond to vSmart
 
 Cisco SD-WAN topologies:
