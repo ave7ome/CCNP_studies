@@ -322,6 +322,8 @@ Cisco SD-WAN components:
     vSmart - A controller, CAN ONLY BE VIRTUAL (public/private cloud or on-prem). It sends out the configuration (that has been configured on vManage) to routers. Config like Security/QoS/VPNs
         Also responsible for fabric discovery.
         A route-reflector for vEdges.
+        vSmart unreachability by itself only leads to unavailibility to push policies to Edges. Data plane will still be OK during that. But in the long run, there is a period of encryption keys renewal for Edge devices. Edges contact vSmart for that every 12 hours
+            And if that period has passed while vSmart is unreachable, vEdge lost connectivity to each other due to keys expiration -> IPSec tunnels go down -> BFD between devices go down -> no traffic can be exchanged
     vEdge - Basically a Router. It is interconnected with other routers via IPsec tunnel. So underlay is a Provider network. Overlay is tunnels
         vEdge can be deployed in a Cloud therefore be virtual.
         Also there's a cEdge - Cisco ISRs with Viptela code running on them. Used to be able to support T1, E1 (Voice, serial) lines, or some security features
