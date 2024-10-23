@@ -368,6 +368,8 @@ Cisco SD-WAN definitions:
 
         OMP Graceful restart exists (analogue of BGP Graceful restart)
 
+Service chains - a technology that serves like PBR. For example sends traffic on the same segment not directly to required destination but sends it to firewall for inspection first.
+
 Authentication process:
 vBond sends out it's certificate to vSmart to be authenticated with the vSmart. If the contents of certificate are good (including that it was indeed signed by local root CA), vSmart authenticates vBond and consider it as part of the fabric
 
