@@ -3591,27 +3591,29 @@ MSDP links routers together (TCP session) and allows them to build a multicast t
 
 Shared tree - a traffic path from the router in multicast "domain" TO RP.
 
-Multicast Process (sparse-mode with RP)
-    1. An receiver willing to receive some traffic from some Multicast-group initiates a connection to a Multicast-address (IGMP report with MCAST-IP as destination)
+Multicast Process (sparse-mode with RP) (ChatGPT powered to reflect the correct sequence :DD)
+    1. A receiver willing to receive some traffic from some Multicast-group initiates a connection to a Multicast-address (IGMP report with MCAST-IP as destination)
     
     2. Router1 hosting the endpoint receives Multicast message (IGMP Report), then sends out a PIM register message to RP specifying the (*,G) pair
      (*)Here Router1 attempts to build "SHARED TREE" to RP with (*,G) data
     
-    3. RP sends the PIM Register Stop message back to the Router1
+    3. RP sends the PIM Register Stop message back to the Router1.
+       Router1 now has (*,G) entry meaning it's interested in traffic destined to group (G)
     
-    4. Meanwhile the MCAST sender decides to join the same Multicast-group and sends out the IGMP report (or IGMP join) message
+    4. When a sender on a separate network (behind Router2) starts sending traffic to multicast group G, Router2 receives the multicast traffic from the sender
     
-    5. Router2 hosting the sender, receives the IGMP report and now it has a (S,G) entry for the Multicast
+    5. Router2 encapsulates the multicast traffic in a PIM Register message and sends it directly to the RP, signaling the source (S) sending to group (G). 
+       This action establishes an (S, G) entry at the RP, associating the sender’s source address (S) with the multicast group (G)
     
-    6. Router2 sends the PIM join message to RP
-     (*)Here, Router2 and RP builds a "SHARED TREE"
+    6. The RP decapsulates the PIM Register message, checks the content, and sends a PIM Register Stop message to Router2. 
+       The RP now has both an (S, G) entry for the specific source and a (*, G) entry for any source.
+
+    7. With both (S, G) and (*, G) entries, the RP forwards multicast traffic to all routers on the shared tree for group G, including Router1, where the receiver is located.
     
-    7. Now RP has entries to (S,G) and (*,G)
-    
-    8. Endpoint on Router1 can now send traffic to Multicast group over RP   
+    8. Endpoint on Router2 can now send traffic to Multicast group over RP   
      (*)RP upon receival of traffic over "SHORTEST PATH TREE" is sending it internally to "SHARED TREE" and then just sends it further to the Multicast receival
     
-    9. Once the Router2 receives the traffic it'll also have a (S,G) entry and will recalculate SPT (shortest path tree) for traffic to flow without RP
+    9. Once the Router1 receives the traffic it'll also have a (S,G) entry and will recalculate SPT (shortest path tree) for traffic to flow without RP
 
 IPv6 
     IGMP analogue for IGMP is MLDP (Multicast Listener Discovery Protocol)
