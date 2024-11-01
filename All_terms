@@ -3418,7 +3418,7 @@ Multicast Control protocols
     IGMP (Internet Group Management Protocol) - a way for devices to say that they want to be a part of Multicast group. There are IGMP versions 1, 2 and 3.
         IGMP basically works between host and it's gateway. Not further
     PIM (Protocol Independent Multicast) - a way for routers to notify RP about endpoints willing to join the Multicast group and communicate to other routers.
-        PIM link-local Multicast-IP is 224.0.0.13
+        PIM link-local Multicast-IP (for Hello packets) is 224.0.0.13
 
 Multicast protocols are divided in two groups:
     L2 Multicast - IGMP (all IGMP packets have TTL=1)
