@@ -3605,8 +3605,11 @@ Multicast Process (sparse-mode with RP) (ChatGPT powered to reflect the correct 
     5. Router2 encapsulates the multicast traffic in a PIM Register message and sends it directly to the RP, signaling the source (S) sending to group (G). 
        This action establishes an (S, G) entry at the RP, associating the sender’s source address (S) with the multicast group (G)
     
-    6. The RP decapsulates the PIM Register message, checks the content, and sends a PIM Register Stop message to Router2. 
-       The RP now has both an (S, G) entry for the specific source and a (*, G) entry for any source.
+    6. The RP decapsulates the PIM Register message and checks the content, sends back the PIM Join for (S,G) and that establishes Shortest Path Tree for the MCAST Source
+       The RP now has both an (S, G) entry for the specific source and a (*, G) entry for any source
+       Then while there already is established Shortest Path Tree, Router2 upon next Multicast traffic recieval from the MCAST Source will send PIM Register AGAIN
+           Then, when RP receives the 2nd PIM Register, it'll check if SPT is established and if yes, will send Register-stop back. After that there will be no same PIM Registers from Router2
+        Sometimes Router2 will send "NULL-REGISTER" packets - to check with RP if traffic to that same Group is required
 
     7. With both (S, G) and (*, G) entries, the RP forwards multicast traffic to all routers on the shared tree for group G, including Router1, where the receiver is located.
     
