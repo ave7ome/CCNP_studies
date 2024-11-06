@@ -3616,7 +3616,9 @@ Multicast Process (sparse-mode with RP) (ChatGPT powered to reflect the correct 
     8. Endpoint on Router2 can now send traffic to Multicast group over RP   
      (*)RP upon receival of traffic over "SHORTEST PATH TREE" is sending it internally to "SHARED TREE" and then just sends it further to the Multicast receival
     
-    9. Once the Router1 receives the traffic it'll also have a (S,G) entry and will recalculate SPT (shortest path tree) for traffic to flow without RP
+    9. Once the Router1 receives the traffic (the threshold in Cisco Router is 1 MCAST packet) it'll also request for a (S,G) entry and will recalculate SPT (shortest path tree) for traffic to flow without RP
+        There's another option in Cisco - NEVER switch to SPT. So it's either never or after 1 packet.
+
 
 IPv6 
     IGMP analogue for IGMP is MLDP (Multicast Listener Discovery Protocol)
