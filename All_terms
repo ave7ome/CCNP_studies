@@ -3609,7 +3609,7 @@ Multicast Process (sparse-mode with RP) (ChatGPT powered to reflect the correct 
        The RP now has both an (S, G) entry for the specific source and a (*, G) entry for any source
        Then while there already is established Shortest Path Tree, Router2 upon next Multicast traffic recieval from the MCAST Source will send PIM Register AGAIN
            Then, when RP receives the 2nd PIM Register, it'll check if SPT is established and if yes, will send Register-stop back. After that there will be no same PIM Registers from Router2
-        Sometimes Router2 will send "NULL-REGISTER" packets - to check with RP if traffic to that same Group is required
+        Sometimes Router2 will send "NULL-REGISTER" packets - to check with RP if traffic to that same Group is required - that's done when SPT is reestablished with no usage of RP (done after step 9)
 
     7. With both (S, G) and (*, G) entries, the RP forwards multicast traffic to all routers on the shared tree for group G, including Router1, where the receiver is located.
     
@@ -3617,6 +3617,8 @@ Multicast Process (sparse-mode with RP) (ChatGPT powered to reflect the correct 
      (*)RP upon receival of traffic over "SHORTEST PATH TREE" is sending it internally to "SHARED TREE" and then just sends it further to the Multicast receival
     
     9. Once the Router1 receives the traffic (the threshold in Cisco Router is 1 MCAST packet) it'll also request for a (S,G) entry and will recalculate SPT (shortest path tree) for traffic to flow without RP
+       To get rid of packets still being send from RP, Router1 sends PIM Prune message (with RP-Bit) towards RP to tell not to send traffic through Shared tree
+       PIM Prune will also be sent by RP towards Router2 so it won't send traffic through RP anymore and stick with only SPT
         There's another option in Cisco - NEVER switch to SPT. So it's either never or after 1 packet.
 
 
