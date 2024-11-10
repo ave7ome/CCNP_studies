@@ -3621,6 +3621,14 @@ Multicast Process (sparse-mode with RP) (ChatGPT powered to reflect the correct 
        PIM Prune will also be sent by RP towards Router2 so it won't send traffic through RP anymore and stick with only SPT
         There's another option in Cisco - NEVER switch to SPT. So it's either never or after 1 packet.
 
+    Designater Routers (DR) and Designated Forwarders (DF)
+        In Multicast there can be cases where 1 single MCAST source or MCAST receiver are connected to two different routers on a same LAN segment
+            In that case, single IGMP Report or Multicast packet will be received by both routers
+        To prevent miscommunication between routers (to not send two SAME PIM Joins, for example), between Routers, a Designater Router is chosen via PIM Hellos (highest PIM Priority or Highest IP-address wins)
+            And the winning router will send PIM Joins/PIM Registers
+
+        In case of Multicast traffic from MCAST source being received by both routers on a single segment, a Designated Forwarder is chosen - lowest metric to RP is chosen or lowest IP-address
+
 
 IPv6 
     IGMP analogue for IGMP is MLDP (Multicast Listener Discovery Protocol)
