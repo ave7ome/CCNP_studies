@@ -3644,7 +3644,18 @@ IPv6
     MLDP Snooping is pretty much the same as IGMP Snooping
         There are 'MLD Snooping v1', 'MLD Snooping v2', 'MLD Snooping v2 Enhanced Snooping'
 
-    
+Auto-RP (Cisco proprietory)
+    Used to not manually set up an RP for all MCAST routers
+    There are following device types in Auto-RP:
+        RP-Candidates - MCAST Routers willing to become an RP
+        Mapping Agent - a device that decides which router should become an RP and for which MCAST-Group
+
+    RP-Candidates send out an RP-Announce message to advertise they want to become an RP (to IP 224.0.1.39) and for which MCAST-Group
+    Mapping Agent receives and decides among all Candidates who will become actual RP and propagates teh decision through RP-Discovery message
+        RP-Discovery is sent to IP 224.0.1.40
+
+    RP-Announce and RP-Discovery are propagated with the use of Sparse-Dense Multicast mode. Dense is used to distribute initially
+        But there's also a configuration to remove Dense mode usage from the protocol
 
 
 #                SNMP
