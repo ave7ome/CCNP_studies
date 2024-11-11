@@ -3650,9 +3650,9 @@ Auto-RP (Cisco proprietory)
         RP-Candidates - MCAST Routers willing to become an RP
         Mapping Agent - a device that decides which router should become an RP and for which MCAST-Group
 
-    RP-Candidates send out an RP-Announce message to advertise they want to become an RP (to IP 224.0.1.39) and for which MCAST-Group
-    Mapping Agent receives and decides among all Candidates who will become actual RP and propagates teh decision through RP-Discovery message
-        RP-Discovery is sent to IP 224.0.1.40
+    RP-Candidates send out an RP-Announce message (UDP/496 Source and Destination) to advertise they want to become an RP (to IP 224.0.1.39) and for which MCAST-Group
+    Mapping Agent receives and decides among all Candidates who will become actual RP and propagates teh decision through RP-Discovery message (also UDP)
+        RP-Discovery is sent to IP 224.0.1.40 and flooded via Dense-mode
 
     RP-Announce and RP-Discovery are propagated with the use of Sparse-Dense Multicast mode. Dense is used to distribute initially
         But there's also a configuration to remove Dense mode usage from the protocol
