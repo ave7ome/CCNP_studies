@@ -3644,11 +3644,11 @@ IPv6
     MLDP Snooping is pretty much the same as IGMP Snooping
         There are 'MLD Snooping v1', 'MLD Snooping v2', 'MLD Snooping v2 Enhanced Snooping'
 
-Auto-RP (Cisco proprietory)
+Auto-RP (Cisco proprietary) (IPs: 224.0.1.39, 224.0.1.40)
     Used to not manually set up an RP for all MCAST routers
     There are following device types in Auto-RP:
         RP-Candidates - MCAST Routers willing to become an RP
-        Mapping Agent - a device that decides which router should become an RP and for which MCAST-Group
+        Mapping Agent - a device that decides which router should become an RP and for which MCAST-Group. Can be multiple Mapping Agents
 
     RP-Candidates send out an RP-Announce message (UDP/496 Source and Destination) to advertise they want to become an RP (to IP 224.0.1.39) and for which MCAST-Group
     Mapping Agent receives and decides among all Candidates who will become actual RP and propagates teh decision through RP-Discovery message (also UDP)
@@ -3656,6 +3656,23 @@ Auto-RP (Cisco proprietory)
 
     RP-Announce and RP-Discovery are propagated with the use of Sparse-Dense Multicast mode. Dense is used to distribute initially
         But there's also a configuration to remove Dense mode usage from the protocol
+
+    Auto-RP configuration (received from RP-Discovery) overrides Static RP configuration
+        It's still possible for static to override the Auto-RP configuration (using keyword <override>)
+
+    It's possible to configure "RP of last resort" for groups that are not included in RP-Discovery advertisement
+        RP of last resort will be used for all other groups and it's also possible to black hole the traffic to it
+
+PIM-BSR - Bootstrap Router (vendor-neutral) (IPs: 224.0.0.13)
+    Used to not manually set up an RP for all MCAST routers
+    There are following device types in PIM-BSR:
+        RP-Candidates - MCAST Routers willing to become an RP
+        Bootstrap Router - a device that decides which router should become an RP and for which MCAST-Group. Can be only single BSR
+            Among BSR-Candidates, BSR is chosen based on the highest priority/highest IP-Address with preemption always ON.
+
+    Bootstrap Router sends out "PIM Bootstrap" Message. Like that every router in Multicast domain will know about BSR and further on if they want to become RP for some group, they'll send UNICAST message directly to BSR saying "i want to be RP for THAT group"
+        Consists of list of all RP-Candidates with it's priorities
+    PIM Candidate-RP Message is unicasted (specified above), consists of RP IP-address and desired group
 
 
 #                SNMP
