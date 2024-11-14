@@ -3711,11 +3711,25 @@ When configuring exporter, a UDP port number has to be assigned in conjunction w
 
 Netflow basic configuration:
     1. Set a direction of traffic on interfaces (ip flow egress/ingress).
-    That's it :)
+    That's it :) - the above configuration will allow router to store flows going through the configured interface. Store in it's DB
 
-    (optionally) set up ip flow-export server to a specific IP and specific UDP port to use
+    If i want to export the flows and existing cache to external server for better representation:
+        Set up ip flow-export server to a specific IP and specific UDP port to use
 
 #show ip cache flow (shows the cache of netflow-collected flows)
+
+There are following Netflow versions
+
+1, 5, 6, 7, 8, 9
+All have it's specifics but v1 was originally developed by Cisco and used back in 1996.
+v5 is (was) a standard for a very long time, v6 was specifically for certain devices; v7, v8 - not interesting
+Current standard is v9 - it is used like v5 but also has an option to send more information about flows (like Outgoing interface)
+    The collected and sent information is based on the Netflow v9 Templates
+    There's a default one but engineer can configure custom ones to reflect necessary flow info
+    And all of that will be recognized by the export server
+
+v5 packet contains just the flow information
+v9 packet contains flow and template information
 
 Flexible Netflow
 
