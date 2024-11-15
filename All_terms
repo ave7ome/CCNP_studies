@@ -3697,6 +3697,8 @@ SNMP works with the usage of 5 different commands for managing the device (retri
 
 #                NetFlow
 
+   (!)IP CEF HAVE TO BE RUNNING FOR NETFLOW TO WORK
+
 Netflow in general is used to capture the traffic flows in the network to know exactly what's consuming the traffic
     Traffic flow - normally, it's a specific subset of src-ip, dst-ip, src-port and dst-port (of same protocol whether it's TCP or UDP). A lot of packet of such interaction creates a traffic flow
 
@@ -3732,6 +3734,16 @@ v5 packet contains just the flow information
 v9 packet contains flow and template information
 
 Flexible Netflow
+    Basically it's a different (extended) approach to Netflow configuration as compared to "Original Netflow"
+    In short, Original (ON) was initially designed for v5 and Flexible (FN) - for v9
+
+    There are some features available in ON that are not in FN and vice versa
+
+    ON with v9 supports limited number of additional available flow records
+        FN with v9 supports a lot of different records
+
+    ON limited by 2 flow exporters
+    FN limited by 10 flow exporters
 
 FLOW RECORD
     Can reconfigure the definition of a flow flexibly.
@@ -3741,8 +3753,16 @@ FLOW RECORD
 
 Flexible Netflow configuration:
     1. Create flow record and set it up with match and collect (flow record -> match ... -> collect ...)
+        Based on records, router flow cache is filled up. Can use default record
+        "Match" is mandatory is based on that, Record is grouping received packets and presents lately in cache
+            For example can be matched based on Destination IP - then all the packets will be counted with grouping by destination IP
+        "Collect" is optional and can help to collect some of less important values
     2. Create flow exporter with monitoring server IP and UDP port (flow exporter -> ip ... -> transport UDP ...)
+        This is an optional step (although mostly Netflow is used with the exporter)
+        Default Netflow version is 9
     3. Create flow monitor, link it to created exporter and created record (flow monitor -> record ... -> exporter ...)
+        Exporter is optional. Record is mandatory, can be ipv4/ipv6, can use ON structure, can be tied to created Record
+        Netflow monitor in Flexible Netflow is represented by the cache it creates, and cache entries are controlled by the Records in the Monitor
     4. Apply flow monitor to necessary interfaces (ip flow monitor input / output)
 
 
