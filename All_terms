@@ -3694,6 +3694,24 @@ SNMP works with the usage of 5 different commands for managing the device (retri
     SET (RW) - Changes the data that consist in specific OID (if 1.2.3.4.5.6 is an IP of some interface, SET can change it's IP)
     TRAP (X) - A notification issues by monitored device about some event on it (configuration changed, interface down). Point is that trap is issues by monitorED device, not the monitoring server
 
+There are SNMP Traps and SNMP Informs
+    Both are used by Network device that is being monitored to send information about certain events happening
+    For example interface went down - SNMP Trap for IFDOWN
+    Trap vs Inform difference: For Informs there is an Acknowledge from the SNMP Server (even though it's sent with UDP/162)
+        Traps are also sent with UDP/162 but there's no Acknowledge to a Trap
+
+
+#                RMON
+
+RMON allows for local device monitoring. Can configure alarms that might trigger certain events
+    Events are a syslog entries. Based on that syslog entries, EEM can trigger as well
+
+Absolute sampling
+    RMON sampling that checks some absolute values. "What is the current CPU%", "What is current Memory utilization", etc.
+
+Delta sampling
+    RMON sampling that checks difference in some value over time (based on configured sampling interval)
+
 
 #                NetFlow
 
@@ -3764,6 +3782,20 @@ Flexible Netflow configuration:
         Exporter is optional. Record is mandatory, can be ipv4/ipv6, can use ON structure, can be tied to created Record
         Netflow monitor in Flexible Netflow is represented by the cache it creates, and cache entries are controlled by the Records in the Monitor
     4. Apply flow monitor to necessary interfaces (ip flow monitor input / output)
+
+Netflow Sampler
+    In either Original or Flexible Netflow it's possible to configure Netwflow Sampler
+    Netflow Sampler is used to pick only 1 packet out of "n", where "n" is a user-defined number
+        It helps to reduce the load and memory requirement for the stored Cache data
+
+    (let's say "n" = 100)
+    Sampler can either be random (1 random packet every 100 packets, 1st or 9th or 45th - random)
+                       or deterministic (always first packet every 100, for example)
+
+    It's additionally possible to configure Input Filters in conjunction with ON
+        That means that every random or certain packet picked out of "n" (100), will be checked upon certain filters, like certain Destination-IP
+        If it's not matched, next packet it checked until it's match or the end of a sample
+        Configured like with QoS MQC - necessary traffic matched with class-maps and with class and sampler applied to policy-map (policy map applied to interface)
 
 
 #                SPAN
